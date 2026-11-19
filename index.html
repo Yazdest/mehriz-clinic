@@ -10,18 +10,22 @@
 
     <meta name="description" content="سامانه آنلاین نوبت‌دهی درمانگاه فرهنگیان مهریز">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 
+<a class="skip" href="#booking">پرش به دریافت نوبت</a>
+<a class="callfab" href="tel:03532529560" aria-label="تماس با درمانگاه">☎</a>
 <div id="app">
 
     <!-- نوار بالایی -->
     <div class="topbar">
         <div class="container topbar-inner">
             <span>درمانگاه فرهنگیان مهریز</span>
-            <span>سامانه نوبت‌دهی آنلاین</span>
+            <span>تلفن: <a href="tel:03532529560">۳۲۵۲۹۵۶۰</a> و <a href="tel:03532531410">۳۲۵۳۱۴۱۰</a></span>
         </div>
     </div>
 
@@ -44,6 +48,7 @@
                 <a href="#guide">راهنمای نوبت</a>
             </nav>
 
+            <button type="button" class="fsz" id="fsz" aria-label="بزرگ‌نمایی نوشته‌ها">A+</button>
             <a href="#booking" class="nav-button">
                 دریافت نوبت
                 <span>←</span>
@@ -215,7 +220,7 @@
                     </span>
                 </div>
 
-                <div id="doctorList"><p>در حال بارگذاری…</p></div>
+                <div id="doctorList" aria-live="polite"><p>در حال بارگذاری…</p></div>
 
             </div>
         </section>
@@ -240,7 +245,7 @@
                             <input id="fCode" placeholder="کد ۶ رقمی" inputmode="numeric" dir="ltr">
                             <button type="button" id="verify" class="primary-button">ورود</button>
                         </div>
-                        <div id="authMsg"></div>
+                        <div id="authMsg" role="status" aria-live="polite"></div>
                     </div>
 
                     <div id="steps" hidden>
@@ -249,7 +254,7 @@
                         <h3>۲. روز</h3><div id="pickDay" class="chips"><small>ابتدا پزشک را انتخاب کنید.</small></div>
                         <h3>۳. ساعت حضور در درمانگاه</h3><div id="pickTime" class="chips"></div>
                         <button type="button" id="confirm" class="primary-button">ثبت نوبت</button>
-                        <div id="msg"></div>
+                        <div id="msg" role="status" aria-live="polite"></div>
                         <h3>نوبت‌های من</h3><div id="mine"></div>
                     </div>
                 </div>
@@ -310,7 +315,7 @@
             </div>
 
             <div class="footer-copy">
-                تمامی حقوق این سامانه محفوظ است.
+                تلفن هماهنگی: <a href="tel:03532529560">۳۲۵۲۹۵۶۰</a> | ۳۲۵۳۱۴۱۰
             </div>
 
         </div>
