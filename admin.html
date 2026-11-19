@@ -1,43 +1,583 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>پنل مدیریت | درمانگاه فرهنگیان مهریز</title><meta name="robots" content="noindex">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap"><link rel="stylesheet" href="css/style.css">
-<style>.wrap{width:min(1180px,94%);margin:24px auto}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.tbl{overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:14px}
-table{border-collapse:collapse;width:100%;font-size:.9rem}th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th{background:var(--pl);position:sticky;top:0}
-td input,td select{min-height:40px;padding:0 8px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--bg);color:var(--ink)}
-.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0}.bar input,.bar select{width:auto;min-height:44px;border:2px solid var(--line);border-radius:12px;padding:0 10px;background:var(--bg);color:var(--ink);font:inherit}
-.sm{min-height:40px;padding:0 14px}.x{color:var(--err);background:none;border:0;font-size:1.2rem;cursor:pointer}.hint{color:var(--mut);font-size:.9rem}</style></head>
-<body><div class="wrap"><h1>پنل مدیریت نوبت‌دهی</h1>
-<div id="login" class="bk"><h3>ورود مدیر</h3><div class="form-grid"><input id="pw" type="password" placeholder="رمز مدیر" autocomplete="current-password"></div>
-<button class="primary-button" id="go" type="button">ورود</button><div id="lm" class="err"></div></div>
-<div id="panel" hidden><div class="tabs" id="tabs"></div><div class="bar" id="bar"></div><div class="tbl"><table id="t"></table></div><div id="m" role="status"></div></div></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script><script src="js/config.js"></script>
+<html lang="fa" dir="rtl" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b5566">
+<title>پنل مدیریت | درمانگاه فرهنگیان مهریز</title>
+<script>try{var t=localStorage.getItem("mh_adm_theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap">
+<style>
+:root{--bg:#eef7f9;--card:#fff;--ink:#0c3340;--mut:#587780;--line:#d3e8ee;--p:#1a96ae;--pd:#0d6c80;--dd:#0b5566;--pl:#e0f6fa;--btn:#0d6c80;--onbtn:#fff;--br:#c0553d;--err:#b3261e;--errbg:#fdecec;--ok:#17713a;--okbg:#e6f6ec;--warn:#7a4f00;--warnbg:#fff4d6;--zebra:#f6fbfc;--hov:#eaf8fb;--hd:#0b5566;--sh:0 14px 34px -22px #0d6c80aa}
+[data-theme=dark]{--bg:#0d1a1f;--card:#14272e;--ink:#e4f2f5;--mut:#93b1b9;--line:#26434c;--p:#38b6cc;--pd:#7fd3e3;--dd:#08303a;--pl:#173a43;--btn:#38b6cc;--onbtn:#03222a;--br:#e58a72;--err:#ff9b93;--errbg:#3b1f1f;--ok:#6fd392;--okbg:#16301f;--warn:#f1c35d;--warnbg:#38300f;--zebra:#112228;--hov:#183941;--hd:#08303a;--sh:0 14px 34px -22px #000}
+*{box-sizing:border-box;margin:0}
+html{font-size:16px}
+body{font-family:Vazirmatn,Tahoma,sans-serif;background:var(--bg);color:var(--ink);line-height:1.8;min-height:100vh}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--pd)}
+:focus-visible{outline:3px solid var(--p);outline-offset:2px}
+[hidden]{display:none!important}
+.only-print{display:none}
+
+/* ---- ورود ---- */
+.login-wrap{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(160deg,var(--dd),var(--pd) 60%,var(--p))}
+.login{width:min(420px,100%);background:var(--card);border-radius:26px;padding:34px 30px;box-shadow:0 40px 70px -30px #000a;text-align:center}
+.login .lock{width:64px;height:64px;border-radius:20px;background:var(--pl);color:var(--pd);display:grid;place-items:center;margin:0 auto 14px}
+.login h1{font-size:1.35rem;color:var(--pd);font-weight:800}
+.login p{color:var(--mut);margin:4px 0 20px;font-size:.95rem}
+.login input{width:100%;min-height:54px;border:2px solid var(--line);border-radius:14px;padding:0 16px;background:var(--bg);margin-bottom:12px;text-align:center;letter-spacing:.1em}
+.login input:focus{border-color:var(--p);outline:0;box-shadow:0 0 0 4px #30a8c033}
+.login .err{color:var(--err);margin-top:12px;font-weight:500;min-height:1.6em}
+
+/* ---- قاب اصلی ---- */
+.top{position:relative;z-index:30;background:var(--hd);color:#e7f7fa}
+.top-in{max-width:1320px;margin:auto;padding:10px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.top h1{font-size:1.1rem;font-weight:800;color:#fff}
+.top .sub{font-size:.85rem;opacity:.8}
+.top .sp{flex:1}
+.today{background:#ffffff1c;padding:4px 14px;border-radius:999px;font-weight:500;font-size:.92rem;white-space:nowrap}
+.icon-btn{height:40px;min-width:40px;padding:0 12px;border-radius:12px;border:1px solid #ffffff44;background:#ffffff14;color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:.9rem}
+.icon-btn:hover{background:#ffffff2a}
+.tabs-bar{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.tabs{max-width:1320px;margin:auto;padding:8px 14px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin}
+.tab{flex:none;border:0;background:none;padding:8px 18px;border-radius:12px;font-weight:500;color:var(--mut);display:flex;align-items:center;gap:8px;white-space:nowrap}
+.tab:hover{background:var(--hov);color:var(--pd)}
+.tab.on{background:var(--btn);color:var(--onbtn);font-weight:700}
+.tab .cnt{background:var(--br);color:#fff;border-radius:999px;font-size:.75rem;min-width:24px;height:22px;padding:0 7px;display:inline-grid;place-items:center;line-height:1}
+.tab .dot{width:9px;height:9px;border-radius:50%;background:var(--br)}
+main{max-width:1320px;margin:auto;padding:18px 14px 60px}
+
+/* ---- اجزا ---- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--sh)}
+.btn{min-height:44px;padding:0 18px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--pd);font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;transition:.15s}
+.btn:hover:not(:disabled){border-color:var(--p);background:var(--hov)}
+.btn.primary{background:var(--btn);border-color:var(--btn);color:var(--onbtn)}
+.btn.primary:hover:not(:disabled){filter:brightness(1.08);background:var(--btn)}
+.btn.danger{color:var(--err);border-color:var(--err);background:none}
+.btn.danger:hover:not(:disabled){background:var(--errbg)}
+.btn.sm{min-height:36px;padding:0 12px;font-size:.88rem;border-radius:10px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.armed{background:var(--err);border-color:var(--err);color:#fff}
+.field,.sel{min-height:44px;border:2px solid var(--line);border-radius:12px;padding:0 12px;background:var(--card);max-width:100%}
+.field:focus,.sel:focus{border-color:var(--p);outline:0;box-shadow:0 0 0 4px #30a8c030}
+.field.bad,.sel.bad{border-color:var(--err);background:var(--errbg)}
+.ltr{direction:ltr;unicode-bidi:isolate;text-align:right}
+.mut{color:var(--mut)}.sm{font-size:.85rem}.num{font-variant-numeric:tabular-nums}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:1px 12px;font-size:.82rem;font-weight:700;white-space:nowrap}
+.badge.ok{background:var(--okbg);color:var(--ok)}
+.badge.cx{background:var(--errbg);color:var(--err)}
+.badge.off{background:var(--warnbg);color:var(--warn)}
+.badge.new{background:var(--br);color:#fff}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card)}
+.seg button{border:0;background:none;padding:0 13px;min-height:40px;font-weight:500;color:var(--mut)}
+.seg button+button{border-inline-start:1px solid var(--line)}
+.seg button:hover{background:var(--hov)}
+.seg button.on{background:var(--btn);color:var(--onbtn);font-weight:700}
+.notice{border-radius:14px;padding:12px 16px;margin-bottom:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.notice.warn{background:var(--warnbg);color:var(--warn)}
+.notice.info{background:var(--pl);color:var(--pd)}
+.notice.err{background:var(--errbg);color:var(--err)}
+.notice .sp{flex:1}
+.empty{padding:46px 20px;text-align:center;color:var(--mut)}
+.empty b{display:block;font-size:1.1rem;color:var(--ink);margin-bottom:4px}
+
+/* آمار */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+.stat{padding:14px 18px;text-align:right;cursor:pointer;border:1px solid var(--line);border-radius:16px;background:var(--card);box-shadow:var(--sh);transition:.15s}
+.stat:hover{transform:translateY(-2px);border-color:var(--p)}
+.stat.on{border-color:var(--p);box-shadow:0 0 0 3px #30a8c033}
+.stat small{display:block;color:var(--mut)}
+.stat strong{font-size:1.9rem;line-height:1.3;color:var(--pd);font-weight:800}
+.stat strong i{font-style:normal;font-size:.9rem;color:var(--mut);font-weight:500;margin-inline-start:6px}
+
+/* نوار ابزار */
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 14px;margin-bottom:12px}
+.toolbar .sp{flex:1}
+.toolbar .field{min-width:170px}
+
+/* جدول */
+.tbl{overflow:auto;border-radius:18px;max-height:calc(100vh - 250px)}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:.95rem}
+th{background:var(--pl);color:var(--pd);text-align:right;font-weight:700;padding:10px 12px;position:sticky;top:0;z-index:2;white-space:nowrap;border-bottom:2px solid var(--line)}
+td{padding:8px 12px;border-bottom:1px solid var(--line);text-align:right;vertical-align:middle}
+tbody tr:nth-child(even) td{background:var(--zebra)}
+tbody tr:hover td{background:var(--hov)}
+tr.grp td{background:var(--dd)!important;color:#fff;font-weight:700;padding:9px 14px;position:sticky;top:41px;z-index:1}
+tr.grp .gm{margin-inline-start:14px;font-weight:400;opacity:.9}
+tr.grp .gc{float:left;font-weight:400;opacity:.9}
+tr.cx td{opacity:.6}
+tr.cx td.tm,tr.cx td b{text-decoration:line-through}
+tr.new td{background:#fff3c4!important;color:#3d2c00}
+[data-theme=dark] tr.new td{background:#4a3d12!important;color:#ffe9a8}
+tr.past td{opacity:.5}
+td.tm{font-weight:800;color:var(--pd);font-size:1.05rem;white-space:nowrap}
+td.act{white-space:nowrap;text-align:left}
+td input.field,td select.sel{width:100%;min-width:90px;min-height:40px}
+td .field.w-id{min-width:110px}
+.res-head{display:flex;justify-content:space-between;gap:10px;padding:2px 4px 10px;color:var(--mut);flex-wrap:wrap}
+
+/* ویرایشگرها */
+.help{padding:14px 18px;margin-bottom:12px;background:var(--pl);color:var(--ink);border-radius:14px;font-size:.93rem}
+.help b{color:var(--pd)}
+.help ul{margin:4px 0 0;padding-inline-start:20px}
+.edbar{position:sticky;bottom:0;z-index:15;display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 14px;margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 -8px 24px -14px #0d6c80aa}
+.edbar .sp{flex:1}
+.dirty{color:var(--br);font-weight:700}
+.wkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
+.wk{padding:0;overflow:hidden}
+.wk header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--pl)}
+.wk header b{color:var(--pd);font-size:1.05rem}
+.wk header .sp{flex:1}
+.shifts{padding:10px 14px 14px;display:grid;gap:8px}
+.shift{display:grid;grid-template-columns:1.1fr 1fr auto 1fr auto;gap:8px;align-items:center}
+.shift .sel{min-height:40px;padding:0 8px;width:100%}
+.shift span{color:var(--mut);font-size:.9rem}
+.iconx{width:38px;height:38px;border-radius:10px;border:0;background:none;color:var(--err);font-size:1.15rem}
+.iconx:hover{background:var(--errbg)}
+.iconm{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--mut)}
+.iconm:hover:not(:disabled){border-color:var(--p);color:var(--pd)}.iconm:disabled{opacity:.3}
+.sw{position:relative;display:inline-block;width:50px;height:28px}
+.sw input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;z-index:1;width:100%;height:100%}
+.sw i{position:absolute;inset:0;border-radius:99px;background:#9bb3b9;transition:.2s}
+.sw i::after{content:"";position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}
+.sw input:checked+i{background:var(--ok)}
+.sw input:checked+i::after{right:25px}
+.sw input:focus-visible+i{outline:3px solid var(--p);outline-offset:2px}
+.setgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.setc{padding:18px 20px}
+.setc label{display:block;font-weight:700;color:var(--pd);margin-bottom:2px}
+.setc p{color:var(--mut);font-size:.88rem;margin-bottom:10px}
+.setc .field{width:140px;text-align:center;font-size:1.2rem;font-weight:700}
+
+/* اعلان */
+#toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--dd);color:#fff;padding:12px 22px;border-radius:14px;box-shadow:0 20px 40px -14px #000a;opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:92vw;font-weight:500}
+#toast.show{opacity:1;transform:translateX(-50%)}
+#toast.ok{background:var(--ok);color:#fff}[data-theme=dark] #toast.ok{color:#03210f}
+#toast.err{background:var(--err);color:#fff}[data-theme=dark] #toast.err{color:#2a0603}
+.spin{width:18px;height:18px;border:3px solid #ffffff55;border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+@media(max-width:760px){
+  .top-in{padding:8px 12px;gap:8px}.top h1{font-size:1rem}.top .sub{display:none}.hide-m{display:none!important}.icon-btn{height:36px;min-width:36px;padding:0 10px;font-size:.82rem}.today{font-size:.82rem;padding:2px 10px}
+  .stat{padding:10px 14px}.stat strong{font-size:1.5rem}
+  .toolbar .field{min-width:0;flex:1 1 100%}
+  .shift{grid-template-columns:1fr 1fr auto 1fr auto}
+  .wkgrid{grid-template-columns:1fr}
+  .tbl{max-height:none}
+  tr.grp td{top:0}
+}
+@media print{
+  @page{size:A4;margin:12mm}
+  body{background:#fff;color:#000;font-size:11pt}
+  .top,.tabs-bar,.toolbar,.stats,.notice,.edbar,.noprint,#toast,.res-head .noprint{display:none!important}
+  main{padding:0;max-width:none}
+  .card,.tbl{box-shadow:none;border:0;max-height:none;overflow:visible}
+  .only-print{display:block;margin-bottom:10px}
+  .only-print h2{font-size:15pt}
+  th{position:static;background:#e8e8e8!important;color:#000}
+  tr.grp td{position:static;background:#333!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  td{background:#fff!important;color:#000!important}
+  tr.new td{background:#fff!important}
+  tr{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<!-- ورود -->
+<div class="login-wrap" id="login">
+  <form class="login" id="loginForm" autocomplete="on">
+    <div class="lock"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="3"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+    <h1>پنل مدیریت نوبت‌دهی</h1>
+    <p>درمانگاه فرهنگیان مهریز</p>
+    <input id="pw" type="password" placeholder="رمز مدیر" autocomplete="current-password" aria-label="رمز مدیر" required>
+    <button class="btn primary" id="go" type="submit" style="width:100%;min-height:52px">ورود به پنل</button>
+    <div class="err" id="lm" role="alert"></div>
+  </form>
+</div>
+
+<!-- پنل -->
+<div id="app" hidden>
+  <header class="top"><div class="top-in">
+    <div><h1>پنل مدیریت نوبت‌دهی</h1><div class="sub">درمانگاه فرهنگیان مهریز</div></div>
+    <span class="sp"></span>
+    <span class="today" id="today"></span>
+    <button class="icon-btn" id="refresh" type="button" title="دریافت آخرین اطلاعات از گوگل‌شیت">⟳ <span id="upd">به‌روزرسانی</span></button>
+    <button class="icon-btn" id="theme" type="button" aria-label="تغییر حالت روشن/تیره" title="حالت روشن / تیره"><span style="font-size:1.15rem;line-height:1">◐</span><span class="hide-m" id="themeLbl"></span></button>
+    <a class="icon-btn hide-m" href="index.html" target="_blank" rel="noopener" style="text-decoration:none">مشاهده سایت</a>
+    <button class="icon-btn" id="logout" type="button">خروج</button>
+  </div></header>
+  <div class="tabs-bar"><nav class="tabs" id="tabs" aria-label="بخش‌های پنل"></nav></div>
+  <main><div id="view"></div></main>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="js/config.js"></script>
 <script>
-const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let T=sessionStorage.getItem("mh_adm"),D={},cur="نوبت‌ها";
-const DAYS=["شنبه","یکشنبه","دوشنبه","سه‌شنبه","چهارشنبه","پنجشنبه","جمعه"];
-const SEL={"پزشکان":{2:["عمومی","دندانپزشک","متخصص"],4:["بله","خیر"]},"برنامه هفتگی":{1:DAYS},"استثناها":{2:["لغو","اضافه","تغییرساعت"]}};
-const HELP={"پزشکان":"ستون اول کد یکتای پزشک است (مثلاً dr1) و در برنامه هفتگی و استثناها استفاده می‌شود. «فعال» = بله/خیر.","برنامه هفتگی":"ساعت‌ها به شکل 17:00. برای چند شیفت در یک روز، چند ردیف بنویسید.","استثناها":"تاریخ شمسی مثل 1405/08/25. نوع: لغو (تعطیلی)، اضافه (شیفت اضافه)، تغییرساعت.","تنظیمات":"ردیف‌ها به ترتیب: طول هر بازه (دقیقه)، ظرفیت هر بازه، چند روز آینده قابل رزرو، فاصله مجاز تا ساعت حال (دقیقه)، سقف نوبت هر نفر در روز برای هر پزشک."};
-async function api(a,d={}){const r=await fetch(API_URL,{method:"POST",body:JSON.stringify({a,atoken:T,...d})}),j=await r.json();if(j.error){if(j.error.includes("نشست")){sessionStorage.clear();T=null;}throw new Error(j.error)}return j}
-$("#go").onclick=async()=>{try{T=(await api("alogin",{password:$("#pw").value})).atoken;sessionStorage.setItem("mh_adm",T);start()}catch(e){$("#lm").textContent=e.message}};
-async function start(){try{D=await api("aget");}catch(e){$("#lm").textContent=e.message;return}$("#login").hidden=true;$("#panel").hidden=false;
- $("#tabs").innerHTML=Object.keys(D).map(n=>`<button class="chip" data-n="${n}">${n==="نوبت‌ها"?"لیست رزروها":n}</button>`).join("");
- $("#tabs").querySelectorAll(".chip").forEach(b=>b.onclick=()=>show(b.dataset.n));show(cur)}
-if(T)start();
-function show(n){cur=n;$("#tabs").querySelectorAll(".chip").forEach(b=>b.classList.toggle("on",b.dataset.n===n));$("#m").textContent="";n==="نوبت‌ها"?bookings():editor(n)}
-function bookings(){const v=D["نوبت‌ها"],h=v[0]||[],rows=v.slice(1);
- $("#bar").innerHTML=`<input id="fd" placeholder="تاریخ شمسی 1405/08/25"><input id="fq" placeholder="جستجوی نام/پزشک/موبایل"><label><input type="checkbox" id="fc" style="width:auto;min-height:0"> نمایش لغوشده‌ها</label><button class="primary-button sm" id="dl" type="button">دانلود اکسل</button>`;
- const draw=()=>{const d=$("#fd").value.trim(),q=$("#fq").value.trim(),c=$("#fc").checked;
-  const L=rows.filter(r=>(c||r[8]!=="لغو")&&(!d||r[1]===d)&&(!q||r.join(" ").includes(q))).sort((a,b)=>(a[10]+a[11]+a[4]).localeCompare(b[10]+b[11]+b[4]));window.L=L;
-  $("#t").innerHTML="<tr>"+h.slice(0,10).map(x=>`<th>${esc(x)}</th>`).join("")+"<th></th></tr>"+L.map(r=>"<tr>"+r.slice(0,10).map(x=>`<td>${esc(x)}</td>`).join("")+`<td><button class="x" data-c="${esc(r[0])}" data-s="${r[8]==="لغو"?"ثبت‌شده":"لغو"}" title="${r[8]==="لغو"?"بازگردانی":"لغو"}">${r[8]==="لغو"?"↺":"✕"}</button></td></tr>`).join("");
-  $("#t").querySelectorAll(".x").forEach(b=>b.onclick=async()=>{if(!confirm("وضعیت این نوبت تغییر کند؟"))return;try{await api("astatus",{code:b.dataset.c,status:b.dataset.s});D=await api("aget");bookings()}catch(e){$("#m").textContent=e.message}})};
- ["fd","fq","fc"].forEach(i=>$("#"+i).oninput=draw);draw();
- $("#dl").onclick=()=>{const a=[h.slice(0,10),...window.L.map(r=>r.slice(0,10))],ws=XLSX.utils.aoa_to_sheet(a);ws["!cols"]=h.slice(0,10).map(()=>({wch:16}));const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,"نوبت‌ها");XLSX.writeFile(wb,"reservations-"+($("#fd").value.replace(/\//g,"-")||"all")+".xlsx")}}
-function editor(n){const v=D[n],h=v[0]||[];let rows=v.slice(1);const sel=SEL[n]||{},fixed=n==="تنظیمات";
- const draw=()=>{$("#t").innerHTML="<tr>"+h.map(x=>`<th>${esc(x)}</th>`).join("")+(fixed?"":"<th></th>")+"</tr>"+rows.map((r,i)=>"<tr>"+h.map((_,j)=>{const x=r[j]??"";return `<td>`+(sel[j]?`<select data-i="${i}" data-j="${j}">${[""].concat(sel[j]).map(o=>`<option${o===x?" selected":""}>${o}</option>`).join("")}</select>`:`<input data-i="${i}" data-j="${j}" value="${esc(x)}"${fixed&&j===0?" readonly":""}>`)+`</td>`}).join("")+(fixed?"":`<td><button class="x" data-d="${i}">✕</button></td>`)+"</tr>").join("");
-  $("#t").querySelectorAll("[data-j]").forEach(e=>e.oninput=e.onchange=()=>{rows[+e.dataset.i][+e.dataset.j]=e.value});
-  $("#t").querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{rows.splice(+b.dataset.d,1);draw()})};
- $("#bar").innerHTML=(fixed?"":`<button class="chip sm" id="add" type="button">＋ ردیف جدید</button>`)+`<button class="primary-button sm" id="sv" type="button">ذخیره در گوگل شیت</button><span class="hint">${HELP[n]}</span>`;
- if(!fixed)$("#add").onclick=()=>{rows.push(h.map(()=>""));draw()};
- $("#sv").onclick=async()=>{try{await api("asave",{sheet:n,rows});D=await api("aget");$("#m").className="ok";$("#m").textContent="ذخیره شد.";}catch(e){$("#m").className="err";$("#m").textContent=e.message}};draw()}
-</script></body></html>
+"use strict";
+/* ================= ابزارها ================= */
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const FAD="۰۱۲۳۴۵۶۷۸۹";
+const fa=s=>String(s??"").replace(/\d/g,d=>FAD[d]);
+const en=s=>String(s??"").replace(/[۰-۹]/g,d=>FAD.indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));
+const norm=s=>en(s).replace(/[\u200c\s]/g,"").replace(/ي/g,"ی").replace(/ك/g,"ک");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const DAYS=["شنبه","یکشنبه","دوشنبه","سه\u200cشنبه","چهارشنبه","پنجشنبه","جمعه"];
+const ALL="\u0647\u0645\u0647\u0654 \u067e\u0632\u0634\u06a9\u0627\u0646"; /* دقیقاً همان «همهٔ پزشکان» کد Apps Script */
+const SN={BK:"نوبت\u200cها",DOC:"پزشکان",WK:"برنامه هفتگی",EX:"استثناها",SET:"تنظیمات",BLK:"غیرفعال\u200cسازی",USR:"کاربران"};
+const TYPES=["عمومی","دندانپزشک","متخصص"];
+
+/* تاریخ شمسی (همان الگوریتم Apps Script) */
+function g2j(gy,gm,gd){const g=[0,31,59,90,120,151,181,212,243,273,304,334];let jy=gy<=1600?0:979;gy-=gy<=1600?621:1600;const gy2=gm>2?gy+1:gy;
+ let days=365*gy+Math.floor((gy2+3)/4)-Math.floor((gy2+99)/100)+Math.floor((gy2+399)/400)-80+gd+g[gm-1];
+ jy+=33*Math.floor(days/12053);days%=12053;jy+=4*Math.floor(days/1461);days%=1461;
+ if(days>365){jy+=Math.floor((days-1)/365);days=(days-1)%365}
+ const jm=days<186?1+Math.floor(days/31):7+Math.floor((days-186)/30),jd=1+(days<186?days%31:(days-186)%30);return[jy,jm,jd]}
+const p2=n=>String(n).padStart(2,"0");
+const addDays=(iso,n)=>{const a=iso.split("-").map(Number);return new Date(Date.UTC(a[0],a[1]-1,a[2]+n)).toISOString().slice(0,10)};
+const wd=iso=>{const a=iso.split("-").map(Number);return(new Date(Date.UTC(a[0],a[1]-1,a[2])).getUTCDay()+1)%7};
+const jal=iso=>{const a=iso.split("-").map(Number),j=g2j(a[0],a[1],a[2]);return j[0]+"/"+p2(j[1])+"/"+p2(j[2])};
+const isoToday=()=>new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Tehran",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
+const T0=()=>jal(isoToday()),T1=()=>jal(addDays(isoToday(),1));
+function jkey(s){const m=norm(s).match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);return m?m[1]+"/"+p2(m[2])+"/"+p2(m[3]):""}
+function tkey(s){const m=en(s).match(/(\d{1,2}):(\d{2})/);return m?p2(m[1])+":"+m[2]:""}
+const tmin=s=>{const k=tkey(s);return k?+k.slice(0,2)*60+ +k.slice(3):null};
+function dateList(n=121){return Array.from({length:n},(_,i)=>{const iso=addDays(isoToday(),i),j=jal(iso);return{v:j,l:DAYS[wd(iso)]+" "+fa(j)+(i===0?" (امروز)":i===1?" (فردا)":"")}})}
+function stampFa(s){const m=String(s||"").match(/(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})/);return m?fa(jal(m[1]+"-"+m[2]+"-"+m[3])+" "+p2(m[4])+":"+m[5]):fa(s)}
+const TIMES=(()=>{const a=[];for(let m=300;m<=1425;m+=15)a.push(p2(Math.floor(m/60))+":"+p2(m%60));return a})();
+
+let toastT;
+function toast(msg,kind=""){const t=$("#toast");t.textContent=msg;t.className="show "+kind;clearTimeout(toastT);toastT=setTimeout(()=>t.className=kind,kind==="err"?5000:2600)}
+
+/* ================= وضعیت و ارتباط با API ================= */
+let T=sessionStorage.getItem("mh_adm"),D={},draft={},view="bk",seen=null,fresh=new Set(),loadedAt=null,bad=[];
+const F={date:"today",doc:"",st:"active",q:""};
+
+async function api(a,d={}){
+  let r;try{r=await fetch(API_URL,{method:"POST",body:JSON.stringify({a,atoken:T,...d})})}catch(e){throw new Error("ارتباط با سرور برقرار نشد؛ اینترنت را بررسی کنید.")}
+  let j;try{j=await r.json()}catch(e){throw new Error("پاسخ نامعتبر از سرور دریافت شد.")}
+  if(j.error){if(j.error.includes("نشست")){T=null;sessionStorage.removeItem("mh_adm");showLogin("نشست شما منقضی شد؛ دوباره وارد شوید.")}throw new Error(j.error)}
+  return j}
+
+const skey=n=>Object.keys(D).find(k=>norm(k)===norm(n));
+const sdata=n=>{const k=skey(n);return k?D[k]:null};
+const head=n=>(sdata(n)||[])[0]||[];
+const padRow=(r,w)=>Array.from({length:Math.max(w,r.length)},(_,i)=>r[i]==null?"":String(r[i]));
+const base=n=>{const d=sdata(n)||[],w=(d[0]||[]).length;return d.slice(1).map(r=>padRow(r,w))};
+const rowsD=n=>draft[n]||(draft[n]=base(n));
+const isDirty=n=>!!draft[n]&&JSON.stringify(draft[n])!==JSON.stringify(base(n));
+const anyDirty=()=>Object.keys(draft).some(isDirty);
+const missing=n=>!sdata(n)||!(sdata(n)[0]||[]).length;
+
+async function load(){
+  const nd=await api("aget");
+  const bk=Object.keys(nd).find(k=>norm(k)===norm(SN.BK));
+  const codes=new Set(((bk&&nd[bk])||[]).slice(1).map(r=>r[0]).filter(Boolean));
+  if(seen)codes.forEach(c=>{if(!seen.has(c))fresh.add(c)});
+  seen=codes;
+  if(!Object.keys(D).length)D=nd;
+  else Object.keys(nd).forEach(k=>{const dn=Object.values(SN).find(v=>norm(v)===norm(k));if(dn&&isDirty(dn))return;if(dn)delete draft[dn];D[k]=nd[k]});
+  loadedAt=new Date();
+  const u=$("#upd");if(u)u.textContent="به‌روزرسانی "+fa(p2(loadedAt.getHours())+":"+p2(loadedAt.getMinutes()));
+}
+
+/* ================= ورود / خروج ================= */
+function showLogin(msg=""){$("#app").hidden=true;$("#login").hidden=false;$("#lm").textContent=msg;setTimeout(()=>$("#pw").focus(),50)}
+$("#loginForm").onsubmit=async e=>{e.preventDefault();const b=$("#go");b.disabled=true;$("#lm").textContent="";
+  try{T=(await api("alogin",{password:$("#pw").value})).atoken;sessionStorage.setItem("mh_adm",T);$("#pw").value="";await start()}
+  catch(err){$("#lm").textContent=err.message}finally{b.disabled=false}};
+$("#logout").onclick=()=>{if(anyDirty()&&!confirm("تغییرات ذخیره‌نشده از بین می‌رود. خارج می‌شوید؟"))return;sessionStorage.removeItem("mh_adm");T=null;D={};draft={};seen=null;fresh.clear();showLogin()};
+async function start(){
+  try{await load()}catch(e){if(T){$("#lm").textContent=e.message;showLogin(e.message)}return}
+  $("#login").hidden=true;$("#app").hidden=false;
+  const iso=isoToday();$("#today").textContent="امروز: "+DAYS[wd(iso)]+" "+fa(jal(iso));
+  renderTabs();renderView();
+}
+
+/* ================= تب‌ها ================= */
+const TABS=[["bk","نوبت\u200cها",SN.BK],["blk","غیرفعال\u200cسازی",SN.BLK],["doc","پزشکان",SN.DOC],["wk","برنامه هفتگی",SN.WK],["ex","استثناها",SN.EX],["set","تنظیمات",SN.SET],["usr","کاربران",SN.USR]];
+function renderTabs(){
+  const t0=T0(),todayCnt=bkAll().filter(x=>x.st==="a"&&x.jd===t0).length;
+  $("#tabs").innerHTML=TABS.map(([id,l,n])=>`<button class="tab${view===id?" on":""}" data-tab="${id}" type="button">${l}${id==="bk"?`<span class="cnt" title="نوبت فعال امروز">${fa(todayCnt)}</span>`:""}${isDirty(n)?`<span class="dot" title="تغییرات ذخیره‌نشده"></span>`:""}</button>`).join("");
+  const nf=fresh.size;document.title=(nf?`(${fa(nf)}) `:"")+"پنل مدیریت | درمانگاه فرهنگیان مهریز";
+}
+$("#tabs").onclick=e=>{const b=e.target.closest("[data-tab]");if(!b)return;view=b.dataset.tab;bad=[];renderTabs();renderView();scrollTo(0,0)};
+
+function renderView(){
+  const y=scrollY,fn={bk:viewBk,blk:viewBlk,doc:viewDoc,wk:viewWk,ex:viewEx,set:viewSet,usr:viewUsr}[view];
+  $("#view").innerHTML=fn();
+  if(view==="bk")renderBkDyn();
+  bad.forEach(b=>{const el=$(`[data-r="${b.r}"][data-c="${b.c}"]`);if(el)el.classList.add("bad")});
+  const f=$(".bad");if(f&&bad.length){f.scrollIntoView({block:"center"});bad=[]}else scrollTo(0,y);
+  updDirty();
+}
+const curName=()=>(TABS.find(t=>t[0]===view)||[])[2];
+
+/* ================= ساخت فرم‌ها ================= */
+function selHtml(opts,cur,attrs,cls="sel"){if(cur&&!opts.some(o=>String(o[0])===String(cur)))opts=[...opts,[cur,cur]];return`<select class="${cls}" ${attrs}>`+opts.map(o=>`<option value="${esc(o[0])}"${String(o[0])===String(cur)?" selected":""}>${esc(o[1])}</option>`).join("")+`</select>`}
+function timeSel(cur,attrs,empty="—",dis=false){
+  const k=tkey(cur),opts=[["",empty],...TIMES.map(t=>[t,fa(t)])];
+  if(k&&!TIMES.includes(k))opts.push([k,fa(k)]);
+  return selHtml(opts,k,attrs+(dis?" disabled":""))}
+function dateSel(cur,attrs,empty){
+  const list=dateList(),jk=jkey(cur),f=list.find(o=>o.v===jk),opts=list.map(o=>[o.v,o.l]);
+  if(cur&&!f)opts.unshift([cur,(jk?fa(jk):cur)+" (گذشته)"]);
+  opts.unshift(["",empty||"— انتخاب تاریخ —"]);
+  return selHtml(opts,f?f.v:(cur||""),attrs)}
+const docRows=()=>rowsD(SN.DOC).filter(r=>String(r[0]).trim()).map(r=>({id:String(r[0]).trim(),name:String(r[1]||"").trim()||String(r[0]).trim(),on:norm(r[4])==="بله"}));
+function docIdSel(cur,attrs){
+  const ds=docRows(),k=norm(cur),f=ds.find(d=>norm(d.id)===k),opts=[["","— انتخاب پزشک —"],...ds.map(d=>[d.id,d.name+(d.on?"":" (غیرفعال)")])];
+  if(cur&&!f)opts.push([cur,"؟ ناشناخته: "+cur]);
+  return selHtml(opts,f?f.id:(cur||""),attrs)}
+function docNameSel(cur,attrs){
+  const ds=docRows(),k=norm(cur);let sel=cur,extra=null;
+  if(!k||k===norm(ALL))sel=ALL;
+  else{const f=ds.find(d=>norm(d.id)===k||norm(d.name)===k);if(f)sel=f.name;else extra=[cur,"؟ ناشناخته: "+cur]}
+  const opts=[[ALL,"همهٔ پزشکان"],...ds.map(d=>[d.name,d.name])];if(extra)opts.push(extra);
+  return selHtml(opts,sel,attrs)}
+const cellA=(r,c,k,extra="")=>`data-r="${r}" data-c="${c}" data-k="${k}" ${extra}`;
+const bar=(n,{add=true,extra=""}={})=>`<div class="edbar">${add?`<button class="btn" type="button" data-act="add">＋ ردیف جدید</button>`:""}${extra}<span class="sp"></span><span class="dirty" id="dirtyNote"></span><button class="btn" type="button" data-act="discard" id="btnDiscard" disabled>لغو تغییرات</button><button class="btn primary" type="button" data-act="save" id="btnSave" disabled>ذخیره در گوگل‌شیت</button></div>`;
+function backendMissing(n,what){return`<div class="card empty"><b>${what}</b>${n===SN.BLK?"این بخش به نسخهٔ جدید Apps Script نیاز دارد. فایل <code dir=ltr>apps-script/Code.gs</code> را در Apps Script جایگزین کنید، سپس از منوی Deploy ← Manage deployments یک نسخهٔ جدید (New version) منتشر کنید.<br>همچنین یک بار از منوی «نوبت‌دهی ← ساخت شیت غیرفعال‌سازی» در خود گوگل‌شیت، شیت را بسازید.":"این شیت در گوگل‌شیت پیدا نشد."}</div>`}
+
+/* ================= نوبت‌ها ================= */
+function bkAll(){
+  return base(SN.BK).filter(r=>r[0]).map(r=>({r,jd:jkey(r[1]),st:norm(r[8])==="لغو"?"x":"a",doc:String(r[3]||"").trim(),time:tkey(r[4])}))
+    .sort((a,b)=>(a.jd+"|"+a.doc+"|"+a.time+"|"+a.r[0]).localeCompare(b.jd+"|"+b.doc+"|"+b.time+"|"+b.r[0]))}
+function bkFilter(all){
+  const t0=T0(),t1=T1(),q=norm(F.q);
+  return all.filter(x=>{
+    if(F.date==="today"&&x.jd!==t0)return false;
+    if(F.date==="tomorrow"&&x.jd!==t1)return false;
+    if(F.date==="upcoming"&&x.jd<t0)return false;
+    if(!["today","tomorrow","upcoming","all"].includes(F.date)&&x.jd!==F.date)return false;
+    if(F.doc&&x.doc!==F.doc)return false;
+    if(F.st==="active"&&x.st!=="a")return false;
+    if(F.st==="cancel"&&x.st!=="x")return false;
+    if(q&&!norm(x.r.slice(0,10).join(" ")).includes(q))return false;
+    return true})}
+function dateLabel(){const t0=T0();return{today:"امروز",tomorrow:"فردا",upcoming:"از امروز به بعد",all:"همهٔ تاریخ‌ها"}[F.date]||fa(F.date)}
+function viewBk(){
+  if(missing(SN.BK))return backendMissing(SN.BK,"شیت «نوبت‌ها» پیدا نشد");
+  const all=bkAll(),dates=[...new Set(all.map(x=>x.jd).filter(Boolean))].sort(),docs=[...new Set(all.map(x=>x.doc).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"fa"));
+  const dayOf=j=>{const x=all.find(y=>y.jd===j);return x?x.r[2]:""};
+  const isKw=["today","tomorrow","upcoming","all"].includes(F.date);
+  return`<div id="bkBanner"></div><div class="stats" id="bkStats"></div>
+  <div class="card toolbar">
+    <div class="seg" role="group" aria-label="بازهٔ تاریخ">${[["today","امروز"],["tomorrow","فردا"],["upcoming","از امروز به بعد"],["all","همه"]].map(([v,l])=>`<button type="button" data-act="date" data-v="${v}" class="${F.date===v?"on":""}">${l}</button>`).join("")}</div>
+    <select class="sel" id="fDate" aria-label="تاریخ مشخص"><option value="">تاریخ دیگر…</option>${dates.map(j=>`<option value="${j}"${F.date===j?" selected":""}>${esc((dayOf(j)||"")+" "+fa(j))}</option>`).join("")}</select>
+    <select class="sel" id="fDoc" aria-label="پزشک"><option value="">همهٔ پزشکان</option>${docs.map(d=>`<option${F.doc===d?" selected":""}>${esc(d)}</option>`).join("")}</select>
+    <select class="sel" id="fSt" aria-label="وضعیت">${[["active","فقط نوبت‌های فعال"],["cancel","فقط لغوشده‌ها"],["all","همهٔ وضعیت‌ها"]].map(([v,l])=>`<option value="${v}"${F.st===v?" selected":""}>${l}</option>`).join("")}</select>
+    <input class="field" id="fQ" type="search" placeholder="جستجوی نام، موبایل، کد…" value="${esc(F.q)}" aria-label="جستجو">
+    <span class="sp"></span>
+    <button class="btn" type="button" data-act="print">چاپ</button>
+    <button class="btn primary" type="button" data-act="xlsx">دانلود اکسل</button>
+  </div>
+  <div id="bkRes"></div>`}
+function renderBkDyn(){
+  const all=bkAll(),t0=T0(),t1=T1(),act=all.filter(x=>x.st==="a");
+  const nT=act.filter(x=>x.jd===t0).length,nF=act.filter(x=>x.jd===t1).length,nU=act.filter(x=>x.jd>=t0).length,cT=all.filter(x=>x.st==="x"&&x.jd===t0).length;
+  const st=$("#bkStats");if(!st)return;
+  st.innerHTML=[["today","نوبت فعال امروز",nT,""],["tomorrow","نوبت فعال فردا",nF,""],["upcoming","کل نوبت‌های پیش‌رو",nU,""],["today","لغوشدهٔ امروز",cT,"cancel"]]
+    .map(([v,l,n,s])=>`<button type="button" class="stat${F.date===v&&F.st===(s||"active")?" on":""}" data-act="stat" data-v="${v}" data-s="${s}"><small>${l}</small><strong>${fa(n)}<i>نوبت</i></strong></button>`).join("");
+  $("#bkBanner").innerHTML=fresh.size?`<div class="notice warn"><b>${fa(fresh.size)} نوبت جدید ثبت شد.</b><span>ردیف‌های جدید زردرنگ هستند.</span><span class="sp"></span><button class="btn sm" type="button" data-act="seen">متوجه شدم</button></div>`:"";
+  const L=bkFilter(all),res=$("#bkRes");
+  const desc=`${dateLabel()}${F.doc?" — "+F.doc:""} — ${{active:"نوبت‌های فعال",cancel:"لغوشده‌ها",all:"همهٔ وضعیت‌ها"}[F.st]}`;
+  window.__L=L;if(!L.length){res.innerHTML=`<div class="card empty"><b>نوبتی پیدا نشد</b>${all.length?"فیلترها را تغییر دهید یا «همه» را بزنید.":"هنوز نوبتی ثبت نشده است."}</div>`;return}
+  let h="",last="";
+  L.forEach(x=>{
+    const g=x.jd+"|"+x.doc;
+    if(g!==last){last=g;const same=L.filter(y=>y.jd===x.jd&&y.doc===x.doc),a=same.filter(y=>y.st==="a").length,c=same.length-a;
+      h+=`<tr class="grp"><td colspan="8">${esc(x.doc||"بدون پزشک")}<span class="gm">${esc((x.r[2]||"")+" "+fa(x.jd))}</span><span class="gc">${fa(a)} نوبت فعال${c?` · ${fa(c)} لغو`:""}</span></td></tr>`}
+    const r=x.r,cx=x.st==="x";
+    h+=`<tr class="${cx?"cx":""}${fresh.has(r[0])?" new":""}"><td class="tm num">${esc(fa(x.time||r[4]))}</td><td><b>${esc(r[5])}</b></td>
+      <td class="num ltr"><a href="tel:${esc(en(r[6]))}">${esc(fa(r[6]))}</a></td><td class="ltr mut sm">${esc(r[7])}</td>
+      <td class="num ltr">${esc(fa(r[0]))}</td><td>${cx?`<span class="badge cx">لغوشده</span>`:`<span class="badge ok">ثبت‌شده</span>`}${fresh.has(r[0])?` <span class="badge new">جدید</span>`:""}</td>
+      <td class="mut sm num">${esc(stampFa(r[9]))}</td>
+      <td class="act noprint"><button class="btn sm ${cx?"":"danger"}" type="button" data-act="${cx?"restore":"cancel"}" data-c="${esc(r[0])}">${cx?"بازگردانی":"لغو نوبت"}</button></td></tr>`});
+  res.innerHTML=`<div class="only-print"><h2>درمانگاه فرهنگیان مهریز — لیست نوبت‌ها</h2><div>${esc(desc)} · چاپ: ${esc(fa(jal(isoToday())))}</div></div>
+   <div class="res-head"><span>${fa(L.length)} ردیف</span><span class="noprint sm">هر ۶۰ ثانیه خودکار به‌روز می‌شود</span></div>
+   <div class="card tbl"><table><thead><tr><th>ساعت</th><th>بیمار</th><th>موبایل</th><th>ایمیل</th><th>کد پیگیری</th><th>وضعیت</th><th>زمان ثبت</th><th class="noprint"></th></tr></thead><tbody>${h}</tbody></table></div>`;
+  window.__L=L;window.__desc=desc;
+}
+async function setStatus(b,status){
+  const code=b.dataset.c;b.disabled=true;
+  try{await api("astatus",{code,status});await load();renderTabs();renderBkDyn();toast(status==="لغو"?"نوبت لغو شد.":"نوبت بازگردانی شد.","ok")}
+  catch(e){toast(e.message,"err");b.disabled=false}}
+function exportXlsx(){
+  if(typeof XLSX==="undefined")return toast("کتابخانهٔ اکسل بارگذاری نشد؛ اینترنت را بررسی کنید.","err");
+  const L=window.__L||[],hd=["کد پیگیری","تاریخ","روز","پزشک","ساعت","نام بیمار","موبایل","ایمیل","وضعیت","زمان ثبت"];
+  const ws=XLSX.utils.aoa_to_sheet([hd,...L.map(x=>x.r.slice(0,10).map(v=>en(v)))]);ws["!cols"]=hd.map(()=>({wch:18}));
+  const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,"نوبت‌ها");
+  XLSX.writeFile(wb,"reservations-"+(["today","tomorrow","upcoming","all"].includes(F.date)?{today:en(T0()),tomorrow:en(T1()),upcoming:"upcoming",all:"all"}[F.date]:F.date).replace(/\//g,"-")+".xlsx")}
+
+/* ================= غیرفعال‌سازی ================= */
+function viewBlk(){
+  if(missing(SN.BLK))return backendMissing(SN.BLK,"شیت «غیرفعال‌سازی» در پنل در دسترس نیست");
+  const rows=rowsD(SN.BLK),t0=T0();
+  const body=rows.map((r,i)=>{const end=jkey(r[1])||jkey(r[0]);const past=end&&end<t0;
+   return`<tr class="${past?"past":""}"><td>${dateSel(r[0],cellA(i,0,"date"))}</td><td>${dateSel(r[1],cellA(i,1,"date"),"— فقط همان روز —")}</td><td>${docNameSel(r[2],cellA(i,2,"docname"))}</td>
+   <td>${timeSel(r[3],cellA(i,3,"time"),"کل روز")}</td><td>${timeSel(r[4],cellA(i,4,"time"),"کل روز")}</td>
+   <td><input class="field" ${cellA(i,5,"text")} value="${esc(r[5])}" placeholder="مثلاً: مرخصی"></td><td class="act"><button class="iconx" type="button" data-act="del" data-i="${i}" aria-label="حذف ردیف" title="حذف">✕</button></td></tr>`}).join("");
+  return`<div class="help"><b>بستن موقت ساعت‌ها.</b> هر ردیف یعنی نوبت‌گیری برای آن پزشک و آن زمان بسته شود؛ در سایت این ساعت‌ها قرمز و غیرقابل انتخاب نمایش داده می‌شوند.<ul>
+   <li>«تا تاریخ» فقط برای چند روز پشت‌سرهم (مثل مرخصی) است؛ برای یک روز خالی بگذارید.</li>
+   <li>اگر ساعت‌ها «کل روز» باشند، تمام آن روز بسته می‌شود. نمونه: از ۱۰:۰۰ تا ۱۲:۰۰ یعنی نوبت‌های ۱۰:۰۰ تا ۱۱:۴۵ بسته می‌شود.</li>
+   <li>این بخش همان شیت «غیرفعال‌سازی» در گوگل‌شیت است.</li></ul></div>
+  ${rows.length?`<div class="card tbl"><table><thead><tr><th>از تاریخ</th><th>تا تاریخ (اختیاری)</th><th>پزشک</th><th>از ساعت</th><th>تا ساعت</th><th>توضیح (اختیاری)</th><th></th></tr></thead><tbody>${body}</tbody></table></div>`:`<div class="card empty"><b>هیچ ساعتی غیرفعال نشده است</b>برای بستن یک روز یا چند ساعت، «ردیف جدید» را بزنید.</div>`}
+  ${bar(SN.BLK,{extra:`<button class="btn" type="button" data-act="purge">حذف ردیف‌های گذشته</button>`})}`}
+
+/* ================= پزشکان ================= */
+function viewDoc(){
+  if(missing(SN.DOC))return backendMissing(SN.DOC,"شیت «پزشکان» پیدا نشد");
+  const rows=rowsD(SN.DOC);
+  const body=rows.map((r,i)=>`<tr><td class="mut num">${fa(i+1)}</td>
+   <td><input class="field ltr w-id" ${cellA(i,0,"text")} value="${esc(r[0])}" placeholder="dr1" dir="ltr"></td>
+   <td><input class="field" ${cellA(i,1,"text")} value="${esc(r[1])}" placeholder="دکتر …"></td>
+   <td>${selHtml([["","—"],...TYPES.map(t=>[t,t])],r[2],cellA(i,2,"sel"))}</td>
+   <td><input class="field" ${cellA(i,3,"text")} value="${esc(r[3])}" placeholder="تخصص"></td>
+   <td><label class="sw" title="نمایش در سایت"><input type="checkbox" ${cellA(i,4,"sw")} ${norm(r[4])==="بله"?"checked":""}><i></i></label></td>
+   <td class="act"><button class="iconm" type="button" data-act="up" data-i="${i}" ${i?"":"disabled"} aria-label="بالا">↑</button> <button class="iconm" type="button" data-act="down" data-i="${i}" ${i<rows.length-1?"":"disabled"} aria-label="پایین">↓</button> <button class="iconx" type="button" data-act="del" data-i="${i}" aria-label="حذف پزشک" title="حذف">✕</button></td></tr>`).join("");
+  return`<div class="help"><b>پزشکان درمانگاه.</b> «کد» شناسهٔ یکتای انگلیسی هر پزشک است (مثل <span dir="ltr">dr1</span>) و در برنامه هفتگی و استثناها استفاده می‌شود؛ بعد از ثبت تغییرش ندهید. کلید «فعال» اگر خاموش باشد، پزشک در سایت نمایش داده نمی‌شود. ترتیب ردیف‌ها همان ترتیب نمایش در سایت است.</div>
+  <div class="card tbl"><table><thead><tr><th>#</th><th>کد پزشک</th><th>نام</th><th>گروه</th><th>تخصص</th><th>فعال</th><th></th></tr></thead><tbody>${body}</tbody></table></div>${bar(SN.DOC)}`}
+
+/* ================= برنامه هفتگی ================= */
+function viewWk(){
+  if(missing(SN.WK))return backendMissing(SN.WK,"شیت «برنامه هفتگی» پیدا نشد");
+  const rows=rowsD(SN.WK),ds=docRows(),by={};
+  rows.forEach((r,i)=>(by[norm(r[0])]=by[norm(r[0])]||[]).push(i));
+  const dayIx=d=>{const k=DAYS.findIndex(x=>norm(x)===norm(d));return k<0?9:k};
+  const card=(id,name,on,ix,unknown)=>{
+    ix=ix.slice().sort((a,b)=>dayIx(rows[a][1])-dayIx(rows[b][1])||(tmin(rows[a][2])??0)-(tmin(rows[b][2])??0));
+    return`<section class="card wk"><header><b>${esc(name)}</b><span class="mut sm ltr">${esc(id||"بدون کد")}</span>${on?"":`<span class="badge off">غیرفعال</span>`}${unknown?`<span class="badge cx">پزشک ناشناخته</span>`:""}<span class="sp"></span><button class="btn sm" type="button" data-act="addshift" data-id="${esc(id)}">＋ شیفت</button></header>
+    <div class="shifts">${ix.length?ix.map(i=>{const r=rows[i];return`<div class="shift">${selHtml([["","روز"],...DAYS.map(d=>[d,d])],DAYS.find(d=>norm(d)===norm(r[1]))||r[1],cellA(i,1,"sel"))}${timeSel(r[2],cellA(i,2,"time"),"از")}<span>تا</span>${timeSel(r[3],cellA(i,3,"time"),"تا")}<button class="iconx" type="button" data-act="del" data-i="${i}" aria-label="حذف شیفت">✕</button></div>`}).join(""):`<p class="mut">برنامه‌ای ثبت نشده است.</p>`}</div></section>`};
+  let h=ds.map(d=>card(d.id,d.name,d.on,by[norm(d.id)]||[],false)).join("");
+  Object.keys(by).filter(k=>!ds.some(d=>norm(d.id)===k)).forEach(k=>{const id=rows[by[k][0]][0];h+=card(id,id||"ردیف‌های بدون پزشک",true,by[k],true)});
+  if(!h)h=`<div class="card empty"><b>ابتدا پزشک اضافه کنید</b>از بخش «پزشکان» شروع کنید.</div>`;
+  return`<div class="help"><b>ساعت حضور هفتگی هر پزشک.</b> برای چند شیفت در یک روز (مثلاً صبح و عصر) چند شیفت برای همان روز اضافه کنید. تغییرات این بخش روی همهٔ هفته‌ها اثر دارد؛ برای تعطیلی یا تغییر یک روز خاص از «استثناها» یا «غیرفعال‌سازی» استفاده کنید.</div><div class="wkgrid">${h}</div>${bar(SN.WK,{add:false})}`}
+
+/* ================= استثناها ================= */
+function viewEx(){
+  if(missing(SN.EX))return backendMissing(SN.EX,"شیت «استثناها» پیدا نشد");
+  const rows=rowsD(SN.EX),t0=T0();
+  const body=rows.map((r,i)=>{const t=norm(r[2]),needT=t==="اضافه"||t==="تغییرساعت",past=jkey(r[0])&&jkey(r[0])<t0;
+   return`<tr class="${past?"past":""}"><td>${dateSel(r[0],cellA(i,0,"date"))}</td><td>${docIdSel(r[1],cellA(i,1,"sel"))}</td>
+   <td>${selHtml([["","— نوع —"],["لغو","لغو (تعطیلی)"],["اضافه","اضافه (شیفت اضافه)"],["تغییرساعت","تغییر ساعت"]],t==="لغو"?"لغو":t,cellA(i,2,"sel","data-redraw=1"))}</td>
+   <td>${timeSel(r[3],cellA(i,3,"time"),"—",!needT)}</td><td>${timeSel(r[4],cellA(i,4,"time"),"—",!needT)}</td>
+   <td class="act"><button class="iconx" type="button" data-act="del" data-i="${i}" aria-label="حذف ردیف" title="حذف">✕</button></td></tr>`}).join("");
+  return`<div class="help"><b>تغییر برنامه در یک تاریخ مشخص.</b><ul><li><b>لغو:</b> آن پزشک در آن روز اصلاً حضور ندارد (ساعت لازم نیست).</li><li><b>اضافه:</b> یک شیفت اضافه در آن روز (ساعت شروع و پایان را بدهید).</li><li><b>تغییر ساعت:</b> به‌جای برنامه عادی، فقط همین بازه برقرار است.</li></ul></div>
+  ${rows.length?`<div class="card tbl"><table><thead><tr><th>تاریخ</th><th>پزشک</th><th>نوع</th><th>از ساعت</th><th>تا ساعت</th><th></th></tr></thead><tbody>${body}</tbody></table></div>`:`<div class="card empty"><b>استثنایی ثبت نشده است</b>برای تعطیلی یا شیفت اضافه، «ردیف جدید» را بزنید.</div>`}
+  ${bar(SN.EX,{extra:`<button class="btn" type="button" data-act="purge">حذف ردیف‌های گذشته</button>`})}`}
+
+/* ================= تنظیمات ================= */
+const SETI=[["طول هر بازه نوبت","دقیقه","مثلاً ۱۵ یعنی نوبت‌ها هر ۱۵ دقیقه‌اند."],["ظرفیت هر بازه","نفر","چند نفر می‌توانند یک ساعت مشخص را بگیرند."],["چند روز آینده قابل رزرو است","روز","بیماران تا چند روز بعد می‌توانند نوبت بگیرند."],["فاصلهٔ مجاز تا ساعت حال","دقیقه","نوبتی که کمتر از این مدت به ساعتش مانده، قابل رزرو نیست (فقط امروز)."],["سقف نوبت هر نفر در روز برای هر پزشک","نوبت","یک نفر در یک روز از یک پزشک حداکثر چند نوبت بگیرد."]];
+function viewSet(){
+  if(missing(SN.SET))return backendMissing(SN.SET,"شیت «تنظیمات» پیدا نشد");
+  const rows=rowsD(SN.SET);
+  return`<div class="help"><b>تنظیمات عمومی نوبت‌دهی.</b> مقادیر همان ستون دوم شیت «تنظیمات» هستند. ترتیب ردیف‌ها نباید تغییر کند.</div>
+  <div class="setgrid">${rows.map((r,i)=>{const s=SETI[i]||[r[0],"",""];return`<div class="card setc"><label for="s${i}">${esc(r[0]||s[0])}</label><p>${esc(s[2])}</p><input id="s${i}" class="field num" inputmode="numeric" ${cellA(i,1,"num")} value="${esc(fa(r[1]))}"> <span class="mut">${esc(s[1])}</span></div>`}).join("")}</div>${bar(SN.SET,{add:false})}`}
+
+/* ================= کاربران (فقط مشاهده) ================= */
+function viewUsr(){
+  if(missing(SN.USR))return`<div class="card empty"><b>هنوز کاربری ثبت‌نام نکرده است</b>یا این بخش به نسخهٔ جدید Apps Script نیاز دارد.</div>`;
+  const q=norm(F.uq||"");const rows=base(SN.USR).filter(r=>r[0]&&(!q||norm(r.join(" ")).includes(q)));
+  return`<div class="card toolbar"><input class="field" id="uQ" type="search" placeholder="جستجوی نام، موبایل یا ایمیل…" value="${esc(F.uq||"")}"><span class="sp"></span><span class="mut">${fa(rows.length)} کاربر</span></div>
+  <div class="card tbl"><table><thead><tr><th>نام</th><th>موبایل</th><th>ایمیل</th><th>آخرین ورود</th></tr></thead><tbody id="uBody">${usrBody(rows)}</tbody></table></div>`}
+const usrBody=rows=>rows.map(r=>`<tr><td><b>${esc(r[1])}</b></td><td class="num ltr"><a href="tel:${esc(en(r[2]))}">${esc(fa(r[2]))}</a></td><td class="ltr">${esc(r[0])}</td><td class="mut num">${esc(stampFa(r[3]))}</td></tr>`).join("");
+
+/* ================= اعتبارسنجی ================= */
+function validate(n,rows){
+  const E=[],add=(r,c,m)=>E.push({r,c,msg:`ردیف ${fa(r+1)}: ${m}`}),empty=r=>r.every(c=>!String(c).trim());
+  if(n===SN.DOC){const ids={};rows.forEach((r,i)=>{if(empty(r))return;const id=String(r[0]).trim();
+    if(!id)add(i,0,"کد پزشک را وارد کنید");else if(/\s/.test(id))add(i,0,"کد پزشک نباید فاصله داشته باشد");else if(ids[norm(id)]!==undefined)add(i,0,"کد پزشک تکراری است");else ids[norm(id)]=i;
+    if(!String(r[1]).trim())add(i,1,"نام پزشک را وارد کنید");if(!r[2])add(i,2,"گروه پزشک را انتخاب کنید")})}
+  if(n===SN.WK)rows.forEach((r,i)=>{if(empty(r))return;if(!r[0])add(i,0,"پزشک انتخاب نشده");if(!DAYS.some(d=>norm(d)===norm(r[1])))add(i,1,"روز هفته را انتخاب کنید");
+    const a=tmin(r[2]),b=tmin(r[3]);if(a===null)add(i,2,"ساعت شروع را انتخاب کنید");if(b===null)add(i,3,"ساعت پایان را انتخاب کنید");if(a!==null&&b!==null&&a>=b)add(i,3,"ساعت پایان باید بعد از شروع باشد")});
+  if(n===SN.EX)rows.forEach((r,i)=>{if(empty(r))return;if(!jkey(r[0]))add(i,0,"تاریخ را انتخاب کنید");if(!r[1])add(i,1,"پزشک را انتخاب کنید");const t=norm(r[2]);
+    if(!["لغو","اضافه","تغییرساعت"].includes(t))add(i,2,"نوع استثنا را انتخاب کنید");
+    else if(t!=="لغو"){const a=tmin(r[3]),b=tmin(r[4]);if(a===null)add(i,3,"ساعت شروع را انتخاب کنید");if(b===null)add(i,4,"ساعت پایان را انتخاب کنید");if(a!==null&&b!==null&&a>=b)add(i,4,"ساعت پایان باید بعد از شروع باشد")}});
+  if(n===SN.BLK)rows.forEach((r,i)=>{if(empty(r))return;const a=jkey(r[0]),b=jkey(r[1]);if(!a)add(i,0,"تاریخ شروع را انتخاب کنید");if(r[1]&&!b)add(i,1,"تاریخ پایان معتبر نیست");if(a&&b&&b<a)add(i,1,"تاریخ پایان قبل از شروع است");
+    const x=tmin(r[3]),y=tmin(r[4]);if(r[3]&&x===null)add(i,3,"ساعت شروع معتبر نیست");if(r[4]&&y===null)add(i,4,"ساعت پایان معتبر نیست");if(x!==null&&y!==null&&x>=y)add(i,4,"ساعت پایان باید بعد از شروع باشد")});
+  if(n===SN.SET){const mn=[1,1,1,0,1];rows.forEach((r,i)=>{const v=en(r[1]).trim();if(!/^\d+$/.test(v)||+v<(mn[i]??0))add(i,1,`«${r[0]}» باید عددی صحیح و حداقل ${fa(mn[i]??0)} باشد`)})}
+  return E}
+
+/* ================= رویدادها ================= */
+function updDirty(){
+  const n=curName(),d=n&&isDirty(n),s=$("#btnSave"),x=$("#btnDiscard"),t=$("#dirtyNote");
+  if(s)s.disabled=!d;if(x)x.disabled=!d;if(t)t.textContent=d?"● تغییرات ذخیره‌نشده":"";
+  renderTabs()}
+const view$=$("#view");
+function onCell(e){
+  const el=e.target,r=el.dataset&&el.dataset.r,c=el.dataset&&el.dataset.c;if(r==null||c==null)return;
+  const sel=el.tagName==="SELECT"||el.type==="checkbox",n=curName(),rows=draft[n];if(!rows)return;
+  if(e.type==="change"&&el.dataset.k==="num"){el.value=fa(rows[r][c]);return}
+  if(sel!==(e.type==="change"))return;
+  let v=el.type==="checkbox"?(el.checked?"بله":"خیر"):el.value;
+  if(el.dataset.k==="num")v=en(v).replace(/\D/g,"");
+  rows[+r][+c]=v;el.classList.remove("bad");
+  if(el.dataset.redraw){renderView();return}
+  updDirty()}
+view$.addEventListener("input",onCell);view$.addEventListener("change",onCell);
+view$.addEventListener("input",e=>{
+  if(e.target.id==="fQ"){F.q=e.target.value;renderBkDyn()}
+  if(e.target.id==="uQ"){F.uq=e.target.value;const q=norm(F.uq);$("#uBody").innerHTML=usrBody(base(SN.USR).filter(r=>r[0]&&(!q||norm(r.join(" ")).includes(q))))}});
+view$.addEventListener("change",e=>{
+  const id=e.target.id;
+  if(id==="fDate"&&e.target.value){F.date=e.target.value;renderView()}
+  if(id==="fDoc"){F.doc=e.target.value;renderBkDyn()}
+  if(id==="fSt"){F.st=e.target.value;renderBkDyn()}});
+
+view$.addEventListener("click",async e=>{
+  const b=e.target.closest("[data-act]");if(!b)return;const a=b.dataset.act,n=curName(),i=+b.dataset.i;
+  if(a==="date"){F.date=b.dataset.v;renderView();return}
+  if(a==="stat"){F.date=b.dataset.v;F.st=b.dataset.s==="cancel"?"cancel":"active";renderView();return}
+  if(a==="seen"){fresh.clear();renderTabs();renderBkDyn();return}
+  if(a==="print"){window.print();return}
+  if(a==="xlsx"){exportXlsx();return}
+  if(a==="cancel"||a==="restore"){
+    if(a==="restore"){setStatus(b,"ثبت\u200cشده");return}
+    if(b.dataset.armed){setStatus(b,"لغو");return}
+    b.dataset.armed="1";const t=b.textContent;b.textContent="مطمئنید؟ دوباره بزنید";b.classList.add("armed");
+    setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent=t;b.classList.remove("armed")}},4000);return}
+  const rows=draft[n];
+  if(a==="add"){rows.push(Array(Math.max(head(n).length,6)).fill(""));if(n===SN.BLK)rows[rows.length-1][2]=ALL;if(n===SN.DOC)rows[rows.length-1][4]="بله";renderView();const l=$$("tbody tr");if(l.length)l[l.length-1].scrollIntoView({block:"center"});return}
+  if(a==="addshift"){
+    const id=b.dataset.id,mine=rows.filter(r=>norm(r[0])===norm(id)),used=mine.map(r=>DAYS.findIndex(d=>norm(d)===norm(r[1]))),nx=DAYS.find((d,k)=>!used.includes(k)&&k<6)||"",last=mine[mine.length-1];
+    const row=Array(Math.max(head(n).length,4)).fill("");row[0]=id;row[1]=nx;if(last){row[2]=last[2];row[3]=last[3]}rows.push(row);renderView();return}
+  if(a==="del"){
+    if(b.dataset.armed){rows.splice(i,1);renderView();return}
+    b.dataset.armed="1";b.textContent="حذف؟";b.style.fontSize=".85rem";b.style.width="auto";b.style.padding="0 10px";b.style.background="var(--err)";b.style.color="#fff";
+    setTimeout(()=>{if(b.isConnected)renderView()},3000);return}
+  if(a==="up"||a==="down"){const j=a==="up"?i-1:i+1;if(j<0||j>=rows.length)return;[rows[i],rows[j]]=[rows[j],rows[i]];renderView();return}
+  if(a==="purge"){const t0=T0(),before=rows.length,keep=rows.filter(r=>{const k=n===SN.BLK?(jkey(r[1])||jkey(r[0])):jkey(r[0]);return !k||k>=t0});
+    if(keep.length===before)return toast("ردیف گذشته‌ای وجود ندارد.");draft[n]=keep;renderView();toast(fa(before-keep.length)+" ردیف گذشته حذف شد (برای ثبت نهایی ذخیره کنید).");return}
+  if(a==="discard"){if(!confirm("همهٔ تغییرات ذخیره‌نشدهٔ این بخش برگردانده شود؟"))return;delete draft[n];renderView();return}
+  if(a==="save")save(n)});
+
+async function save(n){
+  const rows=draft[n];if(!rows||!isDirty(n))return;
+  const E=validate(n,rows);
+  if(E.length){bad=E;renderView();toast(E[0].msg+(E.length>1?` (و ${fa(E.length-1)} مورد دیگر)`:""),"err");return}
+  const btn=$("#btnSave");if(btn){btn.disabled=true;btn.innerHTML='<span class="spin"></span> در حال ذخیره…'}
+  try{await api("asave",{sheet:n,rows:rows.map(r=>r.map(c=>String(c==null?"":c)))});delete draft[n];await load();renderView();toast("در گوگل‌شیت ذخیره شد ✓","ok")}
+  catch(e){toast(e.message,"err");if(btn){btn.disabled=false;btn.textContent="ذخیره در گوگل‌شیت"}}}
+addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="s"&&!$("#app").hidden){const n=curName();if(draft[n]){e.preventDefault();save(n)}}});
+addEventListener("beforeunload",e=>{if(anyDirty()){e.preventDefault();e.returnValue=""}});
+
+/* ================= به‌روزرسانی خودکار، تم ================= */
+async function soft(manual){
+  if(!T||$("#app").hidden)return;
+  try{await load();renderTabs();if(view==="bk")renderBkDyn();else if(view==="usr"&&manual)renderView();if(manual)toast("اطلاعات به‌روز شد.","ok")}
+  catch(e){if(manual)toast(e.message,"err")}}
+$("#refresh").onclick=()=>soft(true);
+setInterval(()=>{if(!document.hidden&&document.activeElement&&!/INPUT|SELECT/.test(document.activeElement.tagName))soft(false)},60000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)soft(false)});
+const themeLbl=()=>{$("#themeLbl").textContent=document.documentElement.dataset.theme==="dark"?"حالت روشن":"حالت تیره"};themeLbl();
+$("#theme").onclick=()=>{const t=document.documentElement.dataset.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=t;try{localStorage.setItem("mh_adm_theme",t)}catch(e){}themeLbl()};
+
+if(T)start();else showLogin();
+</script>
+</body>
+</html>
