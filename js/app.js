@@ -16,7 +16,7 @@ const docById=id=>S.doctors.find(d=>d.id===id)||{name:""};
 const dayObj=()=>S.days.find(x=>x.iso===S.date)||{day:"",j:""};
 const AVATAR='<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="24" r="11" fill="currentColor"/><path d="M10 64c0-13 9.500-22 22-22s22 9 22 22z" fill="currentColor"/></svg>';
 const avatar=d=>d.photo?`<img src="${esc(d.photo)}" alt="" loading="lazy">`:AVATAR;
-const chip=(label,attrs,on,dis)=>`<button type="button" class="chip${on?" on":""}" ${dis?"disabled":""} ${attrs}>${label}</button>`;
+const chip=(label,attrs,on,dis,cls="",tip="")=>`<button type="button" class="chip${on?" on":""}${cls?" "+cls:""}" ${dis?"disabled":""}${tip?` title="${tip}"`:""} ${attrs}>${label}</button>`;
 function weekHtml(d){
   if(!d.week.length)return "<span>برنامه بر اساس تاریخ</span>";
   const order=["شنبه","یکشنبه","دوشنبه","سه‌شنبه","چهارشنبه","پنجشنبه","جمعه"],by={};
@@ -61,13 +61,14 @@ const VIEWS={
   },
   day(){
     const d=docById(S.doc),list=S.days.filter(x=>x.docs[S.doc]!==undefined);
-    body.innerHTML=`<p class="wz-sub">${esc(d.name)}</p>`+(list.length?`<div class="chips">`+list.map(x=>chip(`${x.day}<br>${fa(x.j.slice(5))}<br><em>${x.docs[S.doc]?fa(x.docs[S.doc])+" نوبت خالی":"تکمیل"}</em>`,`data-a="pickDay" data-iso="${x.iso}"`,false,!x.docs[S.doc])).join("")+`</div>`:"<p>در روزهای آینده برنامه‌ای ثبت نشده است.</p>");
+    body.innerHTML=`<p class="wz-sub">${esc(d.name)}</p>`+(list.length?`<div class="chips">`+list.map(x=>chip(`${x.day}<br>${fa(x.j.slice(5))}<br><em>${x.off&&x.off[S.doc]?"غیرفعال":x.docs[S.doc]?fa(x.docs[S.doc])+" نوبت خالی":"تکمیل"}</em>`,`data-a="pickDay" data-iso="${x.iso}"`,false,!x.docs[S.doc],x.off&&x.off[S.doc]?"off":"")).join("")+`</div>`:"<p>در روزهای آینده برنامه‌ای ثبت نشده است.</p>");
   },
   async time(){
     const x=dayObj();
     body.innerHTML=`<p class="wz-sub">${esc(docById(S.doc).name)} | ${x.day} ${fa(x.j)}</p><div class="chips" id="tm"><small>در حال بارگذاری…</small></div><div id="msg" class="err" role="alert"></div>`;
     try{const {slots}=await api("slots",{doctor:S.doc,date:S.date});if(S.view!=="time")return;
-      $("#tm").innerHTML=slots.map(s=>chip(fa(s.time),`data-a="pickTime" data-t="${s.time}"`,false,!s.free)).join("")||"<small>زمانی وجود ندارد.</small>";
+      $("#tm").innerHTML=slots.map(s=>chip(fa(s.time),`data-a="pickTime" data-t="${s.time}"`,false,!s.free,s.blocked?"off":"",s.blocked?"غیرفعال شده توسط درمانگاه":"")).join("")||"<small>زمانی وجود ندارد.</small>";
+      if(slots.some(s=>s.blocked))$("#tm").insertAdjacentHTML("afterend",`<p class="legend"><i></i> ساعت‌های قرمز توسط درمانگاه غیرفعال شده‌اند.</p>`);
     }catch(e){$("#tm").innerHTML="";$("#msg").textContent=e.message}
   },
   auth(){
