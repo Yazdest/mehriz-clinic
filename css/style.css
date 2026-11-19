@@ -199,3 +199,6 @@ body:has(.msgbox[open]){overflow:hidden}
 .wz-body.rc .rc-note{font-size:.78rem;line-height:1.6;padding:7px 12px;margin-bottom:8px}
 .wz-body.rc .dl-btn,.wz-body.rc .primary-button{min-height:44px}
 .wz-body.rc .dl-row{margin-bottom:6px}
+
+/* v9: جملهٔ موفقیت: سبز، بولد، وسط‌چین */
+.wz-body.rc .rc-ok{display:block;width:100%;color:#138a3d;font-weight:800;text-align:center}
