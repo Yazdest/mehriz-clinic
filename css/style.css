@@ -170,3 +170,11 @@ body:has(.msgbox[open]){overflow:hidden}
 .cf-yes:active{background:linear-gradient(135deg,#a84430,#7a2b19);transform:scale(.96)}
 .cfbox .msgbox-body{padding-bottom:26px}
 .cfbox .msgbox-body p{margin-bottom:22px}
+
+/* v6: رسید نوبت */
+.sum b{text-align:end}
+.rc-note{background:var(--brl);color:#8c3623;border-radius:16px;padding:12px 16px;font-size:.92rem;margin-bottom:12px}
+.dl-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.dl-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 10px;border-radius:16px;border:2px solid var(--p);background:var(--pl);color:var(--pd);font:inherit;font-weight:700;cursor:pointer;transition:transform .2s,background .2s,color .2s}
+.dl-btn:active{background:var(--p);color:#fff;transform:scale(.96)}
+.dl-btn.busy{background:var(--p);color:#fff}
