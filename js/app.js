@@ -113,7 +113,7 @@ function renderDoctors() {
 }
 
 const wz = $("#wz"), body = $("#wzBody");
-const TITLES = { doc: "انتخاب پزشک", day: "انتخاب روز", time: "انتخاب ساعت حضور", auth: "ورود یا ثبت‌نام", code: "کد تأیید", confirm: "تأیید نهایی", done: "نوبت شما ثبت شد", mine: "نوبت‌های من" };
+const TITLES = { doc: "انتخاب پزشک", day: "انتخاب روز", time: "انتخاب ساعت حضور", auth: "ورود یا ثبت‌نام", code: "کد تأیید", confirm: "تأیید نهایی", done: "رسید نوبت", mine: "نوبت‌های من" };
 const STEP = { doc: 1, day: 2, time: 3, auth: 4, code: 4, confirm: 4 };
 
 function openWz(v) {
@@ -206,8 +206,8 @@ const VIEWS = {
   done() {
     const r = receiptData();
     body.classList.add("rc");
-    body.innerHTML = `<div class="rc-top"><div class="okbig">✓</div><div><p>کد پیگیری</p><h3 dir="ltr">${esc(r.code)}</h3></div></div>
-      <div class="rc-list">${r.rows.map(([k, v]) => `<div><span>${k}</span><b>${esc(v)}</b></div>`).join("")}</div>
+    body.innerHTML = `<p class="rc-ok">نوبت رزرو شما با موفقیت ثبت شد.</p>
+      <div class="rc-list">${r.rows.map(([k, v, dir]) => `<div><span>${k}</span><b${dir ? ` dir="${dir}"` : ""}>${esc(v)}</b></div>`).join("")}</div>
       <p class="rc-note">${RC_NOTES.join(" ")}</p>
       <div class="dl-row">
         <button type="button" class="dl-btn" data-a="dlPng">${DL_ICO}ذخیره تصویر</button>
@@ -238,8 +238,8 @@ function receiptData() {
   let issued = "";
   try { issued = new Intl.DateTimeFormat("fa-IR", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(r.issued || Date.now())).replace(",", "،"); } catch (e) {}
   return {
-    code: fa(r.code),
     rows: [
+      ["کد پیگیری", fa(r.code), "ltr"],
       ["نام بیمار / رزروکننده", r.name || u.name],
       ["شماره موبایل", mob && fa(mob)],
       ["پزشک / تخصص", [r.doctor, r.spec || d.specialty || TYPE_ONE[d.type]].filter(Boolean).join(" – ")],
@@ -274,7 +274,7 @@ async function drawReceipt() {
   const notes = RC_NOTES.flatMap(n => wrapText(m, n, NW));
   const noteH = notes.length * 38 + 36;
   const rowsH = rows.reduce((a, r) => a + r.h, 0);
-  const H = 178 + 36 + 140 + 30 + rowsH + 24 + noteH + 36 + 120;
+  const H = 178 + 24 + rowsH + 24 + noteH + 36 + 120;
 
   const c = document.createElement("canvas"); c.width = W * SC; c.height = H * SC;
   const x = c.getContext("2d"); x.scale(SC, SC); x.textBaseline = "alphabetic";
@@ -289,12 +289,7 @@ async function drawReceipt() {
   x.fillStyle = "#fff"; x.font = `800 44px ${F}`; x.fillText("درمانگاه فرهنگیان مهریز", W / 2, 84);
   x.fillStyle = "#d9f3f8"; x.font = `500 26px ${F}`; x.fillText("رسید نوبت‌دهی آنلاین", W / 2, 130);
 
-  // کد پیگیری
-  let y = 178 + 36;
-  x.fillStyle = "#e0f6fa"; rrect(x, P, y, W - 2 * P, 140, 24); x.fill();
-  x.fillStyle = "#4a6c75"; x.font = `500 24px ${F}`; x.fillText("کد پیگیری", W / 2, y + 44);
-  x.direction = "ltr"; x.fillStyle = "#0d6c80"; x.font = `800 60px ${F}`; x.fillText(rec.code, W / 2, y + 112);
-  y += 140 + 30;
+  let y = 178 + 24;
 
   // ردیف‌ها
   x.textAlign = "right";
