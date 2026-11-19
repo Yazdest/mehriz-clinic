@@ -121,6 +121,7 @@ function openWz(v) {
   if (v === "doc") S.doc = null;
   S.after = null;
   if (v === "mine" && !S.user) { S.after = "mine"; v = "auth"; }
+  if (v === "login") { if (S.user) return; S.after = "close"; v = "auth"; }
   if (!wz.open) wz.showModal();
   go(v, false);
 }
@@ -188,7 +189,7 @@ const VIEWS = {
     const f = S.form;
     body.innerHTML = `<p class="wz-sub">کد ورود به ایمیل شما ارسال می‌شود.</p><div class="form-grid">
       <input id="fName" placeholder="نام و نام خانوادگی" autocomplete="name" value="${esc(f.name)}">
-      <input id="fMobile" placeholder="موبایل (مثلاً 09123456789)" inputmode="numeric" autocomplete="tel" value="${esc(f.mob)}">
+      <input id="fMobile" placeholder="موبایل (مثلاً ۰۹۱۲۳۴۵۶۷۸۹)" inputmode="numeric" autocomplete="tel" value="${esc(f.mob)}">
       <input id="fEmail" type="email" placeholder="ایمیل" dir="ltr" autocomplete="email" value="${esc(f.email)}"></div>
       <button type="button" class="primary-button wide" data-a="sendCode">ارسال کد ورود</button><div id="authMsg" class="err" role="alert"></div>`;
   },
@@ -204,7 +205,7 @@ const VIEWS = {
   },
   done() {
     const r = S.res;
-    body.innerHTML = `<div class="center"><div class="okbig">✓</div><p>کد پیگیری</p><h3 dir="ltr">${esc(r.code)}</h3></div>
+    body.innerHTML = `<div class="center"><div class="okbig">✓</div><p>کد پیگیری</p><h3 dir="ltr">${fa(esc(r.code))}</h3></div>
       <div class="sum"><div><span>پزشک</span><b>${esc(r.doctor)}</b></div><div><span>روز</span><b>${esc(r.day)} ${fa(r.j)}</b></div><div><span>ساعت حضور</span><b>${fa(r.time)}</b></div></div>
       <p class="wz-sub">تأیید به ایمیل شما ارسال شد و منشی برای هماهنگی تماس می‌گیرد.</p><button type="button" class="primary-button wide" data-a="close">بستن</button>`;
   },
@@ -213,7 +214,7 @@ const VIEWS = {
     try {
       const { list } = await api("my", { token: S.user.token }, true);
       if (S.view !== "mine") return;
-      body.innerHTML = list.length ? list.map(n => `<div class="mine-row"><span>${esc(n.doctor)}<br>${esc(n.day)} ${fa(n.j)} | ${fa(n.time)}<br><small>${esc(n.code)}</small></span><button type="button" data-a="cancel" data-c="${esc(n.code)}">لغو</button></div>`).join("") : "<p>نوبت فعالی ندارید.</p>";
+      body.innerHTML = list.length ? list.map(n => `<div class="mine-row"><span>${esc(n.doctor)}<br>${esc(n.day)} ${fa(n.j)} | ${fa(n.time)}<br><small>${fa(esc(n.code))}</small></span><button type="button" data-a="cancel" data-c="${esc(n.code)}">لغو</button></div>`).join("") : "<p>نوبت فعالی ندارید.</p>";
     } catch (e) { body.innerHTML = `<p class="err">${esc(e.message)}</p>`; }
   }
 };
@@ -227,14 +228,16 @@ const ACT = {
   async sendCode() {
     const email = $("#fEmail").value.trim(), name = $("#fName").value.trim(), mob = $("#fMobile").value.trim(); S.form = { name, mob, email };
     if (name.length < 3) return showErr("#authMsg", "نام و نام خانوادگی را وارد کنید.");
-    if (!/^(09|۰۹)[\d۰-۹]{9}$/.test(mob)) return showErr("#authMsg", "شمارهٔ موبایل را به شکل 09123456789 وارد کنید.");
+    if (!/^(09|۰۹)[\d۰-۹]{9}$/.test(mob)) return showErr("#authMsg", "شمارهٔ موبایل را به شکل ۰۹۱۲۳۴۵۶۷۸۹ وارد کنید.");
     try { await api("code", { email }, true); S.email = email; go("code"); } catch (e) { showErr("#authMsg", e.message); }
   },
   async verify() {
     try {
       const r = await api("verify", { email: S.email, code: $("#fCode").value, name: S.form.name, mobile: S.form.mob }, true);
       S.user = { token: r.token, name: r.name, email: r.email }; localStorage.setItem("mh_user", JSON.stringify(S.user)); syncUser();
-      S.stack = S.stack.filter(v => v !== "auth" && v !== "code"); S.view = S.after || "confirm"; render();
+      S.stack = S.stack.filter(v => v !== "auth" && v !== "code");
+      if (S.after === "close") { S.after = null; closeWz(); return; }
+      S.view = S.after || "confirm"; render();
     } catch (e) { showErr("#authMsg", e.message); }
   },
   async book() {
@@ -263,7 +266,7 @@ document.addEventListener("click", e => {
   if (d) { e.preventDefault(); S.type = null; openWz("doc"); ACT.pickDoc({ id: d.dataset.doc }); }
 });
 
-function syncUser() { const on = !!S.user; $("#mineBtn").hidden = !on; $("#userLine").hidden = !on; if (on) $("#hello").textContent = "ورود با " + S.user.email; }
+function syncUser() { const on = !!S.user; $("#mineBtn").hidden = !on; $("#userLine").hidden = !on; $("#navLogin").hidden = on; $("#navLogout").hidden = !on; if (on) $("#hello").textContent = "ورود با " + S.user.email; }
 function logout() { S.user = null; localStorage.removeItem("mh_user"); syncUser(); }
 
 async function refresh() {
@@ -285,6 +288,7 @@ async function refresh() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   $("#logout").onclick = logout;
+  $("#navLogout").onclick = logout;
   syncUser();
   if (S.loaded) {
     renderDoctors();
@@ -298,12 +302,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 });
-
-(function () {
-  const k = "mh_fs", r = document.documentElement, b = document.getElementById("fsz"); let z = +localStorage.getItem(k) || 17;
-  const set = () => { r.style.setProperty("--fs", z + "px"); b.textContent = z > 17 ? "A−" : "A+"; }; set();
-  b.onclick = () => { z = z > 17 ? 17 : 21; localStorage.setItem(k, z); set(); };
-})();
 
 function reveal() {
   const io = window.__io || (window.__io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: .12 }));
