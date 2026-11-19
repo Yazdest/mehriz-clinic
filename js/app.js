@@ -29,12 +29,12 @@ function renderDoctors(){
     box.innerHTML = Object.keys(TYPES).map(t => {
         const list = S.doctors.filter(d => d.type === t); if (!list.length) return "";
         return `<h3 class="grp">${TYPES[t]}</h3><div class="doc-grid">` + list.map(d => `
-            <article class="doc-card"><h4>${esc(d.name)}</h4>
+            <article class="doc-card rv"><div class="av" aria-hidden="true">${esc(String(d.name).replace(/^(آقای |خانم )?(دکتر|دکترا)\s*/,"").charAt(0))}</div><h4>${esc(d.name)}</h4>
             ${d.specialty ? `<span class="tag">${esc(d.specialty)}</span>` : ""}
             <ul>${weekText(d)}</ul>
             <a href="#booking" class="doc-btn" data-doc="${esc(d.id)}">دریافت نوبت ←</a></article>`).join("") + `</div>`;
     }).join("") || "<p>فهرست پزشکان به‌زودی اضافه می‌شود.</p>";
-    box.querySelectorAll("[data-doc]").forEach(a => a.addEventListener("click", () => pickDoc(a.dataset.doc)));
+    reveal(); box.querySelectorAll("[data-doc]").forEach(a => a.addEventListener("click", () => pickDoc(a.dataset.doc)));
 }
 
 /* ---- انتخاب پزشک / روز / ساعت ---- */
@@ -118,3 +118,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     try { await refresh(); renderDoctors(); }
     catch (e){ $("#doctorList").innerHTML = `<p class="err">${esc(e.message)}</p>`; }
 });
+
+/* اندازه نوشته (دسترس‌پذیری) */
+(function(){const k="mh_fs",r=document.documentElement,b=document.getElementById("fsz");let z=+localStorage.getItem(k)||17;
+const set=()=>{r.style.setProperty("--fs",z+"px");b.textContent=z>17?"A−":"A+"};set();
+b.onclick=()=>{z=z>17?17:21;localStorage.setItem(k,z);set()}})();
+
+/* انیمیشن ظاهر شدن و سایهٔ هدر */
+function reveal(){const io=window.__io||(window.__io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.12}));
+ document.querySelectorAll(".rv:not(.in)").forEach(el=>io.observe(el))}
+document.addEventListener("DOMContentLoaded",reveal);
+addEventListener("scroll",()=>document.querySelector(".site-header").classList.toggle("sc",scrollY>10),{passive:true});
