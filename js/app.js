@@ -14,7 +14,8 @@ async function api(a,data={},post=false){
 }
 const docById=id=>S.doctors.find(d=>d.id===id)||{name:""};
 const dayObj=()=>S.days.find(x=>x.iso===S.date)||{day:"",j:""};
-const ini=d=>esc(String(d.name).replace(/^(آقای |خانم )?(دکتر|دکترا)\s*/,"").charAt(0));
+const AVATAR='<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="24" r="11" fill="currentColor"/><path d="M10 64c0-13 9.500-22 22-22s22 9 22 22z" fill="currentColor"/></svg>';
+const avatar=d=>d.photo?`<img src="${esc(d.photo)}" alt="" loading="lazy">`:AVATAR;
 const chip=(label,attrs,on,dis)=>`<button type="button" class="chip${on?" on":""}" ${dis?"disabled":""} ${attrs}>${label}</button>`;
 function weekHtml(d){
   if(!d.week.length)return "<span>برنامه بر اساس تاریخ</span>";
@@ -28,7 +29,7 @@ function renderDoctors(){
   box.innerHTML=Object.keys(TYPES).map(t=>{
     const list=S.doctors.filter(d=>d.type===t);if(!list.length)return "";
     return `<h3 class="grp">${TYPES[t]}</h3><div class="doc-grid">`+list.map(d=>`
-      <article class="doc-card rv"><div class="av" aria-hidden="true">${ini(d)}</div><h4>${esc(d.name)}</h4>
+      <article class="doc-card rv"><div class="av" aria-hidden="true">${avatar(d)}</div><h4>${esc(d.name)}</h4>
       ${d.specialty?`<span class="tag">${esc(d.specialty)}</span>`:""}
       <button type="button" class="doc-btn" data-doc="${esc(d.id)}">برنامه و دریافت نوبت ←</button></article>`).join("")+`</div>`;
   }).join("")||"<p>فهرست پزشکان به‌زودی اضافه می‌شود.</p>";
@@ -50,7 +51,7 @@ function render(){
   body.className="wz-body";void body.offsetWidth;body.className="wz-body vin";body.scrollTop=0;
   VIEWS[v]();
 }
-const row=d=>`<button type="button" class="dc" data-a="pickDoc" data-id="${esc(d.id)}"><span class="av sm" aria-hidden="true">${ini(d)}</span><span class="dc-t"><b>${esc(d.name)}</b>${d.specialty?`<small>${esc(d.specialty)}</small>`:""}<span class="wk">${weekHtml(d)}</span></span><span class="arr" aria-hidden="true">‹</span></button>`;
+const row=d=>`<button type="button" class="dc" data-a="pickDoc" data-id="${esc(d.id)}"><span class="av sm" aria-hidden="true">${avatar(d)}</span><span class="dc-t"><b>${esc(d.name)}</b>${d.specialty?`<small>${esc(d.specialty)}</small>`:""}<span class="wk">${weekHtml(d)}</span></span><span class="arr" aria-hidden="true">‹</span></button>`;
 const VIEWS={
   doc(){
     if(!S.loaded){body.innerHTML=`<p class="${S.err?"err":""}">${esc(S.err||"در حال بارگذاری…")}</p>`;return}
