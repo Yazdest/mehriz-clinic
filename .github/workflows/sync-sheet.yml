@@ -1,0 +1,20 @@
+name: Sync Clinic Data
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch latest data from Apps Script
+        run: |
+          curl -L -s "https://script.google.com/macros/s/AKfycbwWzJBG_vbrCjmRsp4QNkoB064BgQCrgWPACPBSWjoQLplB1QZ49GVhQbJZF51lUIbsYw/exec?a=full" -o data.json
+      - name: Commit and push if changed
+        run: |
+          git config user.name "Clinic Bot"
+          git config user.email "bot@clinic.local"
+          git add data.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update clinic schedule" && git push)
