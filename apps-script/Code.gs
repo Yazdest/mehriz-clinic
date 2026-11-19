@@ -242,7 +242,7 @@ function book(p){
     const rg = S.getRange(row,1,1,12); rg.setNumberFormat('@');
     rg.setValues([[code, jal(iso), DAYS[wd(iso)], d.name, time, u.name, u.mob, u.em, 'ثبت‌شده', Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd HH:mm'), iso, id]]);
     clearClinicCache();
-    res = {code, doctor:d.name, j:jal(iso), day:DAYS[wd(iso)], time};
+    res = {code, doctor:d.name, j:jal(iso), day:DAYS[wd(iso)], time, name:u.name, mobile:u.mob, email:u.em};
   } finally { lock.releaseLock(); }
   try {
     MailApp.sendEmail(u.em, 'تأیید نوبت – درمانگاه فرهنگیان مهریز',
