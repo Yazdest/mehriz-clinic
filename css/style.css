@@ -10,7 +10,7 @@ a{color:inherit;text-decoration:none}:focus-visible{outline:3px solid var(--br);
 .nav-container{display:flex;align-items:center;gap:18px;padding:10px 0}.brand{display:flex;align-items:center;gap:12px}
 .brand-mark{width:48px;height:48px;border-radius:16px 16px 16px 6px;background:linear-gradient(135deg,var(--t),var(--pd));color:#fff;display:grid;place-items:center;font:700 1.6rem 'Aref Ruqaa',serif;box-shadow:0 8px 18px -8px var(--p)}
 .brand-name strong{display:block;line-height:1.4;color:var(--pd)}.brand-name small{color:var(--mut)}
-.main-nav{display:flex;gap:4px;margin-inline-start:auto}.main-nav a{padding:8px 16px;border-radius:999px;font-weight:500;transition:.2s}.main-nav a:hover{background:var(--pl);color:var(--pd)}
+.main-nav{display:flex;gap:4px}.main-nav a{padding:8px 16px;border-radius:999px;font-weight:500;transition:.2s}.main-nav a:hover{background:var(--pl);color:var(--pd)}
 .fsz{border:1px solid var(--line);background:#fff;color:var(--pd);border-radius:14px;min-width:46px;height:46px;font:inherit;font-weight:700;cursor:pointer}
 .nav-button,.primary-button,.secondary-button,.doc-btn{font-size:1.08rem;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 26px;border-radius:16px;font:inherit;font-weight:700;border:0;cursor:pointer;transition:transform .2s,box-shadow .2s,background .2s}
 .nav-button,.primary-button{background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;box-shadow:0 10px 22px -10px var(--p)}.nav-button:hover,.primary-button:hover{transform:translateY(-3px);box-shadow:0 16px 26px -10px var(--p)}.primary-button:disabled{opacity:.5;transform:none}
@@ -33,7 +33,7 @@ a{color:inherit;text-decoration:none}:focus-visible{outline:3px solid var(--br);
 .quick-item{display:flex;gap:16px;align-items:center;background:var(--card);padding:20px;border-radius:var(--r);border:1px solid var(--line);box-shadow:var(--sh);min-height:92px;transition:transform .25s}.quick-item:hover{transform:translateY(-6px)}
 .quick-icon{width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,var(--pl),#c6ecf3);color:var(--p);display:grid;place-items:center;font-size:1.6rem;flex:none}.quick-item:first-child .quick-icon{background:linear-gradient(135deg,#d8644a,var(--br));color:#fff}
 .quick-item strong{color:var(--pd)}.quick-item small{display:block;color:var(--mut)}
-.section-space{padding:72px 0}.section-kicker{color:var(--br);font-weight:700;font-size:.78rem;letter-spacing:.16em;direction:ltr;display:flex;align-items:center;gap:10px}.section-kicker::before{content:"";width:28px;height:3px;border-radius:3px;background:var(--br)}
+.section-space{padding:72px 0}.section-kicker{color:var(--br);font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:10px}.section-kicker::before{content:"";width:28px;height:3px;border-radius:3px;background:var(--br)}
 h2{font-size:clamp(1.7rem,4vw,2.4rem);line-height:1.5;color:var(--pd);font-weight:800}
 .section-heading{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:32px;color:var(--mut)}
 .intro{background:#fff}.intro-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:50px;align-items:center}.heading-line{width:70px;height:6px;border-radius:9px;background:linear-gradient(90deg,var(--t),var(--br));margin-top:14px}
@@ -96,3 +96,10 @@ button.service-card{width:100%;text-align:right;font:inherit;color:inherit;curso
 .chip.off:disabled{opacity:.7;background:#fdecec;border-color:#f0b4b4;color:var(--err);text-decoration:line-through;text-decoration-thickness:2px}
 .chip.off em{text-decoration:none;display:inline-block}
 .legend{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:.85rem;color:var(--mut)}.legend i{width:14px;height:14px;border-radius:5px;background:#fdecec;border:2px solid #f0b4b4}
+
+/* سربرگ: دکمه‌های نوبت‌های من / ورود */
+.nav-actions{display:flex;align-items:center;gap:10px;margin-inline-start:auto}
+.nav-link-btn{white-space:nowrap;min-height:50px;padding:0 20px;border-radius:16px;border:2px solid var(--line);background:#fff;color:var(--pd);font:inherit;font-weight:700;cursor:pointer;transition:.2s}
+.nav-link-btn:hover{border-color:var(--t);background:var(--pl)}.nav-link-btn[hidden]{display:none}
+@media(max-width:760px){.nav-actions{gap:6px;width:100%;justify-content:space-between}.nav-link-btn,.nav-actions .nav-button{flex:1 1 0;min-height:44px;padding:0 6px;font-size:.88rem;border-radius:14px;min-width:0}.nl-long{display:none}}
+@media(max-width:760px){.nav-actions .nav-button{margin-inline-start:0}.nav-container{padding:8px 0}}
