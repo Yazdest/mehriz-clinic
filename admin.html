@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>پنل مدیریت | درمانگاه فرهنگیان مهریز</title><meta name="robots" content="noindex">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap"><link rel="stylesheet" href="css/style.css">
+<style>.wrap{width:min(1180px,94%);margin:24px auto}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.tbl{overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;font-size:.9rem}th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}th{background:var(--pl);position:sticky;top:0}
+td input,td select{min-height:40px;padding:0 8px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--bg);color:var(--ink)}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0}.bar input,.bar select{width:auto;min-height:44px;border:2px solid var(--line);border-radius:12px;padding:0 10px;background:var(--bg);color:var(--ink);font:inherit}
+.sm{min-height:40px;padding:0 14px}.x{color:var(--err);background:none;border:0;font-size:1.2rem;cursor:pointer}.hint{color:var(--mut);font-size:.9rem}</style></head>
+<body><div class="wrap"><h1>پنل مدیریت نوبت‌دهی</h1>
+<div id="login" class="bk"><h3>ورود مدیر</h3><div class="form-grid"><input id="pw" type="password" placeholder="رمز مدیر" autocomplete="current-password"></div>
+<button class="primary-button" id="go" type="button">ورود</button><div id="lm" class="err"></div></div>
+<div id="panel" hidden><div class="tabs" id="tabs"></div><div class="bar" id="bar"></div><div class="tbl"><table id="t"></table></div><div id="m" role="status"></div></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script><script src="js/config.js"></script>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let T=sessionStorage.getItem("mh_adm"),D={},cur="نوبت‌ها";
+const DAYS=["شنبه","یکشنبه","دوشنبه","سه‌شنبه","چهارشنبه","پنجشنبه","جمعه"];
+const SEL={"پزشکان":{2:["عمومی","دندانپزشک","متخصص"],4:["بله","خیر"]},"برنامه هفتگی":{1:DAYS},"استثناها":{2:["لغو","اضافه","تغییرساعت"]}};
+const HELP={"پزشکان":"ستون اول کد یکتای پزشک است (مثلاً dr1) و در برنامه هفتگی و استثناها استفاده می‌شود. «فعال» = بله/خیر.","برنامه هفتگی":"ساعت‌ها به شکل 17:00. برای چند شیفت در یک روز، چند ردیف بنویسید.","استثناها":"تاریخ شمسی مثل 1405/08/25. نوع: لغو (تعطیلی)، اضافه (شیفت اضافه)، تغییرساعت.","تنظیمات":"ردیف‌ها به ترتیب: طول هر بازه (دقیقه)، ظرفیت هر بازه، چند روز آینده قابل رزرو، فاصله مجاز تا ساعت حال (دقیقه)، سقف نوبت هر نفر در روز برای هر پزشک."};
+async function api(a,d={}){const r=await fetch(API_URL,{method:"POST",body:JSON.stringify({a,atoken:T,...d})}),j=await r.json();if(j.error){if(j.error.includes("نشست")){sessionStorage.clear();T=null;}throw new Error(j.error)}return j}
+$("#go").onclick=async()=>{try{T=(await api("alogin",{password:$("#pw").value})).atoken;sessionStorage.setItem("mh_adm",T);start()}catch(e){$("#lm").textContent=e.message}};
+async function start(){try{D=await api("aget");}catch(e){$("#lm").textContent=e.message;return}$("#login").hidden=true;$("#panel").hidden=false;
+ $("#tabs").innerHTML=Object.keys(D).map(n=>`<button class="chip" data-n="${n}">${n==="نوبت‌ها"?"لیست رزروها":n}</button>`).join("");
+ $("#tabs").querySelectorAll(".chip").forEach(b=>b.onclick=()=>show(b.dataset.n));show(cur)}
+if(T)start();
+function show(n){cur=n;$("#tabs").querySelectorAll(".chip").forEach(b=>b.classList.toggle("on",b.dataset.n===n));$("#m").textContent="";n==="نوبت‌ها"?bookings():editor(n)}
+function bookings(){const v=D["نوبت‌ها"],h=v[0]||[],rows=v.slice(1);
+ $("#bar").innerHTML=`<input id="fd" placeholder="تاریخ شمسی 1405/08/25"><input id="fq" placeholder="جستجوی نام/پزشک/موبایل"><label><input type="checkbox" id="fc" style="width:auto;min-height:0"> نمایش لغوشده‌ها</label><button class="primary-button sm" id="dl" type="button">دانلود اکسل</button>`;
+ const draw=()=>{const d=$("#fd").value.trim(),q=$("#fq").value.trim(),c=$("#fc").checked;
+  const L=rows.filter(r=>(c||r[8]!=="لغو")&&(!d||r[1]===d)&&(!q||r.join(" ").includes(q))).sort((a,b)=>(a[10]+a[11]+a[4]).localeCompare(b[10]+b[11]+b[4]));window.L=L;
+  $("#t").innerHTML="<tr>"+h.slice(0,10).map(x=>`<th>${esc(x)}</th>`).join("")+"<th></th></tr>"+L.map(r=>"<tr>"+r.slice(0,10).map(x=>`<td>${esc(x)}</td>`).join("")+`<td><button class="x" data-c="${esc(r[0])}" data-s="${r[8]==="لغو"?"ثبت‌شده":"لغو"}" title="${r[8]==="لغو"?"بازگردانی":"لغو"}">${r[8]==="لغو"?"↺":"✕"}</button></td></tr>`).join("");
+  $("#t").querySelectorAll(".x").forEach(b=>b.onclick=async()=>{if(!confirm("وضعیت این نوبت تغییر کند؟"))return;try{await api("astatus",{code:b.dataset.c,status:b.dataset.s});D=await api("aget");bookings()}catch(e){$("#m").textContent=e.message}})};
+ ["fd","fq","fc"].forEach(i=>$("#"+i).oninput=draw);draw();
+ $("#dl").onclick=()=>{const a=[h.slice(0,10),...window.L.map(r=>r.slice(0,10))],ws=XLSX.utils.aoa_to_sheet(a);ws["!cols"]=h.slice(0,10).map(()=>({wch:16}));const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,"نوبت‌ها");XLSX.writeFile(wb,"reservations-"+($("#fd").value.replace(/\//g,"-")||"all")+".xlsx")}}
+function editor(n){const v=D[n],h=v[0]||[];let rows=v.slice(1);const sel=SEL[n]||{},fixed=n==="تنظیمات";
+ const draw=()=>{$("#t").innerHTML="<tr>"+h.map(x=>`<th>${esc(x)}</th>`).join("")+(fixed?"":"<th></th>")+"</tr>"+rows.map((r,i)=>"<tr>"+h.map((_,j)=>{const x=r[j]??"";return `<td>`+(sel[j]?`<select data-i="${i}" data-j="${j}">${[""].concat(sel[j]).map(o=>`<option${o===x?" selected":""}>${o}</option>`).join("")}</select>`:`<input data-i="${i}" data-j="${j}" value="${esc(x)}"${fixed&&j===0?" readonly":""}>`)+`</td>`}).join("")+(fixed?"":`<td><button class="x" data-d="${i}">✕</button></td>`)+"</tr>").join("");
+  $("#t").querySelectorAll("[data-j]").forEach(e=>e.oninput=e.onchange=()=>{rows[+e.dataset.i][+e.dataset.j]=e.value});
+  $("#t").querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{rows.splice(+b.dataset.d,1);draw()})};
+ $("#bar").innerHTML=(fixed?"":`<button class="chip sm" id="add" type="button">＋ ردیف جدید</button>`)+`<button class="primary-button sm" id="sv" type="button">ذخیره در گوگل شیت</button><span class="hint">${HELP[n]}</span>`;
+ if(!fixed)$("#add").onclick=()=>{rows.push(h.map(()=>""));draw()};
+ $("#sv").onclick=async()=>{try{await api("asave",{sheet:n,rows});D=await api("aget");$("#m").className="ok";$("#m").textContent="ذخیره شد.";}catch(e){$("#m").className="err";$("#m").textContent=e.message}};draw()}
+</script></body></html>
