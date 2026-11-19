@@ -74,7 +74,7 @@ async function api(a, data = {}, post = false, retries = 2) {
       clearTimeout(timer);
       const j = await r.json();
       if (j.error) {
-        if (j.error.includes("نشست")) logout();
+        if (j.error.includes("نشست")) logout("expired");
         throw new Error(j.error);
       }
       return j;
@@ -143,7 +143,7 @@ const row = d => `<button type="button" class="dc" data-a="pickDoc" data-id="${e
 const VIEWS = {
   doc() {
     if (!S.loaded) {
-      body.innerHTML = `<p class="${S.err ? "err" : ""}">${esc(S.err || "در حال آماده‌سازی فهرست پزشکان…")}</p>`;
+      body.innerHTML = S.err ? `<p class="err">${esc(S.err)}</p>` : '<p class="ld">در حال آماده‌سازی فهرست پزشکان…</p>';
       return;
     }
     const list = S.doctors.filter(d => !S.type || d.type === S.type);
@@ -171,7 +171,7 @@ const VIEWS = {
     if (S.slotsMap[cacheKey]) {
       renderSlotsHtml(S.slotsMap[cacheKey]);
     } else {
-      $("#tm").innerHTML = "<small>در حال دریافت ساعت‌ها…</small>";
+      $("#tm").innerHTML = '<small class="ld">در حال دریافت ساعت‌ها…</small>';
     }
 
     try {
@@ -210,7 +210,7 @@ const VIEWS = {
       <p class="wz-sub">تأیید به ایمیل شما ارسال شد و منشی برای هماهنگی تماس می‌گیرد.</p><button type="button" class="primary-button wide" data-a="close">بستن</button>`;
   },
   async mine() {
-    body.innerHTML = "<small>در حال دریافت نوبت‌های شما…</small>";
+    body.innerHTML = '<p class="ld">در حال دریافت نوبت‌های شما…</p>';
     try {
       const { list } = await api("my", { token: S.user.token }, true);
       if (S.view !== "mine") return;
@@ -220,43 +220,99 @@ const VIEWS = {
 };
 
 const showErr = (id, t) => { const m = $(id); if (m) m.textContent = t; };
+
+/* ---------- حالت «در حال انجام» برای دکمه‌ها (تغییر رنگ + اسپینر) ---------- */
+const setBusy = (b, on) => {
+  if (!b) return;
+  b.classList.toggle("busy", on);
+  if (on) b.setAttribute("aria-busy", "true"); else b.removeAttribute("aria-busy");
+};
+
+/* ---------- پنجرهٔ پیام (هماهنگ با قالب سایت) ---------- */
+const msgBox = $("#msgBox");
+let msgTimer;
+const MSG_ICO = {
+  ok: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.500l4.500 4.500L19 7.500"/></svg>',
+  out: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3"/><path d="M16 8l4 4-4 4M20 12H10"/></svg>',
+  warn: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.500v5M12 16.500h.01"/></svg>'
+};
+function closeMsg() { clearTimeout(msgTimer); if (msgBox.open) msgBox.close(); }
+function showMsg(kind, title, text, ms = 3200) {
+  clearTimeout(msgTimer);
+  msgBox.dataset.kind = kind;
+  $("#msgIco").innerHTML = MSG_ICO[kind] || MSG_ICO.ok;
+  $("#msgTitle").textContent = title;
+  $("#msgText").textContent = text;
+  const bar = msgBox.querySelector(".msgbox-timer i");
+  bar.style.animation = "none"; void bar.offsetWidth; bar.style.animation = `drain ${ms}ms linear forwards`;
+  if (!msgBox.open) msgBox.showModal();
+  msgTimer = setTimeout(closeMsg, ms);
+}
+$("#msgOk").onclick = closeMsg;
+msgBox.addEventListener("click", e => { if (e.target === msgBox) closeMsg(); });
+
+/* ---------- پنجرهٔ تأیید (جایگزین confirm مرورگر) ---------- */
+const cfBox = $("#cfBox");
+let cfResolve = null;
+function askConfirm(title, text, yesLabel = "بله") {
+  $("#cfTitle").textContent = title;
+  $("#cfText").textContent = text;
+  $("#cfYes").textContent = yesLabel;
+  return new Promise(res => {
+    cfResolve = res;
+    cfBox.showModal();
+    $("#cfNo").focus();
+  });
+}
+function cfDone(v) { const r = cfResolve; cfResolve = null; if (cfBox.open) cfBox.close(); if (r) r(v); }
+$("#cfYes").onclick = () => cfDone(true);
+$("#cfNo").onclick = () => cfDone(false);
+cfBox.addEventListener("cancel", () => { cfResolve && cfDone(false); });
+cfBox.addEventListener("click", e => { if (e.target === cfBox) cfDone(false); });
 const ACT = {
   pickDoc(d) { S.doc = d.id; S.date = null; S.time = null; go("day"); },
   pickDay(d) { S.date = d.iso; S.time = null; go("time"); },
   pickTime(d) { S.time = d.t; S.after = "confirm"; go(S.user ? "confirm" : "auth"); },
   close: closeWz,
-  async sendCode() {
+  async sendCode(d, btn) {
     const email = $("#fEmail").value.trim(), name = $("#fName").value.trim(), mob = $("#fMobile").value.trim(); S.form = { name, mob, email };
     if (name.length < 3) return showErr("#authMsg", "نام و نام خانوادگی را وارد کنید.");
     if (!/^(09|۰۹)[\d۰-۹]{9}$/.test(mob)) return showErr("#authMsg", "شمارهٔ موبایل را به شکل ۰۹۱۲۳۴۵۶۷۸۹ وارد کنید.");
-    try { await api("code", { email }, true); S.email = email; go("code"); } catch (e) { showErr("#authMsg", e.message); }
+    showErr("#authMsg", "");
+    setBusy(btn, true);
+    try { await api("code", { email }, true); S.email = email; go("code"); } catch (e) { showErr("#authMsg", e.message); } finally { setBusy(btn, false); }
   },
-  async verify() {
+  async verify(d, btn) {
+    showErr("#authMsg", "");
+    setBusy(btn, true);
     try {
       const r = await api("verify", { email: S.email, code: $("#fCode").value, name: S.form.name, mobile: S.form.mob }, true);
       S.user = { token: r.token, name: r.name, email: r.email }; localStorage.setItem("mh_user", JSON.stringify(S.user)); syncUser();
       S.stack = S.stack.filter(v => v !== "auth" && v !== "code");
-      if (S.after === "close") { S.after = null; closeWz(); return; }
-      S.view = S.after || "confirm"; render();
-    } catch (e) { showErr("#authMsg", e.message); }
+      const welcome = () => showMsg("ok", "ورود موفق", `${S.user.name} عزیز، با موفقیت وارد حساب خود شدید.`);
+      if (S.after === "close") { S.after = null; closeWz(); welcome(); return; }
+      S.view = S.after || "confirm"; render(); welcome();
+    } catch (e) { showErr("#authMsg", e.message); } finally { setBusy(btn, false); }
   },
-  async book() {
-    const b = body.querySelector("[data-a=book]"); b.disabled = true;
+  async book(d, btn) {
+    showErr("#msg", "");
+    setBusy(btn, true);
     try {
       S.res = await api("book", { token: S.user.token, doctor: S.doc, date: S.date, time: S.time }, true);
       S.stack = []; go("done", false); refresh();
-    } catch (e) { showErr("#msg", e.message); b.disabled = false; refresh(); }
+    } catch (e) { showErr("#msg", e.message); refresh(); } finally { setBusy(btn, false); }
   },
-  async cancel(d) {
-    if (!confirm("نوبت لغو شود؟")) return;
+  async cancel(d, btn) {
+    if (!await askConfirm("لغو نوبت", "آیا مطمئن هستید که این نوبت لغو شود؟", "بله، لغو شود")) return;
+    setBusy(btn, true);
     try {
       await api("cancel", { token: S.user.token, code: d.c }, true);
       refresh(); render();
-    } catch (e) { alert(e.message); }
+    } catch (e) { showMsg("warn", "لغو انجام نشد", e.message); } finally { setBusy(btn, false); }
   }
 };
 
-body.addEventListener("click", e => { const b = e.target.closest("[data-a]"); if (b && !b.disabled) ACT[b.dataset.a](b.dataset); });
+body.addEventListener("click", e => { const b = e.target.closest("[data-a]"); if (b && !b.disabled && !b.classList.contains("busy")) ACT[b.dataset.a](b.dataset, b); });
 body.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.tagName === "INPUT") body.querySelector(".primary-button")?.click(); });
 $("#wzBack").onclick = back; $("#wzClose").onclick = closeWz; wz.addEventListener("click", e => { if (e.target === wz) closeWz(); });
 document.addEventListener("click", e => {
@@ -267,7 +323,19 @@ document.addEventListener("click", e => {
 });
 
 function syncUser() { const on = !!S.user; $("#mineBtn").hidden = !on; $("#userLine").hidden = !on; $("#navLogin").hidden = on; $("#navLogout").hidden = !on; if (on) $("#hello").textContent = "ورود با " + S.user.email; }
-function logout() { S.user = null; localStorage.removeItem("mh_user"); syncUser(); }
+function logout(reason) {
+  const wasIn = !!S.user;
+  S.user = null; localStorage.removeItem("mh_user"); syncUser();
+  if (!wasIn) return;
+  if (reason === "expired") showMsg("warn", "نشست شما منقضی شد", "برای ادامه، لطفاً دوباره وارد شوید.");
+  else showMsg("out", "خروج انجام شد", "با موفقیت از حساب خود خارج شدید.");
+}
+function onLogoutClick(e) {
+  const b = e.currentTarget;
+  if (b.classList.contains("busy")) return;
+  setBusy(b, true);
+  setTimeout(() => { setBusy(b, false); logout(); }, 700);
+}
 
 async function refresh() {
   const staticFetch = fetch("./data.json?t=" + Math.floor(Date.now() / 60000))
@@ -287,8 +355,8 @@ async function refresh() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  $("#logout").onclick = logout;
-  $("#navLogout").onclick = logout;
+  $("#logout").onclick = onLogoutClick;
+  $("#navLogout").onclick = onLogoutClick;
   syncUser();
   if (S.loaded) {
     renderDoctors();
@@ -309,3 +377,6 @@ function reveal() {
 }
 document.addEventListener("DOMContentLoaded", reveal);
 addEventListener("scroll", () => document.querySelector(".site-header").classList.toggle("sc", scrollY > 10), { passive: true });
+
+/* در iOS Safari برای کار کردن :active باید یک شنوندهٔ لمس وجود داشته باشد */
+document.addEventListener("touchstart", () => {}, { passive: true });
