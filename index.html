@@ -215,15 +215,7 @@
                     </span>
                 </div>
 
-                <div class="doctor-placeholder">
-                    <div class="doctor-placeholder-icon">✚</div>
-                    <h3>برنامه پزشکان</h3>
-                    <p>
-                        فهرست پزشکان و ساعت‌های حضور آن‌ها در این بخش
-                        نمایش داده خواهد شد.
-                    </p>
-                    <a href="#booking">مشاهده بخش نوبت‌دهی ←</a>
-                </div>
+                <div id="doctorList"><p>در حال بارگذاری…</p></div>
 
             </div>
         </section>
@@ -232,22 +224,34 @@
         <section class="booking-section section-space" id="booking">
             <div class="container">
 
-                <div class="booking-panel">
+                <div class="bk">
+                    <span class="section-kicker">ONLINE APPOINTMENT</span>
+                    <h2>دریافت نوبت اینترنتی</h2>
 
-                    <div>
-                        <span class="section-kicker">ONLINE APPOINTMENT</span>
-                        <h2>برای دریافت نوبت آماده‌اید؟</h2>
-                        <p>
-                            پزشک موردنظر خود را انتخاب کنید و درخواست نوبت
-                            اینترنتی خود را ثبت کنید.
-                        </p>
+                    <div id="authBox">
+                        <p>برای رزرو، ثبت‌نام کنید یا وارد شوید. کد ورود به ایمیل شما ارسال می‌شود.</p>
+                        <div class="form-grid">
+                            <input id="fName" placeholder="نام و نام خانوادگی" autocomplete="name">
+                            <input id="fMobile" placeholder="موبایل (مثلاً 09123456789)" inputmode="numeric" autocomplete="tel">
+                            <input id="fEmail" type="email" placeholder="ایمیل" dir="ltr" autocomplete="email">
+                        </div>
+                        <button type="button" id="sendCode" class="primary-button">ارسال کد ورود</button>
+                        <div id="codeRow" hidden>
+                            <input id="fCode" placeholder="کد ۶ رقمی" inputmode="numeric" dir="ltr">
+                            <button type="button" id="verify" class="primary-button">ورود</button>
+                        </div>
+                        <div id="authMsg"></div>
                     </div>
 
-                    <a href="#doctors" class="booking-button">
-                        ورود به سامانه نوبت‌دهی
-                        <span>←</span>
-                    </a>
-
+                    <div id="steps" hidden>
+                        <p class="bk-user"><span id="hello"></span> <button type="button" id="logout" class="link-btn">خروج</button></p>
+                        <h3>۱. پزشک</h3><div id="pickDoc" class="chips"></div>
+                        <h3>۲. روز</h3><div id="pickDay" class="chips"><small>ابتدا پزشک را انتخاب کنید.</small></div>
+                        <h3>۳. ساعت حضور در درمانگاه</h3><div id="pickTime" class="chips"></div>
+                        <button type="button" id="confirm" class="primary-button">ثبت نوبت</button>
+                        <div id="msg"></div>
+                        <h3>نوبت‌های من</h3><div id="mine"></div>
+                    </div>
                 </div>
 
             </div>
@@ -314,6 +318,7 @@
 
 </div>
 
+<script src="js/config.js"></script>
 <script src="js/app.js"></script>
 
 </body>
