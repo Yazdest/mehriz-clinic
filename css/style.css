@@ -1,17 +1,18 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-    --primary: #123c35;
-    --primary-light: #1d5b4e;
-    --accent: #c69b58;
-    --background: #f5f7f5;
+    --primary: #087f83;
+    --primary-dark: #075e62;
+    --primary-light: #e7f5f3;
+    --brick: #9b493c;
+    --background: #f7f9f8;
     --surface: #ffffff;
-    --text: #20312c;
-    --muted: #718078;
-    --border: #e5ebe7;
-    --radius: 18px;
-    --shadow: 0 8px 30px rgba(18, 60, 53, 0.07);
+    --text: #203331;
+    --muted: #788783;
+    --border: #e8eeeb;
+    --radius: 20px;
+    --shadow: 0 12px 35px rgba(24, 65, 58, .07);
 }
 
 * {
@@ -22,22 +23,16 @@
 
 html {
     scroll-behavior: smooth;
+    scroll-padding-top: 100px;
 }
 
 body {
+    direction: rtl;
     font-family: 'Vazirmatn', Tahoma, sans-serif;
     background: var(--background);
     color: var(--text);
     line-height: 1.9;
-    direction: rtl;
-    min-height: 100vh;
-}
-
-button,
-input,
-select,
-textarea {
-    font: inherit;
+    overflow-x: hidden;
 }
 
 a {
@@ -45,92 +40,777 @@ a {
     color: inherit;
 }
 
-#app {
-    width: 100%;
-    min-height: 100vh;
+button,
+input {
+    font: inherit;
 }
 
-header {
-    position: relative;
-    overflow: hidden;
-    background: linear-gradient(135deg, #123c35, #1d5b4e);
+.container {
+    width: min(1160px, 92%);
+    margin-inline: auto;
+}
+
+.section-space {
+    padding: 95px 0;
+}
+
+/* نوار بالا */
+
+.topbar {
+    background: var(--primary-dark);
+    color: #e8f8f5;
+    font-size: 12px;
+}
+
+.topbar-inner {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px 0;
+}
+
+/* هدر */
+
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, .96);
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid var(--border);
+}
+
+.nav-container {
+    min-height: 83px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand-mark {
+    width: 45px;
+    height: 45px;
+    display: grid;
+    place-items: center;
+    border-radius: 15px;
     color: white;
-    text-align: center;
-    padding: 65px 20px 75px;
+    background: var(--primary);
+    font-size: 25px;
+    font-weight: 900;
 }
 
-header::after {
-    content: "";
-    position: absolute;
-    width: 280px;
-    height: 280px;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 50%;
-    top: -170px;
-    left: -70px;
+.brand-name {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.7;
 }
 
-header h1 {
-    position: relative;
-    z-index: 1;
-    font-size: clamp(25px, 5vw, 42px);
-    font-weight: 800;
-    letter-spacing: -1px;
-}
-
-header p {
-    position: relative;
-    z-index: 1;
-    margin-top: 10px;
-    color: rgba(255,255,255,0.8);
+.brand-name strong {
     font-size: 15px;
+    color: var(--primary-dark);
 }
 
-main {
-    width: min(92%, 1100px);
-    margin: -25px auto 60px;
+.brand-name small {
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 27px;
+}
+
+.main-nav a {
+    font-size: 13px;
+    font-weight: 500;
+    color: #52615d;
+    transition: color .2s;
+}
+
+.main-nav a:hover {
+    color: var(--primary);
+}
+
+.nav-button {
+    background: var(--primary);
+    color: white;
+    padding: 10px 19px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: .25s;
+}
+
+.nav-button:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.nav-button span {
+    margin-right: 8px;
+}
+
+/* بخش اصلی */
+
+.hero {
+    min-height: 590px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: #123d3c;
+    color: white;
+}
+
+.hero-image {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(90deg,
+            rgba(5, 45, 46, .35),
+            rgba(5, 45, 46, .92)),
+        url('https://raw.githubusercontent.com/Yazdest/mehriz-clinic/main/mehriz-clinic-pic.jpg');
+    background-size: cover;
+    background-position: center;
+    opacity: .95;
+}
+
+.hero-content {
     position: relative;
     z-index: 2;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 40px 30px;
-    box-shadow: var(--shadow);
-    text-align: center;
+    padding-top: 70px;
+    padding-bottom: 100px;
 }
 
-main h2 {
+.hero-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 15px;
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 30px;
+    background: rgba(255,255,255,.08);
+    font-size: 12px;
+    color: #e6f5f0;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #7ce0b2;
+}
+
+.hero h1 {
+    font-size: clamp(35px, 5vw, 58px);
+    line-height: 1.55;
+    font-weight: 900;
+    margin-top: 28px;
+    max-width: 700px;
+}
+
+.hero-content > p {
+    max-width: 580px;
+    color: #d5e7e2;
+    font-size: 15px;
+    line-height: 2.2;
+    margin-top: 16px;
+}
+
+.hero-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 13px;
+    margin-top: 30px;
+}
+
+.primary-button,
+.secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 13px 23px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    transition: .25s;
+}
+
+.primary-button {
+    color: var(--primary-dark);
+    background: white;
+}
+
+.primary-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,.18);
+}
+
+.primary-button span {
+    margin-right: 10px;
+}
+
+.secondary-button {
+    color: white;
+    border: 1px solid rgba(255,255,255,.4);
+}
+
+.secondary-button:hover {
+    background: rgba(255,255,255,.12);
+}
+
+.hero-note {
+    margin-top: 30px;
+    color: #d4e7e2;
+    font-size: 12px;
+}
+
+.hero-note span {
+    color: #f1c28b;
+    margin-left: 7px;
+}
+
+.hero-bottom {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: rgba(0,0,0,.16);
+    z-index: 2;
+}
+
+.hero-bottom .container {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    font-size: 10px;
+    color: rgba(255,255,255,.75);
+    letter-spacing: 1px;
+}
+
+/* دسترسی سریع */
+
+.quick-access {
+    position: relative;
+    z-index: 3;
+    margin-top: -1px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+}
+
+.quick-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.quick-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 27px 22px;
+    border-left: 1px solid var(--border);
+    transition: .25s;
+}
+
+.quick-item:last-child {
+    border-left: none;
+}
+
+.quick-item:hover {
+    background: var(--primary-light);
+}
+
+.quick-icon {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 15px;
     color: var(--primary);
+    background: var(--primary-light);
     font-size: 23px;
+}
+
+.quick-item > span:last-child {
+    display: flex;
+    flex-direction: column;
+}
+
+.quick-item strong {
+    font-size: 14px;
+}
+
+.quick-item small {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+/* معرفی */
+
+.intro {
+    background: var(--background);
+}
+
+.intro-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 90px;
+    align-items: center;
+}
+
+.section-kicker {
+    display: block;
+    color: var(--primary);
+    font-size: 10px;
     font-weight: 800;
+    letter-spacing: 2px;
     margin-bottom: 12px;
 }
 
-main p {
-    color: var(--muted);
-    font-size: 15px;
+.intro-heading h2 {
+    font-size: 37px;
+    line-height: 1.8;
+    color: var(--primary-dark);
+    font-weight: 900;
 }
 
-@media (max-width: 600px) {
-    header {
-        padding: 48px 16px 65px;
+.heading-line {
+    width: 65px;
+    height: 4px;
+    border-radius: 5px;
+    background: var(--brick);
+    margin-top: 20px;
+}
+
+.intro-text p {
+    color: #64736e;
+    font-size: 14px;
+    line-height: 2.5;
+    margin-bottom: 15px;
+}
+
+/* عنوان بخش ها */
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 20px;
+    margin-bottom: 35px;
+}
+
+.section-heading h2 {
+    font-size: 29px;
+    font-weight: 900;
+    color: var(--primary-dark);
+}
+
+.section-heading > p,
+.section-description {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+/* خدمات */
+
+.services {
+    background: white;
+}
+
+.service-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.service-card {
+    position: relative;
+    padding: 30px;
+    min-height: 220px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: white;
+    transition: .3s;
+}
+
+.service-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow);
+    border-color: #cce6df;
+}
+
+.service-number {
+    position: absolute;
+    top: 20px;
+    left: 22px;
+    color: #b8c8c1;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.service-symbol {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border-radius: 16px;
+    font-size: 25px;
+}
+
+.service-card h3 {
+    font-size: 17px;
+    margin-top: 20px;
+    color: var(--primary-dark);
+}
+
+.service-card p {
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 2.2;
+}
+
+/* پزشکان */
+
+.doctors {
+    background: var(--background);
+}
+
+.doctor-placeholder {
+    text-align: center;
+    padding: 55px 20px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.doctor-placeholder-icon {
+    width: 65px;
+    height: 65px;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 17px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border-radius: 20px;
+    font-size: 29px;
+}
+
+.doctor-placeholder h3 {
+    font-size: 19px;
+    color: var(--primary-dark);
+}
+
+.doctor-placeholder p {
+    margin: 8px auto 15px;
+    max-width: 450px;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.doctor-placeholder a {
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* بخش رزرو */
+
+.booking-section {
+    padding-top: 30px;
+}
+
+.booking-panel {
+    padding: 42px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 25px;
+    background: linear-gradient(115deg, #075e62, #0b8888);
+    border-radius: 25px;
+    color: white;
+    overflow: hidden;
+}
+
+.booking-panel .section-kicker {
+    color: #b6e6d9;
+}
+
+.booking-panel h2 {
+    font-size: 27px;
+    font-weight: 900;
+}
+
+.booking-panel p {
+    margin-top: 8px;
+    color: #d8efeb;
+    font-size: 13px;
+}
+
+.booking-button {
+    flex-shrink: 0;
+    padding: 14px 22px;
+    border-radius: 12px;
+    color: var(--primary-dark);
+    background: white;
+    font-size: 13px;
+    font-weight: 800;
+    transition: .25s;
+}
+
+.booking-button:hover {
+    transform: translateY(-3px);
+}
+
+.booking-button span {
+    margin-right: 8px;
+}
+
+/* راهنما */
+
+.guide {
+    background: white;
+}
+
+.guide-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.guide-item {
+    padding: 25px 20px;
+    border-right: 2px solid var(--primary-light);
+}
+
+.guide-item > span {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    background: var(--primary);
+    color: white;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.guide-item h3 {
+    font-size: 15px;
+    margin-top: 17px;
+    color: var(--primary-dark);
+}
+
+.guide-item p {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 7px;
+    line-height: 2.2;
+}
+
+/* فوتر */
+
+.site-footer {
+    background: #123c3b;
+    color: white;
+    padding: 35px 0;
+}
+
+.footer-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.footer-content h3 {
+    font-size: 16px;
+}
+
+.footer-content p,
+.footer-copy {
+    color: #b9d1cb;
+    font-size: 11px;
+    margin-top: 5px;
+}
+
+/* واکنش گرایی */
+
+@media (max-width: 900px) {
+    .main-nav {
+        gap: 13px;
     }
 
-    header h1 {
-        font-size: 25px;
+    .main-nav a {
+        font-size: 11px;
     }
 
-    header p {
+    .intro-grid {
+        gap: 40px;
+    }
+
+    .guide-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 650px) {
+
+    .container {
+        width: 91%;
+    }
+
+    .section-space {
+        padding: 65px 0;
+    }
+
+    .topbar-inner {
+        font-size: 10px;
+    }
+
+    .nav-container {
+        min-height: 70px;
+        gap: 8px;
+    }
+
+    .brand-mark {
+        width: 39px;
+        height: 39px;
+    }
+
+    .brand-name strong {
+        font-size: 12px;
+    }
+
+    .brand-name small {
+        font-size: 10px;
+    }
+
+    .main-nav {
+        display: none;
+    }
+
+    .nav-button {
+        padding: 9px 12px;
+        font-size: 11px;
+    }
+
+    .hero {
+        min-height: 540px;
+    }
+
+    .hero-image {
+        background-image:
+            linear-gradient(90deg,
+                rgba(5, 45, 46, .58),
+                rgba(5, 45, 46, .88)),
+            url('https://raw.githubusercontent.com/Yazdest/mehriz-clinic/main/mehriz-clinic-pic.jpg');
+        background-position: center;
+    }
+
+    .hero-content {
+        padding-top: 65px;
+        padding-bottom: 90px;
+    }
+
+    .hero h1 {
+        font-size: 35px;
+    }
+
+    .hero-content > p {
         font-size: 13px;
     }
 
-    main {
-        width: 92%;
-        padding: 30px 18px;
-        margin-top: -22px;
+    .hero-bottom .container {
+        font-size: 9px;
     }
 
-    main h2 {
-        font-size: 20px;
+    .quick-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-item {
+        padding: 17px 8px;
+        border-left: none;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .quick-item:last-child {
+        border-bottom: none;
+    }
+
+    .intro-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .intro-heading h2 {
+        font-size: 30px;
+    }
+
+    .section-heading {
+        align-items: start;
+        flex-direction: column;
+    }
+
+    .section-heading h2 {
+        font-size: 24px;
+    }
+
+    .service-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .service-card {
+        min-height: auto;
+    }
+
+    .booking-panel {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 28px 22px;
+    }
+
+    .booking-panel h2 {
+        font-size: 21px;
+    }
+
+    .booking-button {
+        width: 100%;
+        text-align: center;
+    }
+
+    .guide-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .guide-item {
+        padding: 18px 12px;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 370px) {
+    .hero h1 {
+        font-size: 30px;
+    }
+
+    .guide-grid {
+        grid-template-columns: 1fr;
     }
 }
