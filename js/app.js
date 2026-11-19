@@ -133,7 +133,7 @@ function render() {
   const v = S.view;
   $("#wzTitle").textContent = TITLES[v];
   $("#wzBack").hidden = !S.stack.length || v === "done";
-  $("#wzProg").innerHTML = STEP[v] ? [1, 2, 3, 4].map(i => `<i class="${i <= STEP[v] ? "on" : ""}"></i>`).join("") : "";
+  $("#wzProg").innerHTML = STEP[v] && ((v !== "auth" && v !== "code") || S.after === "confirm") ? [1, 2, 3, 4].map(i => `<i class="${i <= STEP[v] ? "on" : ""}"></i>`).join("") : "";
   body.className = "wz-body"; void body.offsetWidth; body.className = "wz-body vin"; body.scrollTop = 0;
   VIEWS[v]();
 }
