@@ -1,22 +1,20 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap');
-
-/* =================================
-   01 - VARIABLES & RESET
-================================= */
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap');
 
 :root {
     --primary: #087f83;
     --primary-dark: #075e62;
-    --primary-light: #e7f5f3;
-    --brick: #9b493c;
-    --background: #f7f9f8;
+    --primary-light: #e8f5f3;
+    --accent: #b98242;
+    --background: #f6f8f7;
     --surface: #ffffff;
-    --text: #203331;
-    --muted: #788783;
-    --border: #e8eeeb;
+    --text: #243632;
+    --muted: #71817b;
+    --border: #e4ebe7;
+    --success: #23865a;
+    --danger: #c64c4c;
     --radius: 20px;
-    --shadow: 0 12px 35px rgba(24, 65, 58, .07);
+    --shadow: 0 12px 35px rgba(20, 65, 55, 0.07);
+    --container: 1180px;
 }
 
 * {
@@ -27,7 +25,7 @@
 
 html {
     scroll-behavior: smooth;
-    scroll-padding-top: 100px;
+    scroll-padding-top: 90px;
 }
 
 body {
@@ -36,970 +34,1058 @@ body {
     background: var(--background);
     color: var(--text);
     line-height: 1.9;
+    min-width: 320px;
     overflow-x: hidden;
 }
 
-a {
-    text-decoration: none;
-    color: inherit;
+body,
+button,
+input,
+select,
+textarea {
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
 }
 
 button,
-input {
-    font: inherit;
+input,
+select,
+textarea {
+    font-size: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
 }
 
 img {
     max-width: 100%;
-    display: block;
 }
 
-.container {
-    width: min(1160px, 92%);
+.container,
+.wrapper {
+    width: min(92%, var(--container));
     margin-inline: auto;
 }
 
-.section-space {
-    padding: 95px 0;
-}
-
-
-/* =================================
-   02 - TOP BAR
-================================= */
+/* نوار بالایی */
 
 .topbar {
     background: var(--primary-dark);
-    color: #e8f8f5;
-    font-size: 12px;
-}
-
-.topbar-inner {
-    display: flex;
-    justify-content: space-between;
+    color: #fff;
     padding: 7px 0;
+    font-size: 12px;
+    text-align: center;
 }
 
+.topbar p,
+.topbar span {
+    color: rgba(255, 255, 255, 0.9);
+}
 
-/* =================================
-   03 - HEADER
-================================= */
+/* سربرگ */
 
-.site-header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(255, 255, 255, .96);
-    backdrop-filter: blur(15px);
+.site-header,
+.main-header {
+    position: relative;
+    z-index: 20;
+    background: rgba(255, 255, 255, 0.97);
     border-bottom: 1px solid var(--border);
 }
 
-.nav-container {
-    min-height: 83px;
+.header-inner {
+    width: min(92%, var(--container));
+    min-height: 82px;
+    margin: auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 25px;
 }
 
+.logo,
 .brand {
     display: flex;
     align-items: center;
     gap: 12px;
-    flex-shrink: 0;
-}
-
-.brand-mark {
-    width: 45px;
-    height: 45px;
-    display: grid;
-    place-items: center;
-    border-radius: 15px;
-    color: white;
-    background: var(--primary);
-    font-size: 25px;
-    font-weight: 900;
-}
-
-.brand-name {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.7;
-}
-
-.brand-name strong {
-    font-size: 15px;
     color: var(--primary-dark);
+    font-weight: 900;
+    font-size: 18px;
 }
 
-.brand-name small {
-    font-size: 11px;
-    color: var(--muted);
+.logo img,
+.brand img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
 }
 
+.nav,
 .main-nav {
     display: flex;
     align-items: center;
-    gap: 27px;
+    gap: 25px;
 }
 
+.nav a,
 .main-nav a {
+    color: #52635d;
     font-size: 13px;
-    font-weight: 500;
-    color: #52615d;
-    transition: color .2s;
+    font-weight: 600;
+    transition: color 0.2s ease;
 }
 
+.nav a:hover,
 .main-nav a:hover {
     color: var(--primary);
 }
 
-.nav-button {
-    background: var(--primary);
-    color: white;
-    padding: 10px 19px;
+.header-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
     border-radius: 12px;
+    background: var(--primary);
+    color: #fff;
     font-size: 13px;
-    font-weight: 600;
-    transition: .25s;
-    flex-shrink: 0;
+    font-weight: 700;
+    transition: 0.2s ease;
 }
 
-.nav-button:hover {
+.header-button:hover {
     background: var(--primary-dark);
     transform: translateY(-2px);
 }
 
-.nav-button span {
-    margin-right: 8px;
-}
-
-
-/* =================================
-   04 - HERO SECTION
-================================= */
+/* بخش اصلی معرفی */
 
 .hero {
-    min-height: 590px;
     position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: 530px;
     display: flex;
     align-items: center;
-    overflow: hidden;
     background: #123d3c;
-    color: white;
+    color: #fff;
 }
 
 .hero-image {
     position: absolute;
     inset: 0;
-
+    z-index: -2;
     background-image:
         linear-gradient(
             90deg,
-            rgba(5, 45, 46, .35),
-            rgba(5, 45, 46, .92)
+            rgba(8, 35, 32, 0.88) 0%,
+            rgba(8, 35, 32, 0.62) 48%,
+            rgba(8, 35, 32, 0.25) 100%
         ),
         url('https://raw.githubusercontent.com/Yazdest/mehriz-clinic/main/mehriz-clinic-pic.jpg');
-
-    background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: .95;
+    background-size: cover;
+}
+
+.hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(
+        0deg,
+        rgba(7, 40, 36, 0.48),
+        transparent 45%
+    );
 }
 
 .hero-content {
+    width: min(92%, var(--container));
+    margin: auto;
+    padding: 75px 0 90px;
     position: relative;
     z-index: 2;
-    padding-top: 70px;
-    padding-bottom: 100px;
+    max-width: var(--container);
 }
 
-.hero-label {
+.hero-badge {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     padding: 7px 15px;
-    border: 1px solid rgba(255,255,255,.3);
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
     border-radius: 30px;
-    background: rgba(255,255,255,.08);
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
     font-size: 12px;
-    color: #e6f5f0;
-}
-
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #7ce0b2;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
 }
 
 .hero h1 {
-    font-size: clamp(35px, 5vw, 58px);
-    line-height: 1.55;
-    font-weight: 900;
-    margin-top: 28px;
     max-width: 700px;
+    font-size: clamp(34px, 5vw, 58px);
+    font-weight: 900;
+    line-height: 1.55;
+    color: #fff;
+    margin-bottom: 16px;
 }
 
-.hero-content > p {
-    max-width: 580px;
-    color: #d5e7e2;
-    font-size: 15px;
+.hero p {
+    max-width: 620px;
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 16px;
     line-height: 2.2;
-    margin-top: 16px;
 }
 
 .hero-actions {
     display: flex;
-    align-items: center;
     flex-wrap: wrap;
+    align-items: center;
     gap: 13px;
-    margin-top: 30px;
+    margin-top: 28px;
 }
 
+.btn,
 .primary-button,
 .secondary-button {
+    min-height: 48px;
+    padding: 11px 23px;
+    border: 1px solid transparent;
+    border-radius: 13px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 13px 23px;
-    border-radius: 12px;
+    gap: 8px;
     font-size: 13px;
-    font-weight: 700;
-    transition: .25s;
+    font-weight: 800;
+    transition: 0.2s ease;
 }
 
+.btn-primary,
 .primary-button {
-    color: var(--primary-dark);
-    background: white;
+    background: var(--primary);
+    color: #fff;
 }
 
+.btn-primary:hover,
 .primary-button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,.18);
+    background: var(--primary-dark);
+    transform: translateY(-2px);
 }
 
-.primary-button span {
-    margin-right: 10px;
-}
-
+.btn-secondary,
 .secondary-button {
-    color: white;
-    border: 1px solid rgba(255,255,255,.4);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.55);
+    background: rgba(255, 255, 255, 0.1);
 }
 
+.btn-secondary:hover,
 .secondary-button:hover {
-    background: rgba(255,255,255,.12);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .hero-note {
-    margin-top: 30px;
-    color: #d4e7e2;
+    margin-top: 22px;
+    color: rgba(255, 255, 255, 0.75);
     font-size: 12px;
 }
 
-.hero-note span {
-    color: #f1c28b;
-    margin-left: 7px;
-}
-
-.hero-bottom {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    background: rgba(0,0,0,.16);
-    z-index: 2;
-}
-
-.hero-bottom .container {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 0;
-    font-size: 10px;
-    color: rgba(255,255,255,.75);
-    letter-spacing: 1px;
-}
-
-
-/* =================================
-   05 - QUICK ACCESS
-================================= */
+/* دسترسی سریع */
 
 .quick-access {
+    width: min(92%, 1000px);
+    margin: -35px auto 55px;
     position: relative;
-    z-index: 3;
-    background: white;
-    border-bottom: 1px solid var(--border);
-}
-
-.quick-grid {
+    z-index: 5;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
 }
 
-.quick-item {
+.quick-card,
+.quick-access a {
+    min-height: 88px;
+    padding: 18px;
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 27px 22px;
-    border-left: 1px solid var(--border);
-    transition: .25s;
-}
-
-.quick-item:last-child {
-    border-left: none;
-}
-
-.quick-item:hover {
-    background: var(--primary-light);
-}
-
-.quick-icon {
-    width: 48px;
-    height: 48px;
-    display: grid;
-    place-items: center;
-    flex-shrink: 0;
-    border-radius: 15px;
-    color: var(--primary);
-    background: var(--primary-light);
-    font-size: 23px;
-}
-
-.quick-item > span:last-child {
-    display: flex;
-    flex-direction: column;
-}
-
-.quick-item strong {
-    font-size: 14px;
-}
-
-.quick-item small {
-    color: var(--muted);
-    font-size: 11px;
-}
-
-
-/* =================================
-   06 - INTRODUCTION
-================================= */
-
-.intro {
-    background: var(--background);
-}
-
-.intro-grid {
-    display: grid;
-    grid-template-columns: 1fr 1.3fr;
-    gap: 90px;
-    align-items: center;
-}
-
-.section-kicker {
-    display: block;
-    color: var(--primary);
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    margin-bottom: 12px;
-}
-
-.intro-heading h2 {
-    font-size: 37px;
-    line-height: 1.8;
+    justify-content: center;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 17px;
+    box-shadow: var(--shadow);
     color: var(--primary-dark);
-    font-weight: 900;
-}
-
-.heading-line {
-    width: 65px;
-    height: 4px;
-    border-radius: 5px;
-    background: var(--brick);
-    margin-top: 20px;
-}
-
-.intro-text p {
-    color: #64736e;
     font-size: 14px;
-    line-height: 2.5;
-    margin-bottom: 15px;
+    font-weight: 800;
+    transition: 0.2s ease;
 }
 
+.quick-card:hover,
+.quick-access a:hover {
+    transform: translateY(-4px);
+    border-color: rgba(8, 127, 131, 0.35);
+}
 
-/* =================================
-   07 - SECTION HEADINGS
-================================= */
+.quick-card span,
+.quick-access a span {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* بخش‌های عمومی */
+
+section {
+    scroll-margin-top: 90px;
+}
+
+.section {
+    width: min(92%, var(--container));
+    margin: 0 auto 75px;
+}
 
 .section-heading {
-    display: flex;
-    justify-content: space-between;
-    align-items: end;
-    gap: 20px;
-    margin-bottom: 35px;
+    margin-bottom: 28px;
+    text-align: center;
+}
+
+.section-heading span {
+    display: inline-block;
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 7px;
 }
 
 .section-heading h2 {
+    color: var(--primary-dark);
+    font-size: clamp(23px, 3vw, 32px);
+    font-weight: 900;
+}
+
+.section-heading p {
+    max-width: 650px;
+    margin: 9px auto 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+/* معرفی درمانگاه */
+
+.intro,
+.about-section {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+    gap: 45px;
+}
+
+.intro-content h2,
+.about-content h2 {
+    color: var(--primary-dark);
     font-size: 29px;
     font-weight: 900;
-    color: var(--primary-dark);
+    margin-bottom: 15px;
 }
 
-.section-heading > p,
-.section-description {
+.intro-content p,
+.about-content p {
     color: var(--muted);
-    font-size: 12px;
+    font-size: 14px;
+    line-height: 2.3;
 }
 
-
-/* =================================
-   08 - SERVICES
-================================= */
-
-.services {
-    background: white;
+.intro-image,
+.about-image {
+    min-height: 280px;
+    border-radius: 22px;
+    overflow: hidden;
+    background: var(--primary-light);
 }
 
-.service-grid {
+.intro-image img,
+.about-image img {
+    width: 100%;
+    height: 100%;
+    min-height: 280px;
+    object-fit: cover;
+    display: block;
+}
+
+/* کارت خدمات */
+
+.services-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
 }
 
 .service-card {
-    position: relative;
-    padding: 30px;
-    min-height: 220px;
+    padding: 27px 23px;
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    background: white;
-    transition: .3s;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    transition: 0.25s ease;
 }
 
 .service-card:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--shadow);
-    border-color: #cce6df;
+    transform: translateY(-5px);
+    border-color: rgba(8, 127, 131, 0.35);
 }
 
-.service-number {
-    position: absolute;
-    top: 20px;
-    left: 22px;
-    color: #b8c8c1;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.service-symbol {
+.service-icon {
+    width: 54px;
+    height: 54px;
     display: grid;
     place-items: center;
-    width: 52px;
-    height: 52px;
+    margin-bottom: 18px;
+    border-radius: 16px;
     background: var(--primary-light);
     color: var(--primary);
-    border-radius: 16px;
-    font-size: 25px;
+    font-size: 24px;
 }
 
 .service-card h3 {
-    font-size: 17px;
-    margin-top: 20px;
     color: var(--primary-dark);
+    font-size: 17px;
+    font-weight: 800;
+    margin-bottom: 8px;
 }
 
 .service-card p {
-    margin-top: 7px;
     color: var(--muted);
-    font-size: 12px;
-    line-height: 2.2;
+    font-size: 13px;
+    line-height: 2.1;
 }
 
+/* پزشکان */
 
-/* =================================
-   09 - DOCTORS
-================================= */
-
-.doctors {
-    background: var(--background);
+.doctors-section {
+    padding: 55px 0;
+    background: #eef4f1;
 }
 
-.doctor-placeholder {
+.doctors-section .section {
+    margin-bottom: 0;
+}
+
+.doctors-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.doctor-card {
+    padding: 23px;
     text-align: center;
-    padding: 55px 20px;
-    background: white;
+    background: #fff;
     border: 1px solid var(--border);
     border-radius: var(--radius);
+    box-shadow: 0 8px 25px rgba(20, 65, 55, 0.05);
 }
 
-.doctor-placeholder-icon {
-    width: 65px;
-    height: 65px;
-    display: grid;
-    place-items: center;
-    margin: 0 auto 17px;
+.doctor-card img {
+    width: 92px;
+    height: 92px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    object-fit: cover;
     background: var(--primary-light);
-    color: var(--primary);
-    border-radius: 20px;
-    font-size: 29px;
 }
 
-.doctor-placeholder h3 {
-    font-size: 19px;
+.doctor-card h3 {
     color: var(--primary-dark);
+    font-size: 16px;
+    font-weight: 800;
 }
 
-.doctor-placeholder p {
-    margin: 8px auto 15px;
-    max-width: 450px;
+.doctor-card p {
+    margin-top: 5px;
     color: var(--muted);
     font-size: 13px;
 }
 
-.doctor-placeholder a {
-    color: var(--primary);
+.doctors-placeholder {
+    padding: 30px;
+    text-align: center;
+    border: 1px dashed #b8ccc3;
+    border-radius: var(--radius);
+    color: var(--muted);
+    background: rgba(255, 255, 255, 0.65);
+    font-size: 14px;
+}
+
+/* بخش رزرو نوبت */
+
+.booking-section {
+    width: min(92%, 950px);
+    margin: 75px auto;
+}
+
+.booking-panel {
+    padding: 35px;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
+
+.booking-panel h2 {
+    color: var(--primary-dark);
+    font-size: 25px;
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+.booking-panel > p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+
+.booking-form,
+form {
+    width: 100%;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    text-align: right;
+}
+
+.form-group label {
+    color: #40534c;
     font-size: 13px;
     font-weight: 700;
 }
 
-
-/* =================================
-   10 - BOOKING
-================================= */
-
-.booking-section {
-    padding-top: 30px;
+.form-group input,
+.form-group select,
+.form-group textarea,
+input,
+select,
+textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 11px 14px;
+    color: var(--text);
+    background: #fbfcfb;
+    border: 1px solid #dce6e0;
+    border-radius: 11px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.booking-panel {
-    padding: 42px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 25px;
-    background: linear-gradient(115deg, #075e62, #0b8888);
-    border-radius: 25px;
-    color: white;
-    overflow: hidden;
+.form-group textarea,
+textarea {
+    min-height: 110px;
+    resize: vertical;
 }
 
-.booking-panel .section-kicker {
-    color: #b6e6d9;
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(8, 127, 131, 0.1);
 }
 
-.booking-panel h2 {
-    font-size: 27px;
-    font-weight: 900;
+.form-group input::placeholder,
+.form-group textarea::placeholder,
+input::placeholder,
+textarea::placeholder {
+    color: #a2aea8;
+    font-size: 12px;
 }
 
-.booking-panel p {
-    margin-top: 8px;
-    color: #d8efeb;
-    font-size: 13px;
+.form-actions {
+    margin-top: 23px;
 }
 
-.booking-button {
-    flex-shrink: 0;
-    padding: 14px 22px;
+.form-actions button,
+.booking-form button[type="submit"] {
+    width: 100%;
+    min-height: 50px;
+    border: 0;
     border-radius: 12px;
-    color: var(--primary-dark);
-    background: white;
-    font-size: 13px;
+    background: var(--primary);
+    color: #fff;
     font-weight: 800;
-    transition: .25s;
+    transition: 0.2s ease;
 }
 
-.booking-button:hover {
-    transform: translateY(-3px);
+.form-actions button:hover,
+.booking-form button[type="submit"]:hover {
+    background: var(--primary-dark);
 }
 
-.booking-button span {
-    margin-right: 8px;
+.form-message,
+.message {
+    margin-top: 15px;
+    padding: 12px 15px;
+    border-radius: 10px;
+    font-size: 13px;
 }
 
-
-/* =================================
-   11 - GUIDE
-================================= */
-
-.guide {
-    background: white;
-}
+/* راهنمای دریافت نوبت */
 
 .guide-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
 }
 
-.guide-item {
-    padding: 25px 20px;
-    border-right: 2px solid var(--primary-light);
+.guide-card {
+    padding: 22px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 17px;
+    text-align: center;
 }
 
-.guide-item > span {
+.guide-number {
     width: 42px;
     height: 42px;
+    margin: 0 auto 13px;
     display: grid;
     place-items: center;
-    border-radius: 13px;
-    background: var(--primary);
-    color: white;
-    font-size: 17px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 900;
+}
+
+.guide-card h3 {
+    color: var(--primary-dark);
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 7px;
+}
+
+.guide-card p {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 2;
+}
+
+/* فوتر */
+
+.site-footer,
+footer {
+    padding: 45px 0 20px;
+    background: #123c35;
+    color: #fff;
+}
+
+.footer-inner {
+    width: min(92%, var(--container));
+    margin: auto;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1fr;
+    gap: 35px;
+}
+
+.footer-column h3 {
+    margin-bottom: 13px;
+    color: #fff;
+    font-size: 16px;
     font-weight: 800;
 }
 
-.guide-item h3 {
-    font-size: 15px;
-    margin-top: 17px;
-    color: var(--primary-dark);
-}
-
-.guide-item p {
+.footer-column p,
+.footer-column a {
+    display: block;
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.72);
     font-size: 12px;
-    color: var(--muted);
-    margin-top: 7px;
     line-height: 2.2;
 }
 
-
-/* =================================
-   12 - FOOTER
-================================= */
-
-.site-footer {
-    background: #123c3b;
-    color: white;
-    padding: 35px 0;
+.footer-column a:hover {
+    color: #fff;
 }
 
-.footer-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.footer-content h3 {
-    font-size: 16px;
-}
-
-.footer-content p,
-.footer-copy {
-    color: #b9d1cb;
+.footer-bottom {
+    width: min(92%, var(--container));
+    margin: 30px auto 0;
+    padding-top: 17px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
     font-size: 11px;
-    margin-top: 5px;
 }
 
+/* وضعیت‌ها و پیام‌ها */
 
-/* =================================
-   13 - TABLET
-================================= */
+.success,
+.success-message {
+    color: #176c46;
+    background: #e9f7ef;
+    border: 1px solid #c9ead6;
+}
+
+.error,
+.error-message {
+    color: #a33333;
+    background: #fff0f0;
+    border: 1px solid #f1cccc;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* تبلت */
 
 @media (max-width: 900px) {
+    .header-inner {
+        gap: 15px;
+    }
 
+    .nav,
     .main-nav {
-        gap: 13px;
+        gap: 14px;
     }
 
+    .nav a,
     .main-nav a {
-        font-size: 11px;
-    }
-
-    .intro-grid {
-        gap: 40px;
-    }
-
-    .guide-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .hero {
-        min-height: 540px;
-    }
-}
-
-
-/* =================================
-   14 - MOBILE
-================================= */
-
-@media (max-width: 650px) {
-
-    html {
-        scroll-padding-top: 75px;
-    }
-
-    .container {
-        width: 91%;
-    }
-
-    .section-space {
-        padding: 55px 0;
-    }
-
-    /* نوار بالا */
-
-    .topbar-inner {
-        font-size: 10px;
-    }
-
-    /* هدر */
-
-    .nav-container {
-        min-height: 70px;
-        gap: 8px;
-    }
-
-    .brand-mark {
-        width: 39px;
-        height: 39px;
-    }
-
-    .brand-name strong {
         font-size: 12px;
     }
 
-    .brand-name small {
-        font-size: 10px;
+    .hero {
+        min-height: 470px;
     }
 
+    .services-grid,
+    .doctors-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .guide-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .intro,
+    .about-section {
+        gap: 25px;
+    }
+}
+
+/* موبایل */
+
+@media (max-width: 650px) {
+    html {
+        scroll-padding-top: 15px;
+    }
+
+    .topbar {
+        font-size: 10px;
+        padding: 5px 10px;
+    }
+
+    .header-inner {
+        width: 92%;
+        min-height: 68px;
+    }
+
+    .logo,
+    .brand {
+        font-size: 15px;
+    }
+
+    .logo img,
+    .brand img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .nav,
     .main-nav {
         display: none;
     }
 
-    .nav-button {
-        padding: 9px 12px;
+    .header-button {
+        padding: 8px 13px;
         font-size: 11px;
     }
 
-    /* تصویر تابلو */
+    /*
+       در موبایل تصویر به صورت تمام‌عرض و با برش کنترل‌شده
+       نمایش داده می‌شود تا اطراف آن فضای خالی نماند.
+    */
 
     .hero {
-        min-height: 0;
         display: block;
+        min-height: 0;
         background: #123d3c;
     }
 
     .hero-image {
-        top: 0;
-        right: 0;
-        left: 0;
-        bottom: auto;
-        height: 260px;
-        opacity: 1;
-
-        background-color: #123d3c;
-
+        position: absolute;
+        inset: 0;
         background-image:
             linear-gradient(
                 to bottom,
-                rgba(18,61,60,0) 55%,
+                rgba(8, 35, 32, 0.03) 0%,
+                rgba(8, 35, 32, 0.12) 40%,
                 #123d3c 100%
             ),
             url('https://raw.githubusercontent.com/Yazdest/mehriz-clinic/main/mehriz-clinic-pic.jpg');
-
-        background-size:
-            100% 100%,
-            contain;
-
-        background-position:
-            center,
-            center top;
-
+        background-position: center top;
         background-repeat: no-repeat;
+        background-size: 100% 100%, cover;
     }
 
     .hero-content {
-        padding-top: 275px;
-        padding-bottom: 90px;
+        width: 90%;
+        padding: 260px 0 55px;
+        text-align: center;
+    }
+
+    .hero-badge {
+        margin-bottom: 13px;
+        font-size: 10px;
     }
 
     .hero h1 {
-        font-size: clamp(29px, 8vw, 36px);
-        line-height: 1.65;
-        margin-top: 20px;
+        font-size: clamp(25px, 7vw, 34px);
+        line-height: 1.7;
+        margin-bottom: 12px;
     }
 
-    .hero-content > p {
-        font-size: 13px;
-        line-height: 2.3;
+    .hero p {
+        font-size: 12px;
+        line-height: 2.2;
     }
 
     .hero-actions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .hero-actions a {
-        width: 100%;
-        min-height: 48px;
-    }
-
-    .hero-note {
+        justify-content: center;
+        gap: 9px;
         margin-top: 20px;
     }
 
-    .hero-bottom .container {
-        font-size: 9px;
+    .btn,
+    .primary-button,
+    .secondary-button {
+        min-height: 44px;
+        padding: 9px 16px;
+        font-size: 12px;
     }
 
-    /* دسترسی سریع */
+    .hero-note {
+        font-size: 10px;
+        margin-top: 15px;
+    }
 
-    .quick-grid {
+    .quick-access {
+        width: 90%;
         grid-template-columns: 1fr;
+        gap: 10px;
+        margin: -18px auto 45px;
     }
 
-    .quick-item {
-        padding: 17px 8px;
-        border-left: none;
-        border-bottom: 1px solid var(--border);
-    }
-
-    .quick-item:last-child {
-        border-bottom: none;
-    }
-
-    /* معرفی */
-
-    .intro-grid {
-        grid-template-columns: 1fr;
-        gap: 18px;
-    }
-
-    .intro-heading h2 {
-        font-size: 30px;
-    }
-
-    .intro-text p {
+    .quick-card,
+    .quick-access a {
+        min-height: 65px;
+        padding: 13px;
         font-size: 13px;
+        border-radius: 13px;
     }
 
-    /* عنوان بخش‌ها */
+    .section {
+        width: 90%;
+        margin-bottom: 55px;
+    }
 
     .section-heading {
-        align-items: flex-start;
-        flex-direction: column;
-        margin-bottom: 24px;
+        margin-bottom: 22px;
     }
 
     .section-heading h2 {
         font-size: 23px;
     }
 
-    /* خدمات */
+    .section-heading p {
+        font-size: 12px;
+    }
 
-    .service-grid {
+    .intro,
+    .about-section {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .intro-content h2,
+    .about-content h2 {
+        font-size: 23px;
+    }
+
+    .intro-content p,
+    .about-content p {
+        font-size: 13px;
+    }
+
+    .intro-image,
+    .about-image {
+        min-height: 210px;
+    }
+
+    .intro-image img,
+    .about-image img {
+        min-height: 210px;
+    }
+
+    .services-grid,
+    .doctors-grid {
         grid-template-columns: 1fr;
         gap: 13px;
     }
 
     .service-card {
-        min-height: auto;
-        padding: 23px;
+        padding: 21px;
     }
 
-    /* پزشکان */
-
-    .doctor-placeholder {
-        padding: 35px 18px;
+    .service-card h3 {
+        font-size: 15px;
     }
 
-    /* رزرو */
+    .service-card p {
+        font-size: 12px;
+    }
+
+    .doctors-section {
+        padding: 40px 0;
+    }
 
     .booking-section {
-        padding-top: 10px;
+        width: 90%;
+        margin: 55px auto;
     }
 
     .booking-panel {
-        align-items: flex-start;
-        flex-direction: column;
-        padding: 28px 20px;
+        padding: 22px 17px;
+        border-radius: 17px;
     }
 
     .booking-panel h2 {
         font-size: 21px;
     }
 
-    .booking-button {
-        width: 100%;
-        text-align: center;
+    .booking-panel > p {
+        font-size: 12px;
     }
 
-    /* راهنما */
-
-    .guide-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 13px;
     }
 
-    .guide-item {
-        min-width: 0;
-        padding: 18px 12px;
+    .form-group label {
+        font-size: 12px;
     }
 
-    .guide-item h3 {
+    .form-group input,
+    .form-group select,
+    .form-group textarea,
+    input,
+    select,
+    textarea {
+        min-height: 46px;
         font-size: 13px;
     }
 
-    .guide-item p {
+    .guide-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 11px;
+    }
+
+    .guide-card {
+        padding: 17px 12px;
+    }
+
+    .guide-card h3 {
+        font-size: 12px;
+    }
+
+    .guide-card p {
         font-size: 11px;
     }
 
-    /* فوتر */
+    .footer-inner {
+        width: 90%;
+        grid-template-columns: 1fr;
+        gap: 22px;
+    }
 
-    .footer-content {
-        flex-direction: column;
-        align-items: flex-start;
+    .footer-column h3 {
+        font-size: 14px;
+    }
+
+    .footer-column p,
+    .footer-column a {
+        font-size: 11px;
+    }
+
+    .footer-bottom {
+        width: 90%;
+        font-size: 10px;
     }
 }
 
-
-/* =================================
-   15 - SMALL MOBILE
-================================= */
+/* موبایل‌های کوچک */
 
 @media (max-width: 380px) {
-
-    .hero-image {
-        height: 230px;
-    }
-
     .hero-content {
-        padding-top: 245px;
+        padding-top: 220px;
     }
 
     .hero h1 {
-        font-size: 29px;
+        font-size: 25px;
     }
 
-    .brand-name strong {
+    .hero p {
         font-size: 11px;
-    }
-
-    .nav-button {
-        padding: 8px 10px;
-        font-size: 10px;
     }
 
     .guide-grid {
         grid-template-columns: 1fr;
     }
+
+    .quick-card,
+    .quick-access a {
+        min-height: 58px;
+    }
 }
 
-
-/* =================================
-   16 - ACCESSIBILITY
-================================= */
+/* کاهش انیمیشن برای افرادی که آن را غیرفعال کرده‌اند */
 
 @media (prefers-reduced-motion: reduce) {
-
     *,
     *::before,
     *::after {
         scroll-behavior: auto !important;
-        transition-duration: .01ms !important;
-        animation-duration: .01ms !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
     }
 }
