@@ -84,6 +84,44 @@ function init(){
   return {doctors:ds, days, slot:c.slot, phone:PH};
 }
 
+function getAllClinicDataCached() {
+  const cache = CacheService.getScriptCache();
+  const cached = cache.get("FULL_CLINIC_DATA_V1");
+  if (cached) {
+    return JSON.parse(cached);
+  }
+  const freshData = buildAllClinicData();
+  try {
+    cache.put("FULL_CLINIC_DATA_V1", JSON.stringify(freshData), 300);
+  } catch (e) {}
+  return freshData;
+}
+
+function clearClinicCache() {
+  try {
+    CacheService.getScriptCache().remove("FULL_CLINIC_DATA_V1");
+  } catch (e) {}
+}
+
+function buildAllClinicData() {
+  const initData = init();
+  const allSlots = {};
+  (initData.doctors || []).forEach(doc => {
+    (initData.days || []).forEach(day => {
+      if (day.docs && day.docs[doc.id] !== undefined) {
+        const key = doc.id + "_" + day.iso;
+        allSlots[key] = slots(doc.id, day.iso);
+      }
+    });
+  });
+  return {
+    doctors: initData.doctors,
+    days: initData.days,
+    slots: allSlots,
+    updatedAt: new Date().toISOString()
+  };
+}
+
 /* ---------- غیرفعال‌سازی نوبت توسط منشی (شیت «غیرفعال‌سازی» با منوی کشویی) ---------- */
 const BLK = 'غیرفعال‌سازی', LST = 'فهرست‌ها', ALL = 'همهٔ پزشکان';
 const jnum = s => { const m = norm(s).match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/); return m ? +m[1]*10000 + +m[2]*100 + +m[3] : 0; };
@@ -203,6 +241,7 @@ function book(p){
     if (!S.getRange('K1').getValue()) S.getRange('K1:L1').setValues([['تاریخ میلادی','کد پزشک']]);
     const rg = S.getRange(row,1,1,12); rg.setNumberFormat('@');
     rg.setValues([[code, jal(iso), DAYS[wd(iso)], d.name, time, u.name, u.mob, u.em, 'ثبت‌شده', Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd HH:mm'), iso, id]]);
+    clearClinicCache();
     res = {code, doctor:d.name, j:jal(iso), day:DAYS[wd(iso)], time};
   } finally { lock.releaseLock(); }
   try {
@@ -221,7 +260,11 @@ function my(p){
 function cancel(p){
   const u = session(p), S = sh('نوبت‌ها'), v = S.getDataRange().getValues();
   for (let i = 1; i < v.length; i++)
-    if (v[i][0] === p.code && String(v[i][7]).toLowerCase() === u.em){ S.getRange(i+1, 9).setValue('لغو'); return {ok:true}; }
+    if (v[i][0] === p.code && String(v[i][7]).toLowerCase() === u.em){
+      S.getRange(i+1, 9).setValue('لغو');
+      clearClinicCache();
+      return {ok:true};
+    }
   throw new Error('نوبت پیدا نشد');
 }
 
@@ -252,12 +295,17 @@ function adminSave(p){
     if (s.getLastRow() > 1) s.getRange(2,1,s.getLastRow()-1,w).clearContent();
     const clean = data.filter(r => r.some(c => String(c).trim())).map(r => Array.from({length:w}, (_,i) => String(r[i] == null ? '' : r[i]).trim()));
     if (clean.length){ const rg = s.getRange(2,1,clean.length,w); rg.setNumberFormat('@'); rg.setValues(clean); }
+    clearClinicCache();
   } finally { lock.releaseLock(); }
   return {ok:true};
 }
 function adminStatus(p){
   adminAuth(p); const S = sh('نوبت‌ها'), v = S.getDataRange().getValues();
-  for (let i = 1; i < v.length; i++) if (v[i][0] === p.code){ S.getRange(i+1,9).setValue(p.status === 'ثبت‌شده' ? 'ثبت‌شده' : 'لغو'); return {ok:true}; }
+  for (let i = 1; i < v.length; i++) if (v[i][0] === p.code){
+    S.getRange(i+1,9).setValue(p.status === 'ثبت‌شده' ? 'ثبت‌شده' : 'لغو');
+    clearClinicCache();
+    return {ok:true};
+  }
   throw new Error('نوبت پیدا نشد');
 }
 
@@ -266,6 +314,7 @@ function route(p){
   try {
     switch (p.a){
       case 'init': return init();
+      case 'full': return getAllClinicDataCached();
       case 'slots': return {slots: slots(String(p.doctor), String(p.date))};
       case 'code': return sendCode(p);
       case 'verify': return verify(p);
