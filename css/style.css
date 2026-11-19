@@ -202,3 +202,9 @@ body:has(.msgbox[open]){overflow:hidden}
 
 /* v9: جملهٔ موفقیت: سبز، بولد، وسط‌چین */
 .wz-body.rc .rc-ok{display:block;width:100%;color:#138a3d;font-weight:800;text-align:center}
+
+/* v12: نام کاربر در نوار بالای صفحه */
+.topbar-user{display:inline-flex;align-items:center;gap:7px;color:#fff;font-weight:500;min-width:0}
+.topbar-user[hidden]{display:none}
+.topbar-user b{font-weight:800;display:inline-block;max-width:50vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
+@media(max-width:760px){.topbar-user{order:3;flex:1 1 100%;justify-content:center}}
