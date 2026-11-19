@@ -60,12 +60,13 @@ function booked(){
 }
 /** بازه‌های یک پزشک در یک روز؛ آخرین بازه هرگز از پایان شیفت بیرون نمی‌زند */
 function slots(id, iso){
-  const c = cfg(), b = booked(), isToday = iso === today(), n = nowMin(), out = [];
+  const c = cfg(), b = booked(), bl = blocks(id, iso), isToday = iso === today(), n = nowMin(), out = [];
   shifts(id, iso).forEach(s => {
     for (let m = mins(s[0]); m + c.slot <= mins(s[1]); m += c.slot){
-      const time = fmt(m); let free = (b[id+'|'+iso+'|'+time]||0) < c.cap;
+      const time = fmt(m), blocked = bl.some(x => m >= x[0] && m < x[1]);
+      let free = !blocked && (b[id+'|'+iso+'|'+time]||0) < c.cap;
       if (isToday && m < n + c.lead) free = false;
-      out.push({time, free});
+      out.push({time, free, blocked});
     }
   });
   return out;
@@ -75,11 +76,82 @@ function init(){
   const week = rows('برنامه هفتگی');
   ds.forEach(d => d.week = week.filter(r => String(r[0]).trim() === d.id).map(r => [r[1], hm(r[2]), hm(r[3])]));
   for (let i = 0; i <= c.ahead; i++){
-    const iso = addDays(today(), i), docs = {};
-    ds.forEach(d => { const s = slots(d.id, iso); if (s.length) docs[d.id] = s.filter(x => x.free).length; });
-    days.push({iso, j:jal(iso), day:DAYS[wd(iso)], docs});
+    const iso = addDays(today(), i), docs = {}, off = {};
+    ds.forEach(d => { const s = slots(d.id, iso);
+      if (s.length){ docs[d.id] = s.filter(x => x.free).length; if (s.every(x => x.blocked)) off[d.id] = 1; } });
+    days.push({iso, j:jal(iso), day:DAYS[wd(iso)], docs, off});
   }
   return {doctors:ds, days, slot:c.slot, phone:PH};
+}
+
+/* ---------- غیرفعال‌سازی نوبت توسط منشی (شیت «غیرفعال‌سازی» با منوی کشویی) ---------- */
+const BLK = 'غیرفعال‌سازی', LST = 'فهرست‌ها', ALL = 'همهٔ پزشکان';
+const jnum = s => { const m = norm(s).match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/); return m ? +m[1]*10000 + +m[2]*100 + +m[3] : 0; };
+function cellJ(v){   // اگر گوگل‌شیت تاریخ را به‌اشتباه Date کرد، همان سال/ماه/روز را شمسی بخوان
+  if (v instanceof Date){ const f = x => +Utilities.formatDate(v, TZ, x); return f('yyyy')*10000 + f('MM')*100 + f('dd'); }
+  return jnum(v);
+}
+function docName(id){ const r = rows('پزشکان').find(x => String(x[0]).trim() === id); return r ? r[1] : ''; }
+/** بازه‌های بسته‌شدهٔ یک پزشک در یک روز، به‌صورت [[از دقیقه، تا دقیقه)] */
+function blocks(id, iso){
+  const j = jnum(jal(iso)), out = [], nm = norm(docName(id));
+  rows(BLK).forEach(r => {
+    const a = cellJ(r[0]); if (!a) return;
+    const b = cellJ(r[1]) || a; if (j < a || j > b) return;
+    const who = norm(r[2]);
+    if (who && who !== norm(ALL) && who !== norm(id) && who !== nm) return;
+    const f = hm(r[3]), t = hm(r[4]);
+    out.push([f ? mins(f) : 0, t ? mins(t) : 1440]);
+  });
+  return out;
+}
+/** فهرست‌های کشویی (تاریخ‌های پیش‌رو، نام پزشکان، ساعت‌ها) */
+function refreshLists(){
+  const ss = SpreadsheetApp.getActive(); let L = sh(LST);
+  if (!L){ L = ss.insertSheet(LST); L.hideSheet(); }
+  const c = cfg(), dates = [], times = [], names = [ALL];
+  for (let i = 0; i < Math.max(60, c.ahead + 30); i++){ const iso = addDays(today(), i); dates.push(jal(iso) + ' – ' + DAYS[wd(iso)]); }
+  for (let m = 360; m <= 1320; m += 15) times.push(fmt(m));
+  rows('پزشکان').forEach(r => { if (r[0] && r[1]) names.push(String(r[1]).trim()); });
+  memo['پزشکان'] = null;
+  L.clearContents(); L.getRange(1,1,1,3).setValues([['تاریخ','پزشک','ساعت']]);
+  L.getRange(2,1,dates.length,1).setNumberFormat('@').setValues(dates.map(x => [x]));
+  L.getRange(2,2,names.length,1).setNumberFormat('@').setValues(names.map(x => [x]));
+  L.getRange(2,3,times.length,1).setNumberFormat('@').setValues(times.map(x => [x]));
+  return {dates:dates.length, names:names.length, times:times.length};
+}
+/** یک‌بار از منوی «نوبت‌دهی ← ساخت شیت غیرفعال‌سازی» اجرا شود */
+function setupBlocks(){
+  const ss = SpreadsheetApp.getActive(); let S = sh(BLK);
+  if (!S) S = ss.insertSheet(BLK);
+  S.setRightToLeft(true); S.setFrozenRows(1);
+  S.getRange('A1:F1').setValues([['از تاریخ','تا تاریخ (اختیاری)','پزشک','از ساعت','تا ساعت','توضیح (اختیاری)']])
+    .setFontWeight('bold').setBackground('#d9f0f2');
+  S.getRange('A2:F500').setNumberFormat('@');
+  S.getRange('A1').setNote('روز مورد نظر را از لیست انتخاب کنید.');
+  S.getRange('B1').setNote('فقط برای چند روز پشت‌سرهم (مثلاً مرخصی). برای یک روز خالی بگذارید.');
+  S.getRange('C1').setNote('نام پزشک یا «همهٔ پزشکان». خالی = همهٔ پزشکان.');
+  S.getRange('D1').setNote('خالی بگذارید تا کل روز بسته شود.');
+  S.getRange('E1').setNote('پایان بازه. مثلاً از 10:00 تا 12:00 یعنی نوبت‌های 10:00 تا 11:45 بسته می‌شود.');
+  S.setColumnWidths(1,2,170); S.setColumnWidth(3,170); S.setColumnWidths(4,2,100); S.setColumnWidth(6,260);
+  refreshLists();
+  const L = sh(LST), n = L.getLastRow();
+  const dv = (col, strict, help) => SpreadsheetApp.newDataValidation()
+    .requireValueInRange(L.getRange(2, col, n - 1, 1), true).setAllowInvalid(!strict).setHelpText(help).build();
+  S.getRange('A2:B500').setDataValidation(dv(1, true, 'یک روز را از لیست انتخاب کنید'));
+  S.getRange('C2:C500').setDataValidation(dv(2, true, 'پزشک را از لیست انتخاب کنید'));
+  S.getRange('D2:E500').setDataValidation(dv(3, false, 'ساعت را از لیست انتخاب کنید'));
+  // ردیف‌های ثبت‌شده در شیت، قرمز کم‌رنگ نمایش داده می‌شوند
+  S.setConditionalFormatRules([SpreadsheetApp.newConditionalFormatRule()
+    .whenFormulaSatisfied('=$A2<>""').setBackground('#fdecec').setRanges([S.getRange('A2:F500')]).build()]);
+  if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'refreshLists'))
+    ScriptApp.newTrigger('refreshLists').timeBased().everyDays(1).atHour(1).create();
+  SpreadsheetApp.getActive().toast('شیت «' + BLK + '» آماده شد.');
+}
+function onOpen(){
+  SpreadsheetApp.getUi().createMenu('نوبت‌دهی')
+    .addItem('ساخت شیت غیرفعال‌سازی', 'setupBlocks')
+    .addItem('به‌روزرسانی فهرست‌های کشویی', 'refreshLists').addToUi();
 }
 
 /* ---------- ورود با کد ایمیل ---------- */
@@ -153,6 +225,42 @@ function cancel(p){
   throw new Error('نوبت پیدا نشد');
 }
 
+
+/* ---------- پنل مدیریت (رمز در Project Settings ← Script properties با کلید ADMIN_PASSWORD) ---------- */
+const EDIT = ['پزشکان','برنامه هفتگی','استثناها','تنظیمات'];
+function adminAuth(p){
+  if (!CacheService.getScriptCache().get('adm_' + p.atoken)) throw new Error('نشست مدیر منقضی شده؛ دوباره وارد شوید');
+}
+function adminLogin(p){
+  const pw = PropertiesService.getScriptProperties().getProperty('ADMIN_PASSWORD'), ca = CacheService.getScriptCache();
+  if (!pw) throw new Error('رمز مدیر هنوز در Script properties تنظیم نشده است');
+  const t = +(ca.get('admtry')||0); if (t >= 5) throw new Error('تلاش بیش از حد؛ ۱۰ دقیقه بعد دوباره امتحان کنید');
+  ca.put('admtry', String(t+1), 600);
+  if (String(p.password) !== pw) throw new Error('رمز اشتباه است');
+  const atoken = Utilities.getUuid(); ca.put('adm_' + atoken, '1', 21600); return {atoken};
+}
+function adminGet(p){
+  adminAuth(p); const out = {};
+  ['نوبت‌ها'].concat(EDIT).forEach(n => { const s = sh(n); out[n] = !s ? [] : s.getDataRange().getDisplayValues(); });
+  return out;
+}
+function adminSave(p){
+  adminAuth(p); const n = EDIT.find(x => norm(x) === norm(p.sheet)); if (!n) throw new Error('شیت نامعتبر');
+  const s = sh(n), data = p.rows || [], w = s.getLastColumn();
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    if (s.getLastRow() > 1) s.getRange(2,1,s.getLastRow()-1,w).clearContent();
+    const clean = data.filter(r => r.some(c => String(c).trim())).map(r => Array.from({length:w}, (_,i) => String(r[i] == null ? '' : r[i]).trim()));
+    if (clean.length){ const rg = s.getRange(2,1,clean.length,w); rg.setNumberFormat('@'); rg.setValues(clean); }
+  } finally { lock.releaseLock(); }
+  return {ok:true};
+}
+function adminStatus(p){
+  adminAuth(p); const S = sh('نوبت‌ها'), v = S.getDataRange().getValues();
+  for (let i = 1; i < v.length; i++) if (v[i][0] === p.code){ S.getRange(i+1,9).setValue(p.status === 'ثبت‌شده' ? 'ثبت‌شده' : 'لغو'); return {ok:true}; }
+  throw new Error('نوبت پیدا نشد');
+}
+
 /* ---------- API ---------- */
 function route(p){
   try {
@@ -164,6 +272,10 @@ function route(p){
       case 'book': return book(p);
       case 'my': return my(p);
       case 'cancel': return cancel(p);
+      case 'alogin': return adminLogin(p);
+      case 'aget': return adminGet(p);
+      case 'asave': return adminSave(p);
+      case 'astatus': return adminStatus(p);
     }
     return {error:'درخواست نامعتبر'};
   } catch (err) { return {error: String(err.message || err)}; }
