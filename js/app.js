@@ -204,10 +204,16 @@ const VIEWS = {
       <button type="button" class="primary-button wide" data-a="book">تأیید و ثبت نوبت</button><div id="msg" class="err" role="alert"></div>`;
   },
   done() {
-    const r = S.res;
-    body.innerHTML = `<div class="center"><div class="okbig">✓</div><p>کد پیگیری</p><h3 dir="ltr">${fa(esc(r.code))}</h3></div>
-      <div class="sum"><div><span>پزشک</span><b>${esc(r.doctor)}</b></div><div><span>روز</span><b>${esc(r.day)} ${fa(r.j)}</b></div><div><span>ساعت حضور</span><b>${fa(r.time)}</b></div></div>
-      <p class="wz-sub">تأیید به ایمیل شما ارسال شد و منشی برای هماهنگی تماس می‌گیرد.</p><button type="button" class="primary-button wide" data-a="close">بستن</button>`;
+    const r = receiptData();
+    body.innerHTML = `<div class="center"><div class="okbig">✓</div><p>کد پیگیری</p><h3 dir="ltr">${esc(r.code)}</h3></div>
+      <div class="sum">${r.rows.map(([k, v, dir]) => `<div><span>${k}</span><b${dir ? ` dir="${dir}"` : ""}>${esc(v)}</b></div>`).join("")}</div>
+      <p class="rc-note">${RC_NOTES.join(" ")}</p>
+      <p class="wz-sub">تأیید ثبت نوبت به ایمیل شما هم ارسال شد.</p>
+      <div class="dl-row">
+        <button type="button" class="dl-btn" data-a="dlPng">${DL_ICO}ذخیره تصویر</button>
+        <button type="button" class="dl-btn" data-a="dlPdf">${DL_ICO}ذخیره PDF</button>
+      </div>
+      <button type="button" class="primary-button wide" data-a="close">بستن</button>`;
   },
   async mine() {
     body.innerHTML = '<p class="ld">در حال دریافت نوبت‌های شما…</p>';
@@ -218,6 +224,144 @@ const VIEWS = {
     } catch (e) { body.innerHTML = `<p class="err">${esc(e.message)}</p>`; }
   }
 };
+
+/* ---------- رسید نوبت: داده، رسم روی بوم، دانلود تصویر و PDF ---------- */
+const TYPE_ONE = { "عمومی": "پزشک عمومی", "دندانپزشک": "دندان‌پزشک", "متخصص": "پزشک متخصص" };
+const RC_NOTES = [
+  "این رسید، تأییدیهٔ ثبت درخواست نوبت شماست و منشی درمانگاه برای هماهنگی نهایی با شما تماس می‌گیرد.",
+  "لطفاً کد پیگیری را تا زمان مراجعه همراه داشته باشید."
+];
+const DL_ICO = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.500 10.500 12 15l4.500-4.500M5 19h14"/></svg>';
+
+function receiptData() {
+  const r = S.res, d = docById(S.doc), u = S.user || {}, mob = r.mobile || u.mobile || "";
+  let issued = "";
+  try { issued = new Intl.DateTimeFormat("fa-IR", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(r.issued || Date.now())).replace(",", "،"); } catch (e) {}
+  return {
+    code: fa(r.code),
+    rows: [
+      ["نام بیمار / رزروکننده", r.name || u.name],
+      ["شماره موبایل", mob && fa(mob)],
+      ["ایمیل", r.email || u.email, "ltr"],
+      ["پزشک", r.doctor],
+      ["تخصص / نوع", r.spec || d.specialty || TYPE_ONE[d.type] || ""],
+      ["روز و تاریخ نوبت", `${r.day} ${fa(r.j)}`],
+      ["ساعت حضور", fa(r.time)],
+      ["تاریخ صدور رسید", issued],
+      ["وضعیت", "ثبت‌شده؛ در انتظار هماهنگی منشی"]
+    ].filter(x => x[1])
+  };
+}
+
+function wrapText(ctx, text, maxW) {
+  const lines = []; let cur = "";
+  for (const w of String(text).split(" ")) {
+    const t = cur ? cur + " " + w : w;
+    if (cur && ctx.measureText(t).width > maxW) { lines.push(cur); cur = w; } else cur = t;
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+function rrect(ctx, x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+
+async function drawReceipt() {
+  const rec = receiptData(), W = 800, P = 44, SC = 2, LW = 250, F = "Vazirmatn, Tahoma, sans-serif";
+  try { await Promise.all(["500", "700", "800"].map(w => document.fonts.load(`${w} 24px Vazirmatn`))); } catch (e) {}
+  const VW = W - 2 * P - LW - 10, NW = W - 2 * P - 48;
+  const m = document.createElement("canvas").getContext("2d"); m.direction = "rtl";
+  m.font = `700 26px ${F}`;
+  const rows = rec.rows.map(([k, v, dir]) => { const lines = dir === "ltr" ? [v] : wrapText(m, v, VW); return { k, lines, dir, h: lines.length * 40 + 28 }; });
+  m.font = `500 23px ${F}`;
+  const notes = RC_NOTES.flatMap(n => wrapText(m, n, NW));
+  const noteH = notes.length * 38 + 36;
+  const rowsH = rows.reduce((a, r) => a + r.h, 0);
+  const H = 178 + 36 + 140 + 30 + rowsH + 24 + noteH + 36 + 120;
+
+  const c = document.createElement("canvas"); c.width = W * SC; c.height = H * SC;
+  const x = c.getContext("2d"); x.scale(SC, SC); x.textBaseline = "alphabetic";
+  x.fillStyle = "#fff"; x.fillRect(0, 0, W, H);
+
+  // سربرگ
+  let g = x.createLinearGradient(0, 0, W, 170); g.addColorStop(0, "#30a8c0"); g.addColorStop(1, "#0d6c80");
+  x.fillStyle = g; x.fillRect(0, 0, W, 170);
+  g = x.createLinearGradient(0, 0, W, 0); g.addColorStop(0, "#30a8c0"); g.addColorStop(.6, "#1a96ae"); g.addColorStop(1, "#c0553d");
+  x.fillStyle = g; x.fillRect(0, 170, W, 8);
+  x.direction = "rtl"; x.textAlign = "center";
+  x.fillStyle = "#fff"; x.font = `800 44px ${F}`; x.fillText("درمانگاه فرهنگیان مهریز", W / 2, 84);
+  x.fillStyle = "#d9f3f8"; x.font = `500 26px ${F}`; x.fillText("رسید نوبت‌دهی آنلاین", W / 2, 130);
+
+  // کد پیگیری
+  let y = 178 + 36;
+  x.fillStyle = "#e0f6fa"; rrect(x, P, y, W - 2 * P, 140, 24); x.fill();
+  x.fillStyle = "#4a6c75"; x.font = `500 24px ${F}`; x.fillText("کد پیگیری", W / 2, y + 44);
+  x.direction = "ltr"; x.fillStyle = "#0d6c80"; x.font = `800 60px ${F}`; x.fillText(rec.code, W / 2, y + 112);
+  y += 140 + 30;
+
+  // ردیف‌ها
+  x.textAlign = "right";
+  rows.forEach((r, i) => {
+    x.direction = "rtl"; x.fillStyle = "#4a6c75"; x.font = `500 24px ${F}`; x.fillText(r.k, W - P, y + 40);
+    x.direction = r.dir === "ltr" ? "ltr" : "rtl"; x.fillStyle = "#0c3340"; x.font = `700 26px ${F}`;
+    r.lines.forEach((l, j) => x.fillText(l, W - P - LW, y + 40 + j * 40));
+    y += r.h;
+    if (i < rows.length - 1) { x.setLineDash([6, 6]); x.strokeStyle = "#a9dae5"; x.lineWidth = 2; x.beginPath(); x.moveTo(P, y); x.lineTo(W - P, y); x.stroke(); x.setLineDash([]); }
+  });
+
+  // توضیحات
+  y += 24; x.fillStyle = "#fbeae5"; rrect(x, P, y, W - 2 * P, noteH, 20); x.fill();
+  x.direction = "rtl"; x.fillStyle = "#8c3623"; x.font = `500 23px ${F}`;
+  notes.forEach((l, i) => x.fillText(l, W - P - 24, y + 42 + i * 38));
+  y += noteH + 36;
+
+  // پاورقی
+  x.strokeStyle = "#cfe9ef"; x.lineWidth = 2; x.beginPath(); x.moveTo(P, y); x.lineTo(W - P, y); x.stroke();
+  x.textAlign = "center"; x.fillStyle = "#0d6c80"; x.font = `700 26px ${F}`; x.fillText("درمانگاه فرهنگیان مهریز", W / 2, y + 44);
+  x.fillStyle = "#4a6c75"; x.font = `500 22px ${F}`; x.fillText("تلفن هماهنگی: " + fa("03532529560") + " | " + fa("03532531410"), W / 2, y + 82);
+  g = x.createLinearGradient(0, 0, W, 0); g.addColorStop(0, "#30a8c0"); g.addColorStop(.6, "#1a96ae"); g.addColorStop(1, "#c0553d");
+  x.fillStyle = g; x.fillRect(0, H - 10, W, 10);
+  return c;
+}
+
+function makePdf(canvas) {
+  const w = canvas.width, h = canvas.height, bin = atob(canvas.toDataURL("image/jpeg", .92).split(",")[1]);
+  const img = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) img[i] = bin.charCodeAt(i);
+  const PW = 595, PH = 842, M = 40; let pw = PW - 2 * M, ph = pw * h / w;
+  if (ph > PH - 2 * M) { ph = PH - 2 * M; pw = ph * w / h; }
+  const enc = new TextEncoder(), parts = [], off = []; let n = 0;
+  const add = b => { if (typeof b === "string") b = enc.encode(b); parts.push(b); n += b.length; };
+  const obj = (i, head, stream) => { off[i] = n; add(`${i} 0 obj\n${head}\n`); if (stream) { add("stream\n"); add(stream); add("\nendstream\n"); } add("endobj\n"); };
+  add("%PDF-1.4\n");
+  obj(1, "<</Type/Catalog/Pages 2 0 R>>");
+  obj(2, "<</Type/Pages/Kids[3 0 R]/Count 1>>");
+  obj(3, `<</Type/Page/Parent 2 0 R/MediaBox[0 0 ${PW} ${PH}]/Resources<</XObject<</Im0 4 0 R>>>>/Contents 5 0 R>>`);
+  obj(4, `<</Type/XObject/Subtype/Image/Width ${w}/Height ${h}/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/DCTDecode/Length ${img.length}>>`, img);
+  const cs = `q ${pw.toFixed(2)} 0 0 ${ph.toFixed(2)} ${((PW - pw) / 2).toFixed(2)} ${(PH - M - ph).toFixed(2)} cm /Im0 Do Q`;
+  obj(5, `<</Length ${cs.length}>>`, cs);
+  const xr = n;
+  add("xref\n0 6\n0000000000 65535 f \n" + [1, 2, 3, 4, 5].map(i => String(off[i]).padStart(10, "0") + " 00000 n \n").join(""));
+  add(`trailer\n<</Size 6/Root 1 0 R>>\nstartxref\n${xr}\n%%EOF`);
+  return new Blob(parts, { type: "application/pdf" });
+}
+
+function saveBlob(blob, name) {
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+async function downloadReceipt(btn, kind) {
+  setBusy(btn, true);
+  try {
+    const [c] = await Promise.all([drawReceipt(), new Promise(r => setTimeout(r, 600))]);
+    const base = "nobat-" + String(S.res.code).replace(/[^\w-]/g, "");
+    if (kind === "pdf") saveBlob(makePdf(c), base + ".pdf");
+    else saveBlob(await new Promise(r => c.toBlob(r, "image/png")), base + ".png");
+    showMsg("ok", "رسید ذخیره شد", "فایل رسید دانلود شد. اگر آن را نمی‌بینید، پوشهٔ دانلودها را بررسی کنید.", 2800);
+  } catch (e) {
+    showMsg("warn", "ذخیرهٔ رسید انجام نشد", "لطفاً دوباره تلاش کنید یا از صفحه عکس بگیرید.");
+  } finally { setBusy(btn, false); }
+}
 
 const showErr = (id, t) => { const m = $(id); if (m) m.textContent = t; };
 
@@ -274,6 +418,8 @@ const ACT = {
   pickDay(d) { S.date = d.iso; S.time = null; go("time"); },
   pickTime(d) { S.time = d.t; S.after = "confirm"; go(S.user ? "confirm" : "auth"); },
   close: closeWz,
+  dlPng(d, btn) { return downloadReceipt(btn, "png"); },
+  dlPdf(d, btn) { return downloadReceipt(btn, "pdf"); },
   async sendCode(d, btn) {
     const email = $("#fEmail").value.trim(), name = $("#fName").value.trim(), mob = $("#fMobile").value.trim(); S.form = { name, mob, email };
     if (name.length < 3) return showErr("#authMsg", "نام و نام خانوادگی را وارد کنید.");
@@ -287,7 +433,7 @@ const ACT = {
     setBusy(btn, true);
     try {
       const r = await api("verify", { email: S.email, code: $("#fCode").value, name: S.form.name, mobile: S.form.mob }, true);
-      S.user = { token: r.token, name: r.name, email: r.email }; localStorage.setItem("mh_user", JSON.stringify(S.user)); syncUser();
+      S.user = { token: r.token, name: r.name, email: r.email, mobile: S.form.mob || "" }; localStorage.setItem("mh_user", JSON.stringify(S.user)); syncUser();
       S.stack = S.stack.filter(v => v !== "auth" && v !== "code");
       const welcome = () => showMsg("ok", "ورود موفق", `${S.user.name} عزیز، با موفقیت وارد حساب خود شدید.`);
       if (S.after === "close") { S.after = null; closeWz(); welcome(); return; }
@@ -299,7 +445,7 @@ const ACT = {
     setBusy(btn, true);
     try {
       S.res = await api("book", { token: S.user.token, doctor: S.doc, date: S.date, time: S.time }, true);
-      S.stack = []; go("done", false); refresh();
+      { const dd = docById(S.doc); S.res.issued = Date.now(); S.res.spec = dd.specialty || TYPE_ONE[dd.type] || ""; } S.stack = []; go("done", false); refresh();
     } catch (e) { showErr("#msg", e.message); refresh(); } finally { setBusy(btn, false); }
   },
   async cancel(d, btn) {
