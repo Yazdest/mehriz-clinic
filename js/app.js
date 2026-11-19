@@ -460,7 +460,7 @@ document.addEventListener("click", e => {
 });
 
 function syncUser() { const on = !!S.user; $("#mineBtn").hidden = !on; $("#userLine").hidden = !on; $("#navLogin").hidden = on; $("#navLogout").hidden = !on; if (on) $("#hello").textContent = "ورود با " + S.user.email;
-  $("#topUser").hidden = !on; if (on) $("#topUserName").textContent = S.user.name; }
+  $("#topUser").hidden = !on; document.body.classList.toggle("logged", on); if (on) $("#topUserName").textContent = S.user.name; }
 function logout(reason) {
   const wasIn = !!S.user;
   S.user = null; localStorage.removeItem("mh_user"); syncUser();
