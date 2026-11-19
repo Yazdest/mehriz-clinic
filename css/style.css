@@ -91,3 +91,8 @@ button.service-card{width:100%;text-align:right;font:inherit;color:inherit;curso
 .wz .form-grid{margin:12px 0}
 @media(max-width:600px){.wz{width:100%;max-width:100%;margin:auto 0 0;border-radius:28px 28px 0 0;max-height:92vh}.arch{aspect-ratio:16/10;border-radius:50% 50% 26px 26px/18% 18% 26px 26px}}
 .nav-button{white-space:nowrap}@media(max-width:760px){.nav-button{padding:0 14px;font-size:1rem}.nav-button span{display:none}.brand-name small{display:none}}
+
+/* ساعت/روز غیرفعال‌شده توسط منشی: قرمز، خط‌خورده، کمرنگ */
+.chip.off:disabled{opacity:.7;background:#fdecec;border-color:#f0b4b4;color:var(--err);text-decoration:line-through;text-decoration-thickness:2px}
+.chip.off em{text-decoration:none;display:inline-block}
+.legend{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:.85rem;color:var(--mut)}.legend i{width:14px;height:14px;border-radius:5px;background:#fdecec;border:2px solid #f0b4b4}
