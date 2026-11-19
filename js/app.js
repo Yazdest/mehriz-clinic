@@ -459,7 +459,8 @@ document.addEventListener("click", e => {
   if (d) { e.preventDefault(); S.type = null; openWz("doc"); ACT.pickDoc({ id: d.dataset.doc }); }
 });
 
-function syncUser() { const on = !!S.user; $("#mineBtn").hidden = !on; $("#userLine").hidden = !on; $("#navLogin").hidden = on; $("#navLogout").hidden = !on; if (on) $("#hello").textContent = "ورود با " + S.user.email; }
+function syncUser() { const on = !!S.user; $("#mineBtn").hidden = !on; $("#userLine").hidden = !on; $("#navLogin").hidden = on; $("#navLogout").hidden = !on; if (on) $("#hello").textContent = "ورود با " + S.user.email;
+  $("#topUser").hidden = !on; if (on) $("#topUserName").textContent = S.user.name; }
 function logout(reason) {
   const wasIn = !!S.user;
   S.user = null; localStorage.removeItem("mh_user"); syncUser();
