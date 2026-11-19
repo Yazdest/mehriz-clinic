@@ -1,18 +1,19 @@
-
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#087f83">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#087f83">
 
-    <title>درمانگاه فرهنگیان مهریز | نوبت‌دهی آنلاین</title>
+  <title>درمانگاه فرهنگیان مهریز | نوبت‌دهی آنلاین</title>
 
-    <meta name="description" content="سامانه آنلاین نوبت‌دهی درمانگاه فرهنگیان مهریز">
+  <meta name="description" content="سامانه آنلاین نوبت‌دهی درمانگاه فرهنگیان مهریز">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&family=Aref+Ruqaa:wght@700&display=swap">
-    <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://script.google.com" crossorigin>
+  <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&family=Aref+Ruqaa:wght@700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
@@ -21,228 +22,219 @@
 <a class="callfab" href="tel:03532529560" aria-label="تماس با درمانگاه">☎</a>
 <div id="app">
 
-    <!-- نوار بالایی -->
-    <div class="topbar">
-        <div class="container topbar-inner">
-            <span>درمانگاه فرهنگیان مهریز</span>
-            <span>تلفن: <a href="tel:03532529560">۳۲۵۲۹۵۶۰</a> و <a href="tel:03532531410">۳۲۵۳۱۴۱۰</a></span>
-        </div>
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <span>درمانگاه فرهنگیان مهریز</span>
+      <span>تلفن: <a href="tel:03532529560">۳۲۵۲۹۵۶۰</a> و <a href="tel:03532531410">۳۲۵۳۱۴۱۰</a></span>
     </div>
+  </div>
 
-    <!-- هدر -->
-    <header class="site-header">
-        <div class="container nav-container">
+  <header class="site-header">
+    <div class="container nav-container">
 
-            <a href="#" class="brand">
-                <span class="brand-mark" aria-hidden="true">م</span>
-                <span class="brand-name">
-                    <strong>درمانگاه فرهنگیان</strong>
-                    <small>مهریز</small>
-                </span>
-            </a>
+      <a href="#" class="brand">
+        <span class="brand-mark" aria-hidden="true">م</span>
+        <span class="brand-name">
+          <strong>درمانگاه فرهنگیان</strong>
+          <small>مهریز</small>
+        </span>
+      </a>
 
-            <nav class="main-nav">
-                <a href="#home">صفحه اصلی</a>
-                <a href="#doctors">پزشکان</a>
-                <a href="#services">خدمات درمانگاه</a>
-                <a href="#guide">راهنمای نوبت</a>
-            </nav>
+      <nav class="main-nav">
+        <a href="#home">صفحه اصلی</a>
+        <a href="#doctors">پزشکان</a>
+        <a href="#services">خدمات درمانگاه</a>
+        <a href="#guide">راهنمای نوبت</a>
+      </nav>
 
-            <button type="button" class="fsz" id="fsz" aria-label="بزرگ‌نمایی نوشته‌ها">A+</button>
-            <a href="#booking" data-open="doc" class="nav-button">
-                دریافت نوبت
-                <span>←</span>
-            </a>
+      <button type="button" class="fsz" id="fsz" aria-label="بزرگ‌نمایی نوشته‌ها">A+</button>
+      <a href="#booking" data-open="doc" class="nav-button">
+        دریافت نوبت
+        <span>←</span>
+      </a>
+
+    </div>
+  </header>
+
+  <main>
+
+    <section class="hero" id="home">
+      <div class="hero-media">
+        <img src="hero-sign.jpg" width="1600" height="899" alt="تابلو درمانگاه فرهنگیان مهریز" fetchpriority="high">
+      </div>
+      <div class="container">
+        <div class="hero-card">
+          <span class="section-kicker">ONLINE APPOINTMENT</span>
+          <h1>نوبت‌دهی آنلاین<br>درمانگاه فرهنگیان مهریز</h1>
+          <p>برنامه حضور پزشکان را ببینید و نوبت خود را قدم‌به‌قدم ثبت کنید.</p>
+          <div class="hero-actions">
+            <a href="#booking" data-open="doc" class="primary-button">دریافت نوبت <span>←</span></a>
+            <a href="tel:03532529560" class="secondary-button"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg> ۳۲۵۲۹۵۶۰</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="intro section-space">
+      <div class="container intro-grid">
+
+        <div class="intro-heading">
+          <span class="section-kicker">ABOUT OUR CLINIC</span>
+          <h2>سلامتی شما،<br>اولویت ماست.</h2>
+          <div class="heading-line"></div>
+        </div>
+
+        <div class="intro-text rv">
+          <p>
+            درمانگاه فرهنگیان مهریز با هدف ارائه خدمات درمانی
+            و تسهیل دسترسی مراجعان به پزشکان، سامانه نوبت‌دهی
+            آنلاین خود را راه‌اندازی کرده است.
+          </p>
+
+          <p>
+            در این سامانه می‌توانید برنامه حضور پزشکان را مشاهده
+            کنید و درخواست نوبت خود را در زمان مناسب ثبت کنید.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="services section-space" id="services">
+      <div class="container">
+
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">OUR SERVICES</span>
+            <h2>خدمات درمانگاه</h2>
+          </div>
+          <p>دسترسی آسان به خدمات و پزشکان درمانگاه</p>
+        </div>
+
+        <div class="service-grid">
+
+          <button type="button" class="service-card rv" data-open="doc" data-type="عمومی">
+            <span class="service-number">01</span>
+            <span class="service-symbol"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-8-5-8-11a4.500 4.500 0 0 1 8-2.800A4.500 4.500 0 0 1 20 10c0 6-8 11-8 11z"/></svg></span>
+            <h3>پزشکی عمومی</h3>
+            <p>مشاهده برنامه حضور پزشکان عمومی و درخواست نوبت</p>
+            <span class="svc-go">انتخاب پزشک ←</span></button>
+
+          <button type="button" class="service-card rv" data-open="doc" data-type="دندانپزشک">
+            <span class="service-number">02</span>
+            <span class="service-symbol"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3C4.5 3 3 5 3 7.5c0 2 1 3 1.500 5S5 21 7.500 21c1.500 0 1.500-4 4.500-4s3 4 4.500 4c2.500 0 3-5.500 3.500-8.500.5-2 1.500-3 1.500-5C21 5 19.500 3 17 3c-2 0-3 1-5 1S9 3 7 3z"/></svg></span>
+            <h3>دندان‌پزشکی</h3>
+            <p>مشاهده روزها و ساعت‌های فعالیت دندان‌پزشکان</p>
+            <span class="svc-go">انتخاب پزشک ←</span></button>
+
+          <button type="button" class="service-card rv" data-open="doc" data-type="متخصص">
+            <span class="service-number">03</span>
+            <span class="service-symbol"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="5"/><path d="M8.500 13.500 7 21l5-3 5 3-1.500-7.500"/></svg></span>
+            <h3>پزشکان متخصص</h3>
+            <p>مشاهده تخصص‌ها و برنامه حضور پزشکان متخصص</p>
+            <span class="svc-go">انتخاب پزشک ←</span></button>
 
         </div>
-    </header>
+      </div>
+    </section>
 
-    <main>
+    <section class="doctors section-space" id="doctors">
+      <div class="container">
 
-        <!-- بخش اصلی -->
-        <section class="hero" id="home">
-            <div class="hero-media">
-                <img src="hero-sign.jpg" width="1600" height="899" alt="تابلو درمانگاه فرهنگیان مهریز" fetchpriority="high">
-            </div>
-            <div class="container">
-                <div class="hero-card">
-                    <span class="section-kicker">ONLINE APPOINTMENT</span>
-                    <h1>نوبت‌دهی آنلاین<br>درمانگاه فرهنگیان مهریز</h1>
-                    <p>برنامه حضور پزشکان را ببینید و نوبت خود را قدم‌به‌قدم ثبت کنید.</p>
-                    <div class="hero-actions">
-                        <a href="#booking" data-open="doc" class="primary-button">دریافت نوبت <span>←</span></a>
-                        <a href="tel:03532529560" class="secondary-button"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg> ۳۲۵۲۹۵۶۰</a>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">MEDICAL TEAM</span>
+            <h2>پزشکان درمانگاه</h2>
+          </div>
 
-        <!-- معرفی -->
-        <section class="intro section-space">
-            <div class="container intro-grid">
+          <span class="section-description">
+            برنامه حضور پزشکان و زمان‌های قابل رزرو
+          </span>
+        </div>
 
-                <div class="intro-heading">
-                    <span class="section-kicker">ABOUT OUR CLINIC</span>
-                    <h2>سلامتی شما،<br>اولویت ماست.</h2>
-                    <div class="heading-line"></div>
-                </div>
+        <div id="doctorList" aria-live="polite"><p>در حال آماده‌سازی…</p></div>
 
-                <div class="intro-text rv">
-                    <p>
-                        درمانگاه فرهنگیان مهریز با هدف ارائه خدمات درمانی
-                        و تسهیل دسترسی مراجعان به پزشکان، سامانه نوبت‌دهی
-                        آنلاین خود را راه‌اندازی کرده است.
-                    </p>
+      </div>
+    </section>
 
-                    <p>
-                        در این سامانه می‌توانید برنامه حضور پزشکان را مشاهده
-                        کنید و درخواست نوبت خود را در زمان مناسب ثبت کنید.
-                    </p>
-                </div>
+    <section class="booking-section section-space" id="booking">
+      <div class="container">
+        <div class="bk cta">
+          <span class="section-kicker">ONLINE APPOINTMENT</span>
+          <h2>دریافت نوبت اینترنتی</h2>
+          <p class="cta-p">پزشک، روز و ساعت را قدم‌به‌قدم انتخاب کنید.</p>
+          <div class="cta-row">
+            <button type="button" class="primary-button" data-open="doc">شروع دریافت نوبت <span>←</span></button>
+            <button type="button" class="chip" data-open="mine" id="mineBtn" hidden>نوبت‌های من</button>
+          </div>
+          <p class="bk-user" id="userLine" hidden><span id="hello"></span> <button type="button" id="logout" class="link-btn">خروج</button></p>
+        </div>
+      </div>
+    </section>
 
-            </div>
-        </section>
+    <section class="guide section-space" id="guide">
+      <div class="container">
 
-        <!-- خدمات -->
-        <section class="services section-space" id="services">
-            <div class="container">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">HOW IT WORKS</span>
+            <h2>مراحل دریافت نوبت</h2>
+          </div>
+        </div>
 
-                <div class="section-heading">
-                    <div>
-                        <span class="section-kicker">OUR SERVICES</span>
-                        <h2>خدمات درمانگاه</h2>
-                    </div>
-                    <p>دسترسی آسان به خدمات و پزشکان درمانگاه</p>
-                </div>
+        <div class="guide-grid">
 
-                <div class="service-grid">
+          <div class="guide-item rv">
+            <span>۱</span>
+            <h3>انتخاب پزشک</h3>
+            <p>پزشک و تخصص موردنظر خود را انتخاب کنید.</p>
+          </div>
 
-                    <button type="button" class="service-card rv" data-open="doc" data-type="عمومی">
-                        <span class="service-number">01</span>
-                        <span class="service-symbol"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-8-5-8-11a4.500 4.500 0 0 1 8-2.800A4.500 4.500 0 0 1 20 10c0 6-8 11-8 11z"/></svg></span>
-                        <h3>پزشکی عمومی</h3>
-                        <p>مشاهده برنامه حضور پزشکان عمومی و درخواست نوبت</p>
-                    <span class="svc-go">انتخاب پزشک ←</span></button>
+          <div class="guide-item rv">
+            <span>۲</span>
+            <h3>انتخاب زمان</h3>
+            <p>روز و ساعت مناسب را از زمان‌های آزاد انتخاب کنید.</p>
+          </div>
 
-                    <button type="button" class="service-card rv" data-open="doc" data-type="دندانپزشک">
-                        <span class="service-number">02</span>
-                        <span class="service-symbol"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3C4.5 3 3 5 3 7.5c0 2 1 3 1.500 5S5 21 7.500 21c1.500 0 1.500-4 4.500-4s3 4 4.500 4c2.500 0 3-5.500 3.500-8.500.5-2 1.500-3 1.500-5C21 5 19.500 3 17 3c-2 0-3 1-5 1S9 3 7 3z"/></svg></span>
-                        <h3>دندان‌پزشکی</h3>
-                        <p>مشاهده روزها و ساعت‌های فعالیت دندان‌پزشکان</p>
-                    <span class="svc-go">انتخاب پزشک ←</span></button>
+          <div class="guide-item rv">
+            <span>۳</span>
+            <h3>ثبت درخواست</h3>
+            <p>اطلاعات خود را ثبت و کد پیگیری دریافت کنید.</p>
+          </div>
 
-                    <button type="button" class="service-card rv" data-open="doc" data-type="متخصص">
-                        <span class="service-number">03</span>
-                        <span class="service-symbol"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="9" r="5"/><path d="M8.500 13.500 7 21l5-3 5 3-1.500-7.500"/></svg></span>
-                        <h3>پزشکان متخصص</h3>
-                        <p>مشاهده تخصص‌ها و برنامه حضور پزشکان متخصص</p>
-                    <span class="svc-go">انتخاب پزشک ←</span></button>
-
-                </div>
-            </div>
-        </section>
-
-        <!-- پزشکان -->
-        <section class="doctors section-space" id="doctors">
-            <div class="container">
-
-                <div class="section-heading">
-                    <div>
-                        <span class="section-kicker">MEDICAL TEAM</span>
-                        <h2>پزشکان درمانگاه</h2>
-                    </div>
-
-                    <span class="section-description">
-                        برنامه حضور پزشکان و زمان‌های قابل رزرو
-                    </span>
-                </div>
-
-                <div id="doctorList" aria-live="polite"><p>در حال بارگذاری…</p></div>
-
-            </div>
-        </section>
-
-        <!-- رزرو -->
-        <section class="booking-section section-space" id="booking">
-            <div class="container">
-                <div class="bk cta">
-                    <span class="section-kicker">ONLINE APPOINTMENT</span>
-                    <h2>دریافت نوبت اینترنتی</h2>
-                    <p class="cta-p">پزشک، روز و ساعت را قدم‌به‌قدم انتخاب کنید.</p>
-                    <div class="cta-row">
-                        <button type="button" class="primary-button" data-open="doc">شروع دریافت نوبت <span>←</span></button>
-                        <button type="button" class="chip" data-open="mine" id="mineBtn" hidden>نوبت‌های من</button>
-                    </div>
-                    <p class="bk-user" id="userLine" hidden><span id="hello"></span> <button type="button" id="logout" class="link-btn">خروج</button></p>
-                </div>
-            </div>
-        </section>
-
-        <!-- راهنما -->
-        <section class="guide section-space" id="guide">
-            <div class="container">
-
-                <div class="section-heading">
-                    <div>
-                        <span class="section-kicker">HOW IT WORKS</span>
-                        <h2>مراحل دریافت نوبت</h2>
-                    </div>
-                </div>
-
-                <div class="guide-grid">
-
-                    <div class="guide-item rv">
-                        <span>۱</span>
-                        <h3>انتخاب پزشک</h3>
-                        <p>پزشک و تخصص موردنظر خود را انتخاب کنید.</p>
-                    </div>
-
-                    <div class="guide-item rv">
-                        <span>۲</span>
-                        <h3>انتخاب زمان</h3>
-                        <p>روز و ساعت مناسب را از زمان‌های آزاد انتخاب کنید.</p>
-                    </div>
-
-                    <div class="guide-item rv">
-                        <span>۳</span>
-                        <h3>ثبت درخواست</h3>
-                        <p>اطلاعات خود را ثبت و کد پیگیری دریافت کنید.</p>
-                    </div>
-
-                    <div class="guide-item rv">
-                        <span>۴</span>
-                        <h3>هماهنگی نهایی</h3>
-                        <p>منشی درمانگاه برای هماهنگی با شما تماس خواهد گرفت.</p>
-                    </div>
-
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- فوتر -->
-    <footer class="site-footer">
-        <div class="container footer-content">
-
-            <div>
-                <h3>درمانگاه فرهنگیان مهریز</h3>
-                <p>سامانه نوبت‌دهی آنلاین</p>
-            </div>
-
-            <div class="footer-copy">
-                تلفن هماهنگی: <a href="tel:03532529560">۳۲۵۲۹۵۶۰</a> | ۳۲۵۳۱۴۱۰
-            </div>
+          <div class="guide-item rv">
+            <span>۴</span>
+            <h3>هماهنگی نهایی</h3>
+            <p>منشی درمانگاه برای هماهنگی با شما تماس خواهد گرفت.</p>
+          </div>
 
         </div>
-    </footer>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-content">
+
+      <div>
+        <h3>درمانگاه فرهنگیان مهریز</h3>
+        <p>سامانه نوبت‌دهی آنلاین</p>
+      </div>
+
+      <div class="footer-copy">
+        تلفن هماهنگی: <a href="tel:03532529560">۳۲۵۲۹۵۶۰</a> | ۳۲۵۳۱۴۱۰
+      </div>
+
+    </div>
+  </footer>
 
 </div>
 
 <dialog id="wz" class="wz" aria-labelledby="wzTitle">
-    <header class="wz-head"><button type="button" id="wzBack" aria-label="بازگشت" hidden>→</button><h3 id="wzTitle"></h3><button type="button" id="wzClose" aria-label="بستن">✕</button></header>
-    <div class="wz-prog" id="wzProg" aria-hidden="true"></div>
-    <div class="wz-body" id="wzBody" aria-live="polite"></div>
+  <header class="wz-head"><button type="button" id="wzBack" aria-label="بازگشت" hidden>→</button><h3 id="wzTitle"></h3><button type="button" id="wzClose" aria-label="بستن">✕</button></header>
+  <div class="wz-prog" id="wzProg" aria-hidden="true"></div>
+  <div class="wz-body" id="wzBody" aria-live="polite"></div>
 </dialog>
 
 <script src="js/config.js"></script>
