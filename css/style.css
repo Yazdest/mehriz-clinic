@@ -1003,3 +1003,33 @@ img {
         animation-duration: .01ms !important;
     }
 }
+
+
+/* =================================
+   10 - DOCTORS & BOOKING
+================================= */
+.grp { margin: 34px 0 14px; color: var(--primary-dark); }
+.doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+.doc-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
+.doc-card h4 { font-size: 17px; margin-bottom: 6px; }
+.doc-card ul { list-style: none; font-size: 13px; color: var(--muted); margin: 10px 0 14px; }
+.doc-card li b { color: var(--text); margin-inline-end: 6px; }
+.tag { display: inline-block; background: var(--primary-light); color: var(--primary-dark); border-radius: 20px; padding: 0 12px; font-size: 12px; }
+.doc-btn { color: var(--primary); font-weight: 700; font-size: 14px; }
+.bk { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 36px; }
+.bk h3 { margin: 26px 0 10px; font-size: 15px; color: var(--primary-dark); }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 18px 0; }
+.bk input { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--background); }
+#codeRow { display: flex; gap: 10px; margin-top: 14px; max-width: 420px; }
+.bk .primary-button { border: 0; cursor: pointer; }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip { border: 1px solid var(--border); background: var(--background); border-radius: 12px; padding: 8px 16px; cursor: pointer; line-height: 1.6; text-align: center; }
+.chip.on { background: var(--primary); color: #fff; border-color: var(--primary); }
+.chip:disabled { opacity: .45; cursor: not-allowed; text-decoration: line-through; }
+.chip em { font-size: 11px; font-style: normal; }
+#msg, #authMsg { margin-top: 16px; font-size: 14px; }
+.ok { color: var(--primary-dark); } .err { color: var(--brick); }
+.mine-row { display: flex; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+.mine-row button, .link-btn { background: none; border: 0; color: var(--brick); cursor: pointer; }
+.bk-user { color: var(--muted); font-size: 14px; }
+#confirm { margin-top: 24px; }
