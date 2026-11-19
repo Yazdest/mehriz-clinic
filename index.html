@@ -4,49 +4,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#087f83">
 
-    <title>درمانگاه فرهنگیان مهریز | نوبت‌دهی آنلاین</title>
+    <title>درمانگاه فرهنگیان مهریز | سامانه نوبت‌دهی</title>
 
-    <meta name="description" content="سامانه آنلاین نوبت‌دهی درمانگاه فرهنگیان مهریز">
+    <meta name="description" content="سامانه نوبت‌دهی اینترنتی درمانگاه فرهنگیان مهریز">
 
-    <link rel="stylesheet" href="css/style.css">
+    <meta name="theme-color" content="#075e62">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- با هر تغییر CSS، شماره v را افزایش بده -->
+    <link rel="stylesheet" href="css/style.css?v=2">
+
+    <script src="js/app.js?v=1" defer></script>
 </head>
 
 <body>
 
-<div id="app">
-
     <!-- نوار بالایی -->
     <div class="topbar">
-        <div class="container topbar-inner">
-            <span>درمانگاه فرهنگیان مهریز</span>
-            <span>سامانه نوبت‌دهی آنلاین</span>
+        <div class="container">
+            <p>درمانگاه خیری حاج محمدحسن زارع بیدکی فرهنگیان مهریز</p>
         </div>
     </div>
 
-    <!-- هدر -->
+    <!-- سربرگ -->
     <header class="site-header">
-        <div class="container nav-container">
+        <div class="header-inner">
 
-            <a href="#" class="brand">
-                <span class="brand-mark">م</span>
-                <span class="brand-name">
-                    <strong>درمانگاه فرهنگیان</strong>
-                    <small>مهریز</small>
-                </span>
+            <a href="#" class="logo">
+                <span>درمانگاه فرهنگیان مهریز</span>
             </a>
 
-            <nav class="main-nav">
+            <nav class="nav">
                 <a href="#home">صفحه اصلی</a>
+                <a href="#about">درباره درمانگاه</a>
+                <a href="#services">خدمات</a>
                 <a href="#doctors">پزشکان</a>
-                <a href="#services">خدمات درمانگاه</a>
-                <a href="#guide">راهنمای نوبت</a>
+                <a href="#guide">راهنمای نوبت‌دهی</a>
             </nav>
 
-            <a href="#booking" class="nav-button">
+            <a href="#booking" class="header-button">
                 دریافت نوبت
-                <span>←</span>
             </a>
 
         </div>
@@ -59,262 +59,452 @@
 
             <div class="hero-image"></div>
 
-            <div class="container hero-content">
+            <div class="hero-content">
 
-                <div class="hero-label">
-                    <span class="status-dot"></span>
+                <span class="hero-badge">
                     سامانه نوبت‌دهی اینترنتی
-                </div>
+                </span>
 
                 <h1>
-                    مراقبت از سلامت،
-                    <br>
-                    با دسترسی آسان‌تر
+                    مراقبت از سلامت، با دسترسی آسان‌تر
                 </h1>
 
                 <p>
-                    به سامانه نوبت‌دهی آنلاین درمانگاه فرهنگیان مهریز خوش آمدید.
-                    پزشک موردنظر خود را انتخاب کنید و درخواست نوبت خود را ثبت کنید.
+                    به سامانه نوبت‌دهی اینترنتی درمانگاه فرهنگیان مهریز خوش آمدید.
+                    برای مشاهده برنامه پزشکان و دریافت نوبت، از امکانات این سامانه استفاده کنید.
                 </p>
 
                 <div class="hero-actions">
-                    <a href="#booking" class="primary-button">
-                        شروع دریافت نوبت
-                        <span>←</span>
+
+                    <a href="#booking" class="btn btn-primary">
+                        دریافت نوبت
                     </a>
 
-                    <a href="#doctors" class="secondary-button">
+                    <a href="#doctors" class="btn btn-secondary">
                         مشاهده پزشکان
                     </a>
+
                 </div>
 
                 <div class="hero-note">
-                    <span>✦</span>
-                    ثبت درخواست نوبت به‌صورت آنلاین
+                    نوبت‌های ثبت‌شده توسط منشی درمانگاه بررسی و پیگیری می‌شوند.
                 </div>
 
-            </div>
-
-            <div class="hero-bottom">
-                <div class="container">
-                    <span>MEHRIZ CLINIC</span>
-                    <span>درمانگاه فرهنگیان مهریز</span>
-                </div>
             </div>
 
         </section>
 
         <!-- دسترسی سریع -->
         <section class="quick-access">
-            <div class="container quick-grid">
 
-                <a href="#booking" class="quick-item">
-                    <span class="quick-icon">＋</span>
-                    <span>
-                        <strong>رزرو نوبت</strong>
-                        <small>ثبت درخواست مراجعه</small>
-                    </span>
-                </a>
+            <a href="#booking" class="quick-card">
+                <div>
+                    <strong>دریافت نوبت</strong>
+                    <span>درخواست نوبت اینترنتی</span>
+                </div>
+            </a>
 
-                <a href="#doctors" class="quick-item">
-                    <span class="quick-icon">✚</span>
-                    <span>
-                        <strong>پزشکان درمانگاه</strong>
-                        <small>مشاهده پزشکان و تخصص‌ها</small>
-                    </span>
-                </a>
+            <a href="#doctors" class="quick-card">
+                <div>
+                    <strong>برنامه پزشکان</strong>
+                    <span>مشاهده پزشکان و تخصص‌ها</span>
+                </div>
+            </a>
 
-                <a href="#guide" class="quick-item">
-                    <span class="quick-icon">◎</span>
-                    <span>
-                        <strong>راهنمای نوبت‌دهی</strong>
-                        <small>مراحل دریافت نوبت</small>
-                    </span>
-                </a>
+            <a href="#guide" class="quick-card">
+                <div>
+                    <strong>راهنمای استفاده</strong>
+                    <span>مراحل دریافت نوبت</span>
+                </div>
+            </a>
 
-            </div>
         </section>
 
-        <!-- معرفی -->
-        <section class="intro section-space">
-            <div class="container intro-grid">
+        <!-- درباره درمانگاه -->
+        <section class="section intro" id="about">
 
-                <div class="intro-heading">
-                    <span class="section-kicker">ABOUT OUR CLINIC</span>
-                    <h2>سلامتی شما،<br>اولویت ماست.</h2>
-                    <div class="heading-line"></div>
-                </div>
+            <div class="intro-content">
 
-                <div class="intro-text">
-                    <p>
-                        درمانگاه فرهنگیان مهریز با هدف ارائه خدمات درمانی
-                        و تسهیل دسترسی مراجعان به پزشکان، سامانه نوبت‌دهی
-                        آنلاین خود را راه‌اندازی کرده است.
-                    </p>
+                <span>درباره ما</span>
 
-                    <p>
-                        در این سامانه می‌توانید برنامه حضور پزشکان را مشاهده
-                        کنید و درخواست نوبت خود را در زمان مناسب ثبت کنید.
-                    </p>
-                </div>
+                <h2>درباره درمانگاه فرهنگیان مهریز</h2>
+
+                <p>
+                    درمانگاه فرهنگیان مهریز با هدف ارائه خدمات درمانی و
+                    پزشکی به مراجعان فعالیت می‌کند.
+                </p>
+
+                <p>
+                    در این سامانه می‌توانید برنامه حضور پزشکان را مشاهده کرده
+                    و درخواست نوبت خود را به‌صورت اینترنتی ثبت کنید.
+                    درخواست‌ها پس از ثبت توسط منشی درمانگاه بررسی و پیگیری خواهند شد.
+                </p>
 
             </div>
+
+            <div class="intro-image">
+                <img
+                    src="https://raw.githubusercontent.com/Yazdest/mehriz-clinic/main/mehriz-clinic-pic.jpg"
+                    alt="تابلوی درمانگاه فرهنگیان مهریز"
+                    loading="lazy"
+                >
+            </div>
+
         </section>
 
         <!-- خدمات -->
-        <section class="services section-space" id="services">
-            <div class="container">
+        <section class="section" id="services">
 
-                <div class="section-heading">
-                    <div>
-                        <span class="section-kicker">OUR SERVICES</span>
-                        <h2>خدمات درمانگاه</h2>
-                    </div>
-                    <p>دسترسی آسان به خدمات و پزشکان درمانگاه</p>
-                </div>
-
-                <div class="service-grid">
-
-                    <article class="service-card">
-                        <span class="service-number">01</span>
-                        <span class="service-symbol">✚</span>
-                        <h3>پزشکی عمومی</h3>
-                        <p>مشاهده برنامه حضور پزشکان عمومی و درخواست نوبت</p>
-                    </article>
-
-                    <article class="service-card">
-                        <span class="service-number">02</span>
-                        <span class="service-symbol">✧</span>
-                        <h3>دندان‌پزشکی</h3>
-                        <p>مشاهده روزها و ساعت‌های فعالیت دندان‌پزشکان</p>
-                    </article>
-
-                    <article class="service-card">
-                        <span class="service-number">03</span>
-                        <span class="service-symbol">⚕</span>
-                        <h3>پزشکان متخصص</h3>
-                        <p>مشاهده تخصص‌ها و برنامه حضور پزشکان متخصص</p>
-                    </article>
-
-                </div>
+            <div class="section-heading">
+                <span>خدمات درمانی</span>
+                <h2>خدمات درمانگاه</h2>
+                <p>
+                    دسترسی به خدمات پزشکی و درمانی در تخصص‌های مختلف
+                </p>
             </div>
+
+            <div class="services-grid">
+
+                <article class="service-card">
+
+                    <div class="service-icon">✚</div>
+
+                    <h3>پزشکی عمومی</h3>
+
+                    <p>
+                        ارائه خدمات معاینه عمومی و بررسی وضعیت سلامت مراجعان
+                    </p>
+
+                </article>
+
+                <article class="service-card">
+
+                    <div class="service-icon">✦</div>
+
+                    <h3>دندان‌پزشکی</h3>
+
+                    <p>
+                        ارائه خدمات دندان‌پزشکی مطابق برنامه حضور پزشک
+                    </p>
+
+                </article>
+
+                <article class="service-card">
+
+                    <div class="service-icon">⚕</div>
+
+                    <h3>پزشکان متخصص</h3>
+
+                    <p>
+                        امکان مشاهده برنامه حضور پزشکان متخصص و درخواست نوبت
+                    </p>
+
+                </article>
+
+            </div>
+
         </section>
 
         <!-- پزشکان -->
-        <section class="doctors section-space" id="doctors">
-            <div class="container">
+        <section class="doctors-section" id="doctors">
+
+            <div class="section">
 
                 <div class="section-heading">
-                    <div>
-                        <span class="section-kicker">MEDICAL TEAM</span>
-                        <h2>پزشکان درمانگاه</h2>
-                    </div>
 
-                    <span class="section-description">
-                        برنامه حضور پزشکان و زمان‌های قابل رزرو
-                    </span>
-                </div>
+                    <span>کادر درمان</span>
 
-                <div class="doctor-placeholder">
-                    <div class="doctor-placeholder-icon">✚</div>
-                    <h3>برنامه پزشکان</h3>
+                    <h2>برنامه پزشکان</h2>
+
                     <p>
-                        فهرست پزشکان و ساعت‌های حضور آن‌ها در این بخش
-                        نمایش داده خواهد شد.
+                        برنامه حضور پزشکان و زمان‌های قابل دریافت نوبت
                     </p>
-                    <a href="#booking">مشاهده بخش نوبت‌دهی ←</a>
+
+                </div>
+
+                <div class="doctors-placeholder">
+
+                    برنامه پزشکان در این بخش نمایش داده خواهد شد.
+
                 </div>
 
             </div>
+
         </section>
 
-        <!-- رزرو -->
-        <section class="booking-section section-space" id="booking">
-            <div class="container">
+        <!-- رزرو نوبت -->
+        <section class="booking-section" id="booking">
 
-                <div class="booking-panel">
+            <div class="booking-panel">
 
-                    <div>
-                        <span class="section-kicker">ONLINE APPOINTMENT</span>
-                        <h2>برای دریافت نوبت آماده‌اید؟</h2>
-                        <p>
-                            پزشک موردنظر خود را انتخاب کنید و درخواست نوبت
-                            اینترنتی خود را ثبت کنید.
-                        </p>
+                <h2>دریافت نوبت اینترنتی</h2>
+
+                <p>
+                    برای ثبت درخواست نوبت، اطلاعات خود را وارد کنید.
+                </p>
+
+                <form class="booking-form" id="bookingForm">
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+
+                            <label for="fullName">
+                                نام و نام خانوادگی
+                            </label>
+
+                            <input
+                                type="text"
+                                id="fullName"
+                                name="fullName"
+                                placeholder="نام و نام خانوادگی"
+                                autocomplete="name"
+                                required
+                            >
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="mobile">
+                                شماره تلفن همراه
+                            </label>
+
+                            <input
+                                type="tel"
+                                id="mobile"
+                                name="mobile"
+                                placeholder="09xxxxxxxxx"
+                                inputmode="numeric"
+                                autocomplete="tel"
+                                required
+                            >
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="specialty">
+                                تخصص موردنظر
+                            </label>
+
+                            <select id="specialty" name="specialty" required>
+
+                                <option value="">
+                                    انتخاب تخصص
+                                </option>
+
+                                <option value="general">
+                                    پزشکی عمومی
+                                </option>
+
+                                <option value="dentistry">
+                                    دندان‌پزشکی
+                                </option>
+
+                                <option value="specialist">
+                                    پزشکان متخصص
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="doctor">
+                                پزشک موردنظر
+                            </label>
+
+                            <select id="doctor" name="doctor" required>
+
+                                <option value="">
+                                    ابتدا تخصص را انتخاب کنید
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="appointmentDate">
+                                تاریخ مراجعه
+                            </label>
+
+                            <input
+                                type="text"
+                                id="appointmentDate"
+                                name="appointmentDate"
+                                placeholder="انتخاب تاریخ"
+                                readonly
+                                required
+                            >
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="appointmentTime">
+                                ساعت مراجعه
+                            </label>
+
+                            <select
+                                id="appointmentTime"
+                                name="appointmentTime"
+                                required
+                            >
+
+                                <option value="">
+                                    ابتدا تاریخ را انتخاب کنید
+                                </option>
+
+                            </select>
+
+                        </div>
+
                     </div>
 
-                    <a href="#doctors" class="booking-button">
-                        ورود به سامانه نوبت‌دهی
-                        <span>←</span>
-                    </a>
+                    <div class="form-actions">
 
-                </div>
+                        <button type="submit">
+                            ثبت درخواست نوبت
+                        </button>
+
+                    </div>
+
+                    <div
+                        class="form-message hidden"
+                        id="formMessage"
+                        role="status"
+                    ></div>
+
+                </form>
 
             </div>
+
         </section>
 
-        <!-- راهنما -->
-        <section class="guide section-space" id="guide">
-            <div class="container">
+        <!-- راهنمای نوبت‌دهی -->
+        <section class="section" id="guide">
 
-                <div class="section-heading">
-                    <div>
-                        <span class="section-kicker">HOW IT WORKS</span>
-                        <h2>مراحل دریافت نوبت</h2>
-                    </div>
-                </div>
+            <div class="section-heading">
 
-                <div class="guide-grid">
+                <span>راهنمای استفاده</span>
 
-                    <div class="guide-item">
-                        <span>۱</span>
-                        <h3>انتخاب پزشک</h3>
-                        <p>پزشک و تخصص موردنظر خود را انتخاب کنید.</p>
-                    </div>
+                <h2>چگونه نوبت دریافت کنیم؟</h2>
 
-                    <div class="guide-item">
-                        <span>۲</span>
-                        <h3>انتخاب زمان</h3>
-                        <p>روز و ساعت مناسب را از زمان‌های آزاد انتخاب کنید.</p>
-                    </div>
+                <p>
+                    مراحل ثبت درخواست نوبت در سامانه
+                </p>
 
-                    <div class="guide-item">
-                        <span>۳</span>
-                        <h3>ثبت درخواست</h3>
-                        <p>اطلاعات خود را ثبت و کد پیگیری دریافت کنید.</p>
-                    </div>
-
-                    <div class="guide-item">
-                        <span>۴</span>
-                        <h3>هماهنگی نهایی</h3>
-                        <p>منشی درمانگاه برای هماهنگی با شما تماس خواهد گرفت.</p>
-                    </div>
-
-                </div>
             </div>
+
+            <div class="guide-grid">
+
+                <article class="guide-card">
+
+                    <div class="guide-number">۱</div>
+
+                    <h3>انتخاب تخصص</h3>
+
+                    <p>
+                        تخصص و پزشک موردنظر خود را انتخاب کنید.
+                    </p>
+
+                </article>
+
+                <article class="guide-card">
+
+                    <div class="guide-number">۲</div>
+
+                    <h3>انتخاب زمان</h3>
+
+                    <p>
+                        تاریخ و ساعت مناسب را از زمان‌های موجود انتخاب کنید.
+                    </p>
+
+                </article>
+
+                <article class="guide-card">
+
+                    <div class="guide-number">۳</div>
+
+                    <h3>ثبت اطلاعات</h3>
+
+                    <p>
+                        مشخصات خود را وارد کرده و درخواست نوبت را ثبت کنید.
+                    </p>
+
+                </article>
+
+                <article class="guide-card">
+
+                    <div class="guide-number">۴</div>
+
+                    <h3>هماهنگی نهایی</h3>
+
+                    <p>
+                        درخواست شما توسط منشی درمانگاه بررسی و پیگیری می‌شود.
+                    </p>
+
+                </article>
+
+            </div>
+
         </section>
 
     </main>
 
     <!-- فوتر -->
     <footer class="site-footer">
-        <div class="container footer-content">
 
-            <div>
+        <div class="footer-inner">
+
+            <div class="footer-column">
+
                 <h3>درمانگاه فرهنگیان مهریز</h3>
-                <p>سامانه نوبت‌دهی آنلاین</p>
+
+                <p>
+                    سامانه نوبت‌دهی اینترنتی درمانگاه فرهنگیان مهریز
+                </p>
+
             </div>
 
-            <div class="footer-copy">
-                تمامی حقوق این سامانه محفوظ است.
+            <div class="footer-column">
+
+                <h3>دسترسی سریع</h3>
+
+                <a href="#home">صفحه اصلی</a>
+                <a href="#about">درباره درمانگاه</a>
+                <a href="#services">خدمات درمانی</a>
+                <a href="#booking">دریافت نوبت</a>
+
+            </div>
+
+            <div class="footer-column">
+
+                <h3>ارتباط با درمانگاه</h3>
+
+                <p>
+                    درمانگاه خیری حاج محمدحسن زارع بیدکی فرهنگیان مهریز
+                </p>
+
+                <p>
+                    استان یزد، شهرستان مهریز
+                </p>
+
             </div>
 
         </div>
+
+        <div class="footer-bottom">
+
+            تمامی حقوق این سامانه محفوظ است.
+
+        </div>
+
     </footer>
-
-</div>
-
-<script src="js/app.js"></script>
 
 </body>
 </html>
