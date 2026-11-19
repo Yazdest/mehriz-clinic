@@ -104,3 +104,69 @@ button.service-card{width:100%;text-align:right;font:inherit;color:inherit;curso
 @media(max-width:760px){.nav-actions{gap:6px;width:100%;justify-content:space-between}.nav-link-btn,.nav-actions .nav-button{flex:1 1 0;min-height:44px;padding:0 6px;font-size:.88rem;border-radius:14px;min-width:0}.nl-long{display:none}}
 @media(max-width:760px){.nav-actions .nav-button{margin-inline-start:0}.nav-container{padding:8px 0}}
 #fEmail:placeholder-shown{direction:rtl;text-align:right}
+
+/* =========================================================
+   v4: بازخورد لمس دکمه‌ها + اسپینر + پنجرهٔ پیام
+   ========================================================= */
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* --- ۱) حالت فشرده‌شدن (لمس/کلیک): تغییر رنگ + کمی کوچک‌شدن --- */
+.nav-button:active,.primary-button:active{background:linear-gradient(135deg,var(--pd),var(--dd));transform:scale(.96);box-shadow:0 4px 10px -6px var(--p)}
+.hero .primary-button:active{background:linear-gradient(135deg,#a84430,#7a2b19)}
+.secondary-button:active{background:#ffffff40;transform:scale(.96)}
+.hero .secondary-button:active{background:var(--t);color:#fff}
+.doc-btn:active{background:var(--pd);color:#fff;transform:scale(.97)}
+.chip:active:not(:disabled){background:var(--t);border-color:var(--t);color:#fff;transform:scale(.96)}
+.dc:active{background:var(--pl);border-color:var(--p);transform:scale(.98)}
+.service-card:active{background:var(--pl);transform:scale(.98)}
+.nav-link-btn:active{background:var(--p);border-color:var(--p);color:#fff;transform:scale(.96)}
+.main-nav a:active{background:var(--p);color:#fff}
+.wz-head button:active{background:#ffffff77}
+.mine-row button:active{background:var(--err);color:#fff}
+.link-btn:active{color:var(--br)}
+.callfab:active{background:#8f3a27;transform:scale(.94)}
+
+/* --- ۲) حالت «در حال انجام»: رنگ متفاوت + اسپین چرخشی --- */
+.busy{pointer-events:none;cursor:progress}
+.busy::before{content:"";display:inline-block;flex:none;width:1.05em;height:1.05em;margin-inline-end:8px;border-radius:50%;border:2.5px solid currentColor;border-top-color:transparent;vertical-align:-.15em;animation:spin .7s linear infinite}
+.primary-button.busy,.nav-button.busy{background:linear-gradient(135deg,var(--pd),var(--dd));color:#fff;transform:none;opacity:1}
+.nav-link-btn.busy{background:var(--p);border-color:var(--p);color:#fff}
+.chip.busy{background:var(--p);border-color:var(--p);color:#fff}
+.mine-row button.busy{background:var(--err);color:#fff}
+.link-btn.busy{color:var(--br);text-decoration:none}
+@media(max-width:760px){.nav-link-btn.busy::before{margin-inline-end:5px}}
+
+/* --- ۳) اسپینر کنار متن‌های «در حال دریافت…» --- */
+.ld{display:flex;align-items:center;gap:10px;color:var(--mut);font-weight:500;padding:6px 0}
+.ld::before{content:"";flex:none;width:1.15em;height:1.15em;border-radius:50%;border:3px solid var(--line);border-top-color:var(--p);animation:spin .8s linear infinite}
+
+/* --- ۴) پنجرهٔ پیام (ورود / خروج / خطا) --- */
+.msgbox{border:0;padding:0;margin:auto;width:min(380px,90vw);border-radius:28px;background:#fff;color:var(--ink);text-align:center;overflow:hidden;box-shadow:0 40px 80px -20px #04485ccc}
+.msgbox[open]{animation:pop .3s}
+.msgbox::backdrop{background:#0d6c809e;backdrop-filter:blur(5px)}
+body:has(.msgbox[open]){overflow:hidden}
+.msgbox-bar{height:8px;background:linear-gradient(90deg,var(--t),var(--p),var(--br))}
+.msgbox-body{padding:28px 26px 22px}
+.msgbox-ico{width:76px;height:76px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;font-size:2.3rem;background:var(--pl);color:var(--p)}
+.msgbox[open] .msgbox-ico{animation:tick .5s .1s both}
+@keyframes tick{from{transform:scale(.4);opacity:0}60%{transform:scale(1.12)}}
+.msgbox[data-kind=ok] .msgbox-ico{background:#e6f6ec;color:var(--ok)}
+.msgbox[data-kind=warn] .msgbox-ico{background:var(--brl);color:var(--br)}
+.msgbox h3{color:var(--pd);font-size:1.25rem}
+.msgbox p{color:var(--mut);margin:6px 0 22px}
+.msgbox-timer{height:5px;background:var(--line)}
+.msgbox-timer i{display:block;height:100%;background:var(--t);transform-origin:right}
+@keyframes drain{to{transform:scaleX(0)}}
+
+/* اسپینر عملکرد حیاتی است؛ حتی با «کاهش حرکت» هم (آهسته‌تر) بچرخد */
+@media(prefers-reduced-motion:reduce){.busy::before,.ld::before{animation:spin 1.4s linear infinite!important}}
+
+/* v5: پنجرهٔ تأیید */
+.cf-row{display:flex;gap:10px}
+.cf-row button{flex:1;min-height:50px;border-radius:16px;font:inherit;font-weight:700;cursor:pointer;transition:transform .2s,background .2s,color .2s}
+.cf-no{background:var(--pl);color:var(--pd);border:0}
+.cf-no:active{background:var(--t);color:#fff;transform:scale(.96)}
+.cf-yes{background:linear-gradient(135deg,#d8644a,var(--br));color:#fff;border:0;box-shadow:0 10px 22px -12px #7a2b19}
+.cf-yes:active{background:linear-gradient(135deg,#a84430,#7a2b19);transform:scale(.96)}
+.cfbox .msgbox-body{padding-bottom:26px}
+.cfbox .msgbox-body p{margin-bottom:22px}
