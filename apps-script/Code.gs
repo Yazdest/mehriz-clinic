@@ -270,9 +270,11 @@ function cancel(p){
 
 
 /* ---------- پنل مدیریت (رمز در Project Settings ← Script properties با کلید ADMIN_PASSWORD) ---------- */
-const EDIT = ['پزشکان','برنامه هفتگی','استثناها','تنظیمات'];
+const EDIT = ['پزشکان','برنامه هفتگی','استثناها','تنظیمات', BLK];   // BLK = شیت «غیرفعال‌سازی»
 function adminAuth(p){
-  if (!CacheService.getScriptCache().get('adm_' + p.atoken)) throw new Error('نشست مدیر منقضی شده؛ دوباره وارد شوید');
+  const ca = CacheService.getScriptCache();
+  if (!p.atoken || !ca.get('adm_' + p.atoken)) throw new Error('نشست مدیر منقضی شده؛ دوباره وارد شوید');
+  ca.put('adm_' + p.atoken, '1', 21600);   // هر فعالیت، نشست را ۶ ساعت دیگر تمدید می‌کند (منشی وسط کار بیرون انداخته نشود)
 }
 function adminLogin(p){
   const pw = PropertiesService.getScriptProperties().getProperty('ADMIN_PASSWORD'), ca = CacheService.getScriptCache();
@@ -280,11 +282,12 @@ function adminLogin(p){
   const t = +(ca.get('admtry')||0); if (t >= 5) throw new Error('تلاش بیش از حد؛ ۱۰ دقیقه بعد دوباره امتحان کنید');
   ca.put('admtry', String(t+1), 600);
   if (String(p.password) !== pw) throw new Error('رمز اشتباه است');
+  ca.remove('admtry');   // ورود موفق، شمارندهٔ تلاش اشتباه را پاک می‌کند
   const atoken = Utilities.getUuid(); ca.put('adm_' + atoken, '1', 21600); return {atoken};
 }
 function adminGet(p){
   adminAuth(p); const out = {};
-  ['نوبت‌ها'].concat(EDIT).forEach(n => { const s = sh(n); out[n] = !s ? [] : s.getDataRange().getDisplayValues(); });
+  ['نوبت‌ها','کاربران'].concat(EDIT).forEach(n => { const s = sh(n); out[n] = !s ? [] : s.getDataRange().getDisplayValues(); });
   return out;
 }
 function adminSave(p){
@@ -296,6 +299,8 @@ function adminSave(p){
     const clean = data.filter(r => r.some(c => String(c).trim())).map(r => Array.from({length:w}, (_,i) => String(r[i] == null ? '' : r[i]).trim()));
     if (clean.length){ const rg = s.getRange(2,1,clean.length,w); rg.setNumberFormat('@'); rg.setValues(clean); }
     clearClinicCache();
+    // اگر پزشکان عوض شدند، فهرست کشویی شیت «غیرفعال‌سازی» هم همان لحظه به‌روز شود
+    if (norm(n) === norm('پزشکان') && sh(LST)) { try { refreshLists(); } catch (e) {} }
   } finally { lock.releaseLock(); }
   return {ok:true};
 }
