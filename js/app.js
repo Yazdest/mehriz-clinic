@@ -205,10 +205,10 @@ const VIEWS = {
   },
   done() {
     const r = receiptData();
-    body.innerHTML = `<div class="center"><div class="okbig">✓</div><p>کد پیگیری</p><h3 dir="ltr">${esc(r.code)}</h3></div>
-      <div class="sum">${r.rows.map(([k, v, dir]) => `<div><span>${k}</span><b${dir ? ` dir="${dir}"` : ""}>${esc(v)}</b></div>`).join("")}</div>
+    body.classList.add("rc");
+    body.innerHTML = `<div class="rc-top"><div class="okbig">✓</div><div><p>کد پیگیری</p><h3 dir="ltr">${esc(r.code)}</h3></div></div>
+      <div class="rc-list">${r.rows.map(([k, v]) => `<div><span>${k}</span><b>${esc(v)}</b></div>`).join("")}</div>
       <p class="rc-note">${RC_NOTES.join(" ")}</p>
-      <p class="wz-sub">تأیید ثبت نوبت به ایمیل شما هم ارسال شد.</p>
       <div class="dl-row">
         <button type="button" class="dl-btn" data-a="dlPng">${DL_ICO}ذخیره تصویر</button>
         <button type="button" class="dl-btn" data-a="dlPdf">${DL_ICO}ذخیره PDF</button>
@@ -242,13 +242,9 @@ function receiptData() {
     rows: [
       ["نام بیمار / رزروکننده", r.name || u.name],
       ["شماره موبایل", mob && fa(mob)],
-      ["ایمیل", r.email || u.email, "ltr"],
-      ["پزشک", r.doctor],
-      ["تخصص / نوع", r.spec || d.specialty || TYPE_ONE[d.type] || ""],
-      ["روز و تاریخ نوبت", `${r.day} ${fa(r.j)}`],
-      ["ساعت حضور", fa(r.time)],
-      ["تاریخ صدور رسید", issued],
-      ["وضعیت", "ثبت‌شده؛ در انتظار هماهنگی منشی"]
+      ["پزشک / تخصص", [r.doctor, r.spec || d.specialty || TYPE_ONE[d.type]].filter(Boolean).join(" – ")],
+      ["زمان نوبت", `${r.day} ${fa(r.j)}، ساعت ${fa(r.time)}`],
+      ["تاریخ صدور رسید", issued]
     ].filter(x => x[1])
   };
 }
