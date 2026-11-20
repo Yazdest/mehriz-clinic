@@ -183,6 +183,53 @@ td .field.w-id{min-width:110px}
   tr.new td{background:#fff!important}
   tr{break-inside:avoid}
 }
+
+/* ===== v16: بازطراحی ظاهر و تجربهٔ کاربری ===== */
+@media screen{
+.top{background:linear-gradient(120deg,var(--dd),var(--hd) 55%,#0f7a8f)}
+.brand{flex:none;width:44px;height:44px;border-radius:14px;background:#ffffff1f;border:1px solid #ffffff3a;display:grid;place-items:center;color:#fff}
+.brand svg{width:22px;height:22px}
+.tabs-bar{backdrop-filter:blur(8px);background:color-mix(in srgb,var(--card) 90%,transparent)}
+.tab{gap:8px;padding:9px 16px}
+.tab svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab.on{box-shadow:0 8px 18px -10px var(--btn)}
+.card{border-radius:16px}
+.btn{border-width:1.5px}.btn:active:not(:disabled){transform:translateY(1px)}
+.btn.primary{box-shadow:0 8px 16px -10px var(--btn)}
+.stat{--ac:#1a96ae;padding:14px 18px;box-shadow:inset -4px 0 0 var(--ac)}
+.stat.on{box-shadow:inset -4px 0 0 var(--ac),0 0 0 3px #30a8c033}
+.stat strong{color:var(--ac)}
+.stat:nth-child(2){--ac:#6a73d9}.stat:nth-child(3){--ac:#2f9e75}.stat:nth-child(4){--ac:#d0584a}
+[data-theme=dark] .stat:nth-child(2){--ac:#a0a8ff}[data-theme=dark] .stat:nth-child(3){--ac:#6fd3a8}[data-theme=dark] .stat:nth-child(4){--ac:#ff9b8f}
+tr.grp td{background:var(--pl)!important;color:var(--pd);border-inline-start:5px solid var(--p);border-bottom:1px solid var(--line)}
+tr.grp .gc{background:var(--card);border-radius:999px;padding:0 12px;font-weight:700;opacity:1}
+.badge.ok::before,.badge.cx::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.edbar{backdrop-filter:blur(8px)}
+.empty{padding:56px 20px}
+.empty::before{content:"";display:block;width:64px;height:64px;margin:0 auto 14px;border-radius:50%;background:radial-gradient(circle,var(--card) 0 28%,var(--pl) 30%)}
+}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+/* نوبت‌ها روی موبایل: هر ردیف یک کارت */
+@media screen and (max-width:760px){
+#bkRes .tbl{border:0;box-shadow:none;background:none;overflow:visible}
+#bkRes table,#bkRes tbody{display:block}
+#bkRes thead{display:none}
+#bkRes tr.grp{display:block;margin:14px 0 8px;border-radius:12px;overflow:hidden}
+#bkRes tr.grp td{display:block}
+#bkRes tr:not(.grp){display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+#bkRes tr.new:not(.grp){background:#fff3c4}
+[data-theme=dark] #bkRes tr.new:not(.grp){background:#4a3d12}
+#bkRes tr:not(.grp) td{display:block;padding:0;border:0;background:none!important}
+#bkRes td:nth-child(1){grid-row:1;font-size:1.3rem}
+#bkRes td:nth-child(2){grid-row:1}
+#bkRes td:nth-child(3){grid-column:1/-1}
+#bkRes td:nth-child(3) a{display:inline-flex;align-items:center;min-height:40px;font-weight:700}
+#bkRes td:nth-child(4),#bkRes td:nth-child(7){display:none!important}
+#bkRes td:nth-child(5){grid-column:1;grid-row:3}
+#bkRes td:nth-child(6){grid-column:2;grid-row:3;justify-self:end}
+#bkRes td:nth-child(8){grid-column:1/-1;margin-top:6px}
+#bkRes td:nth-child(8) .btn{width:100%}
+}
 </style>
 </head>
 <body>
@@ -202,7 +249,7 @@ td .field.w-id{min-width:110px}
 <!-- پنل -->
 <div id="app" hidden>
   <header class="top"><div class="top-in">
-    <div><h1>پنل مدیریت نوبت‌دهی</h1><div class="sub">درمانگاه فرهنگیان مهریز</div></div>
+    <span class="brand" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10 3.5h4V10h6.5v4H14v6.5h-4V14H3.5v-4H10z" fill="currentColor"/></svg></span><div><h1>پنل مدیریت نوبت‌دهی</h1><div class="sub">درمانگاه فرهنگیان مهریز</div></div>
     <span class="sp"></span>
     <span class="today" id="today"></span>
     <button class="icon-btn" id="refresh" type="button" title="دریافت آخرین اطلاعات از گوگل‌شیت">⟳ <span id="upd">به‌روزرسانی</span></button>
@@ -300,9 +347,11 @@ async function start(){
 
 /* ================= تب‌ها ================= */
 const TABS=[["bk","نوبت\u200cها",SN.BK],["blk","غیرفعال\u200cسازی",SN.BLK],["doc","پزشکان",SN.DOC],["wk","برنامه هفتگی",SN.WK],["ex","استثناها",SN.EX],["set","تنظیمات",SN.SET],["usr","کاربران",SN.USR]];
+const ICO={bk:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/>',blk:'<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',doc:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',wk:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',ex:'<path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17.5v.01"/>',set:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',usr:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.7a3.5 3.5 0 0 1 0 6.6M18 14.3c2 .7 3.5 2.4 3.5 5.7"/>'};
+Object.keys(ICO).forEach(k=>ICO[k]=`<svg viewBox="0 0 24 24" aria-hidden="true">${ICO[k]}</svg>`);
 function renderTabs(){
   const t0=T0(),todayCnt=bkAll().filter(x=>x.st==="a"&&x.jd===t0).length;
-  $("#tabs").innerHTML=TABS.map(([id,l,n])=>`<button class="tab${view===id?" on":""}" data-tab="${id}" type="button">${l}${id==="bk"?`<span class="cnt" title="نوبت فعال امروز">${fa(todayCnt)}</span>`:""}${isDirty(n)?`<span class="dot" title="تغییرات ذخیره‌نشده"></span>`:""}</button>`).join("");
+  $("#tabs").innerHTML=TABS.map(([id,l,n])=>`<button class="tab${view===id?" on":""}" data-tab="${id}" type="button">${ICO[id]||""}<span>${l}</span>${id==="bk"?`<span class="cnt" title="نوبت فعال امروز">${fa(todayCnt)}</span>`:""}${isDirty(n)?`<span class="dot" title="تغییرات ذخیره‌نشده"></span>`:""}</button>`).join("");
   const nf=fresh.size;document.title=(nf?`(${fa(nf)}) `:"")+"پنل مدیریت | درمانگاه فرهنگیان مهریز";
 }
 $("#tabs").onclick=e=>{const b=e.target.closest("[data-tab]");if(!b)return;view=b.dataset.tab;bad=[];renderTabs();renderView();scrollTo(0,0)};
@@ -341,7 +390,12 @@ function docNameSel(cur,attrs){
   return selHtml(opts,sel,attrs)}
 const cellA=(r,c,k,extra="")=>`data-r="${r}" data-c="${c}" data-k="${k}" ${extra}`;
 const bar=(n,{add=true,extra=""}={})=>`<div class="edbar">${add?`<button class="btn" type="button" data-act="add">＋ ردیف جدید</button>`:""}${extra}<span class="sp"></span><span class="dirty" id="dirtyNote"></span><button class="btn" type="button" data-act="discard" id="btnDiscard" disabled>لغو تغییرات</button><button class="btn primary" type="button" data-act="save" id="btnSave" disabled>ذخیره در گوگل‌شیت</button></div>`;
-function backendMissing(n,what){return`<div class="card empty"><b>${what}</b>${n===SN.BLK?"این بخش به نسخهٔ جدید Apps Script نیاز دارد. فایل <code dir=ltr>apps-script/Code.gs</code> را در Apps Script جایگزین کنید، سپس از منوی Deploy ← Manage deployments یک نسخهٔ جدید (New version) منتشر کنید.<br>همچنین یک بار از منوی «نوبت‌دهی ← ساخت شیت غیرفعال‌سازی» در خود گوگل‌شیت، شیت را بسازید.":"این شیت در گوگل‌شیت پیدا نشد."}</div>`}
+function backendMissing(n,what){
+  if(n!==SN.BLK)return`<div class="card empty"><b>${what}</b>این شیت در گوگل‌شیت پیدا نشد.</div>`;
+  const oldScript=!skey(n);   // کلید اصلاً در پاسخ سرور نیست = Apps Script قدیمی منتشر شده
+  return oldScript
+   ?`<div class="card empty"><b>${what}</b>Apps Script منتشرشده قدیمی است و این بخش را نمی‌شناسد. فایل <code dir=ltr>apps-script/Code.gs</code> را در Apps Script جایگزین کنید، سپس از منوی Deploy ← Manage deployments یک نسخهٔ جدید (New version) منتشر کنید و این صفحه را دوباره باز کنید.</div>`
+   :`<div class="card empty"><b>${what}</b>شیت «غیرفعال‌سازی» هنوز در گوگل‌شیت ساخته نشده است.<br><button class="btn primary" type="button" data-act="mkblk" style="margin-top:12px">ساخت خودکار شیت غیرفعال‌سازی</button></div>`}
 
 /* ================= نوبت‌ها ================= */
 function bkAll(){
@@ -531,6 +585,9 @@ view$.addEventListener("change",e=>{
 
 view$.addEventListener("click",async e=>{
   const b=e.target.closest("[data-act]");if(!b)return;const a=b.dataset.act,n=curName(),i=+b.dataset.i;
+  if(a==="mkblk"){b.disabled=true;b.textContent="در حال ساخت…";
+    try{await api("asetup");await load();renderTabs();renderView();toast("شیت غیرفعال‌سازی ساخته شد ✓","ok")}
+    catch(err){toast(err.message,"err");b.disabled=false;b.textContent="ساخت خودکار شیت غیرفعال‌سازی"}return}
   if(a==="date"){F.date=b.dataset.v;renderView();return}
   if(a==="stat"){F.date=b.dataset.v;F.st=b.dataset.s==="cancel"?"cancel":"active";renderView();return}
   if(a==="seen"){fresh.clear();renderTabs();renderBkDyn();return}
