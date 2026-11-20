@@ -158,8 +158,8 @@ function refreshLists(){
   L.getRange(2,3,times.length,1).setNumberFormat('@').setValues(times.map(x => [x]));
   return {dates:dates.length, names:names.length, times:times.length};
 }
-/** یک‌بار از منوی «نوبت‌دهی ← ساخت شیت غیرفعال‌سازی» اجرا شود */
-function setupBlocks(){
+/** شیت «غیرفعال‌سازی» را (اگر نبود) می‌سازد و فهرست‌های کشویی را درست می‌کند؛ بدون نیاز به رابط کاربری، پس از پنل ادمین هم قابل اجراست */
+function ensureBlocksSheet(){
   const ss = SpreadsheetApp.getActive(); let S = sh(BLK);
   if (!S) S = ss.insertSheet(BLK);
   S.setRightToLeft(true); S.setFrozenRows(1);
@@ -182,8 +182,16 @@ function setupBlocks(){
   // ردیف‌های ثبت‌شده در شیت، قرمز کم‌رنگ نمایش داده می‌شوند
   S.setConditionalFormatRules([SpreadsheetApp.newConditionalFormatRule()
     .whenFormulaSatisfied('=$A2<>""').setBackground('#fdecec').setRanges([S.getRange('A2:F500')]).build()]);
-  if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'refreshLists'))
-    ScriptApp.newTrigger('refreshLists').timeBased().everyDays(1).atHour(1).create();
+  try {   // ساخت تریگر روزانه به مجوز جداگانه نیاز دارد؛ نبودنش نباید ساخت شیت را خراب کند
+    if (!ScriptApp.getProjectTriggers().some(t => t.getHandlerFunction() === 'refreshLists'))
+      ScriptApp.newTrigger('refreshLists').timeBased().everyDays(1).atHour(1).create();
+  } catch (e) {}
+  memo[BLK] = null;
+  return S;
+}
+/** یک‌بار از منوی «نوبت‌دهی ← ساخت شیت غیرفعال‌سازی» اجرا شود */
+function setupBlocks(){
+  ensureBlocksSheet();
   SpreadsheetApp.getActive().toast('شیت «' + BLK + '» آماده شد.');
 }
 function onOpen(){
@@ -287,6 +295,7 @@ function adminLogin(p){
 }
 function adminGet(p){
   adminAuth(p); const out = {};
+  if (!sh(BLK)) { try { ensureBlocksSheet(); } catch (e) {} }   // اگر شیت «غیرفعال‌سازی» هنوز ساخته نشده، همین‌جا ساخته شود
   ['نوبت‌ها','کاربران'].concat(EDIT).forEach(n => { const s = sh(n); out[n] = !s ? [] : s.getDataRange().getDisplayValues(); });
   return out;
 }
@@ -330,6 +339,7 @@ function route(p){
       case 'aget': return adminGet(p);
       case 'asave': return adminSave(p);
       case 'astatus': return adminStatus(p);
+      case 'asetup': adminAuth(p); ensureBlocksSheet(); return {ok:true};
     }
     return {error:'درخواست نامعتبر'};
   } catch (err) { return {error: String(err.message || err)}; }
