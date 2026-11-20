@@ -230,6 +230,12 @@ tr.grp .gc{background:var(--card);border-radius:999px;padding:0 12px;font-weight
 #bkRes td:nth-child(8){grid-column:1/-1;margin-top:6px}
 #bkRes td:nth-child(8) .btn{width:100%}
 }
+.spin{width:16px;height:16px;border:2.5px solid currentColor;border-top-color:transparent;opacity:.85;flex:none;vertical-align:-3px}
+.btn[aria-busy]{cursor:progress}
+.icon-btn .rf{display:inline-block}
+.icon-btn.busy .rf{animation:sp .8s linear infinite}
+.icon-btn:disabled{opacity:.75;cursor:progress}
+.login input[readonly]{opacity:.7}
 </style>
 </head>
 <body>
@@ -252,7 +258,7 @@ tr.grp .gc{background:var(--card);border-radius:999px;padding:0 12px;font-weight
     <span class="brand" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M10 3.5h4V10h6.5v4H14v6.5h-4V14H3.5v-4H10z" fill="currentColor"/></svg></span><div><h1>پنل مدیریت نوبت‌دهی</h1><div class="sub">درمانگاه فرهنگیان مهریز</div></div>
     <span class="sp"></span>
     <span class="today" id="today"></span>
-    <button class="icon-btn" id="refresh" type="button" title="دریافت آخرین اطلاعات از گوگل‌شیت">⟳ <span id="upd">به‌روزرسانی</span></button>
+    <button class="icon-btn" id="refresh" type="button" title="دریافت آخرین اطلاعات از گوگل‌شیت"><span class="rf" aria-hidden="true">⟳</span> <span id="upd">به‌روزرسانی</span></button>
     <button class="icon-btn" id="theme" type="button" aria-label="تغییر حالت روشن/تیره" title="حالت روشن / تیره"><span style="font-size:1.15rem;line-height:1">◐</span><span class="hide-m" id="themeLbl"></span></button>
     <a class="icon-btn hide-m" href="index.html" target="_blank" rel="noopener" style="text-decoration:none">مشاهده سایت</a>
     <button class="icon-btn" id="logout" type="button">خروج</button>
@@ -334,9 +340,11 @@ async function load(){
 
 /* ================= ورود / خروج ================= */
 function showLogin(msg=""){$("#app").hidden=true;$("#login").hidden=false;$("#lm").textContent=msg;setTimeout(()=>$("#pw").focus(),50)}
-$("#loginForm").onsubmit=async e=>{e.preventDefault();const b=$("#go");b.disabled=true;$("#lm").textContent="";
+const SPIN='<span class="spin" aria-hidden="true"></span>';
+function busy(b,label){const h=b.innerHTML,w=b.offsetWidth;b.style.minWidth=w+"px";b.disabled=true;b.setAttribute("aria-busy","true");b.innerHTML=SPIN+(label?" "+label:"");return()=>{b.disabled=false;b.removeAttribute("aria-busy");b.style.minWidth="";b.innerHTML=h}}
+$("#loginForm").onsubmit=async e=>{e.preventDefault();const b=$("#go"),done=busy(b,"در حال ورود…");$("#pw").readOnly=true;$("#lm").textContent="";
   try{T=(await api("alogin",{password:$("#pw").value})).atoken;sessionStorage.setItem("mh_adm",T);$("#pw").value="";await start()}
-  catch(err){$("#lm").textContent=err.message}finally{b.disabled=false}};
+  catch(err){$("#lm").textContent=err.message}finally{done();$("#pw").readOnly=false}};
 $("#logout").onclick=()=>{if(anyDirty()&&!confirm("تغییرات ذخیره‌نشده از بین می‌رود. خارج می‌شوید؟"))return;sessionStorage.removeItem("mh_adm");T=null;D={};draft={};seen=null;fresh.clear();showLogin()};
 async function start(){
   try{await load()}catch(e){if(T){$("#lm").textContent=e.message;showLogin(e.message)}return}
@@ -458,9 +466,9 @@ function renderBkDyn(){
   window.__L=L;window.__desc=desc;
 }
 async function setStatus(b,status){
-  const code=b.dataset.c;b.disabled=true;
+  const code=b.dataset.c,done=busy(b);
   try{await api("astatus",{code,status});await load();renderTabs();renderBkDyn();toast(status==="لغو"?"نوبت لغو شد.":"نوبت بازگردانی شد.","ok")}
-  catch(e){toast(e.message,"err");b.disabled=false}}
+  catch(e){toast(e.message,"err");done()}}
 function exportXlsx(){
   if(typeof XLSX==="undefined")return toast("کتابخانهٔ اکسل بارگذاری نشد؛ اینترنت را بررسی کنید.","err");
   const L=window.__L||[],hd=["کد پیگیری","تاریخ","روز","پزشک","ساعت","نام بیمار","موبایل","ایمیل","وضعیت","زمان ثبت"];
@@ -585,9 +593,9 @@ view$.addEventListener("change",e=>{
 
 view$.addEventListener("click",async e=>{
   const b=e.target.closest("[data-act]");if(!b)return;const a=b.dataset.act,n=curName(),i=+b.dataset.i;
-  if(a==="mkblk"){b.disabled=true;b.textContent="در حال ساخت…";
+  if(a==="mkblk"){const done=busy(b,"در حال ساخت…");
     try{await api("asetup");await load();renderTabs();renderView();toast("شیت غیرفعال‌سازی ساخته شد ✓","ok")}
-    catch(err){toast(err.message,"err");b.disabled=false;b.textContent="ساخت خودکار شیت غیرفعال‌سازی"}return}
+    catch(err){toast(err.message,"err");done()}return}
   if(a==="date"){F.date=b.dataset.v;renderView();return}
   if(a==="stat"){F.date=b.dataset.v;F.st=b.dataset.s==="cancel"?"cancel":"active";renderView();return}
   if(a==="seen"){fresh.clear();renderTabs();renderBkDyn();return}
@@ -628,7 +636,7 @@ async function soft(manual){
   if(!T||$("#app").hidden)return;
   try{await load();renderTabs();if(view==="bk")renderBkDyn();else if(view==="usr"&&manual)renderView();if(manual)toast("اطلاعات به‌روز شد.","ok")}
   catch(e){if(manual)toast(e.message,"err")}}
-$("#refresh").onclick=()=>soft(true);
+$("#refresh").onclick=async e=>{const b=e.currentTarget;if(b.disabled)return;b.classList.add("busy");b.disabled=true;try{await soft(true)}finally{b.classList.remove("busy");b.disabled=false}};
 setInterval(()=>{if(!document.hidden&&document.activeElement&&!/INPUT|SELECT/.test(document.activeElement.tagName))soft(false)},60000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)soft(false)});
 const themeLbl=()=>{$("#themeLbl").textContent=document.documentElement.dataset.theme==="dark"?"حالت روشن":"حالت تیره"};themeLbl();
