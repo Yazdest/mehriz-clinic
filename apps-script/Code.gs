@@ -362,7 +362,7 @@ function cancel(p){
 
 
 /* ---------- پنل مدیریت (رمز در Project Settings ← Script properties با کلید ADMIN_PASSWORD) ---------- */
-const EDIT = ['پزشکان','برنامه هفتگی','استثناها','تنظیمات', BLK];   // BLK = شیت «غیرفعال‌سازی»
+const EDIT = ['پزشکان','برنامه هفتگی','استثناها','تنظیمات', BLK, PRF];   // BLK = شیت «غیرفعال‌سازی»، PRF = «پروفایل پزشکان»
 function adminAuth(p){
   const ca = CacheService.getScriptCache();
   if (!p.atoken || !ca.get('adm_' + p.atoken)) throw new Error('نشست مدیر منقضی شده؛ دوباره وارد شوید');
@@ -381,7 +381,7 @@ function adminGet(p){
   adminAuth(p); const out = {};
   if (!sh(BLK)) { try { ensureBlocksSheet(); } catch (e) {} }
   if (!sh(PRF) || !sh(REV)) { try { ensureSocialSheets(); } catch (e) {} }   // اگر شیت «غیرفعال‌سازی» هنوز ساخته نشده، همین‌جا ساخته شود
-  ['نوبت‌ها','کاربران'].concat(EDIT).forEach(n => { const s = sh(n); out[n] = !s ? [] : s.getDataRange().getDisplayValues(); });
+  ['نوبت‌ها','کاربران', REV].concat(EDIT).forEach(n => { const s = sh(n); out[n] = !s ? [] : s.getDataRange().getDisplayValues(); });
   return out;
 }
 function adminSave(p){
@@ -410,6 +410,37 @@ function adminStatus(p){
   throw new Error('نوبت پیدا نشد');
 }
 
+/** علامت «تماس گرفته شد» برای یک نوبت (ستون L شیت نوبت‌ها) */
+function adminCalled(p){
+  adminAuth(p);
+  const lock = LockService.getScriptLock(); lock.waitLock(15000);
+  try {
+    const S = sh('نوبت‌ها'), v = S.getDataRange().getValues();
+    for (let i = 1; i < v.length; i++) if (v[i][0] === p.code){
+      if (!String(S.getRange(1,12).getValue()).trim()) S.getRange(1,12).setValue('تماس گرفته شد');
+      const c = S.getRange(i+1,12); c.setNumberFormat('@'); c.setValue(p.called ? 'بله' : '');
+      return {ok:true};
+    }
+  } finally { lock.releaseLock(); }
+  throw new Error('نوبت پیدا نشد');
+}
+/** مدیریت نظرات: تأیید / پنهان / بازگشت به «در انتظار» (ردیف با ایمیل و متن نظر راستی‌آزمایی می‌شود) */
+function adminReview(p){
+  adminAuth(p);
+  const st = {approve: APR, hide: 'پنهان', pending: 'در انتظار'}[p.status]; if (!st) throw new Error('وضعیت نامعتبر');
+  const lock = LockService.getScriptLock(); lock.waitLock(15000);
+  try {
+    const S = sh(REV), row = parseInt(p.row, 10);
+    if (!S || !(row >= 2) || row > S.getLastRow()) throw new Error('نظر پیدا نشد؛ صفحه را به‌روز کنید.');
+    const v = S.getRange(row,1,1,7).getValues()[0];
+    if (String(v[6]).trim().toLowerCase() !== String(p.email || '').trim().toLowerCase() || String(v[4]).trim() !== String(p.text || '').trim())
+      throw new Error('این نظر تغییر کرده است؛ صفحه را به‌روز کنید.');
+    S.getRange(row,6).setValue(st);
+    memo[REV] = null; clearClinicCache();
+  } finally { lock.releaseLock(); }
+  return {ok:true};
+}
+
 /* ---------- API ---------- */
 function route(p){
   migrateDoctorNames_();
@@ -429,6 +460,8 @@ function route(p){
       case 'aget': return adminGet(p);
       case 'asave': return adminSave(p);
       case 'astatus': return adminStatus(p);
+      case 'acall': return adminCalled(p);
+      case 'areview': return adminReview(p);
       case 'asetup': adminAuth(p); ensureBlocksSheet(); return {ok:true};
     }
     return {error:'درخواست نامعتبر'};
