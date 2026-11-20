@@ -8,6 +8,10 @@ const ratingHtml = d => d.rc ? `<span class="rt">${STAR}<b>${f1(d.rate)}</b><sma
 /* ---------- منو و جست‌وجو ---------- */
 const menu = $("#menu"), srch = $("#srch"), prof = $("#prof"), pBody = $("#profBody");
 $("#navMenu").onclick = () => menu.showModal();
+const umenu = $("#umenu");
+$("#navUser").addEventListener("click", () => { if (S.user) { $("#umName").textContent = S.user.name; umenu.showModal(); } });
+umenu.addEventListener("click", e => { if (e.target === umenu || e.target.closest("button:not(#umOut)")) umenu.close(); });
+$("#umOut").onclick = e => { onLogoutClick(e); setTimeout(() => umenu.close(), 760); };
 menu.addEventListener("click", e => { if (e.target === menu || e.target.closest("a,button")) menu.close(); });
 const nz = s => String(s || "").replace(/ي/g, "ی").replace(/ك/g, "ک").replace(/\u200c/g, " ").toLowerCase();
 function drawSearch() {
