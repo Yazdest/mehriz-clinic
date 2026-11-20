@@ -4,7 +4,7 @@ const fa = s => String(s).replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const TYPES = { "عمومی": "پزشکان عمومی", "دندانپزشک": "دندان‌پزشکان", "متخصص": "پزشکان متخصص" };
 
-const CACHE_KEY = "mh_full_cache_v2";
+const CACHE_KEY = "mh_full_cache_v3";
 
 const S = {
   doctors: [],
@@ -43,6 +43,7 @@ function applyFullData(d, saveToLocal = true) {
     } catch (e) {}
   }
   renderDoctors();
+  if (window.onDoctorsReady) window.onDoctorsReady();
   if (wz && wz.open && (S.view === "doc" || S.view === "day" || S.view === "time")) {
     render();
   }
@@ -105,8 +106,10 @@ function renderDoctors() {
     const list = S.doctors.filter(d => d.type === t);
     if (!list.length) return "";
     return `<h3 class="grp">${TYPES[t]}</h3><div class="doc-grid">` + list.map(d => `
-      <article class="doc-card rv"><div class="av" aria-hidden="true">${avatar(d)}</div><h4>${esc(d.name)}</h4>
+      <article class="doc-card rv"><div class="av" data-prof="${esc(d.id)}" aria-hidden="true">${avatar(d)}</div><h4 data-prof="${esc(d.id)}" role="link" tabindex="0">${esc(d.name)}</h4>
       ${d.specialty ? `<span class="tag">${esc(d.specialty)}</span>` : ""}
+      <div class="doc-rt">${ratingHtml(d)}</div>
+      <button type="button" class="doc-link" data-prof="${esc(d.id)}">پروفایل و نظرات کاربران</button>
       <button type="button" class="doc-btn" data-doc="${esc(d.id)}">برنامه و دریافت نوبت ←</button></article>`).join("") + `</div>`;
   }).join("") || "<p>فهرست پزشکان به‌زودی اضافه می‌شود.</p>";
   reveal();
@@ -460,7 +463,8 @@ document.addEventListener("click", e => {
 });
 
 function syncUser() { const on = !!S.user; $("#mineBtn").hidden = !on; $("#navLogin").hidden = on; $("#navLogout").hidden = !on;
-  $("#topUser").hidden = !on; document.body.classList.toggle("logged", on); if (on) $("#topUserName").textContent = S.user.name; }
+  $("#topUser").hidden = !on; document.body.classList.toggle("logged", on);
+  const nu = $("#navUser"); if (nu) { nu.dataset.open = on ? "mine" : "login"; nu.classList.toggle("in", on); nu.setAttribute("aria-label", on ? "نوبت‌های من" : "ورود / ثبت‌نام"); } if (on) $("#topUserName").textContent = S.user.name; }
 function logout(reason) {
   const wasIn = !!S.user;
   S.user = null; localStorage.removeItem("mh_user"); syncUser();
