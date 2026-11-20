@@ -464,7 +464,7 @@ document.addEventListener("click", e => {
 
 function syncUser() { const on = !!S.user; $("#mineBtn").hidden = !on; $("#navLogin").hidden = on; $("#navLogout").hidden = !on;
   $("#topUser").hidden = !on; document.body.classList.toggle("logged", on);
-  const nu = $("#navUser"); if (nu) { nu.dataset.open = on ? "mine" : "login"; nu.classList.toggle("in", on); nu.setAttribute("aria-label", on ? "نوبت‌های من" : "ورود / ثبت‌نام"); } if (on) $("#topUserName").textContent = S.user.name; }
+  const nu = $("#navUser"); if (nu) { if (on) delete nu.dataset.open; else nu.dataset.open = "login"; nu.classList.toggle("in", on); nu.setAttribute("aria-label", on ? "نوبت‌های من" : "ورود / ثبت‌نام"); } if (on) $("#topUserName").textContent = S.user.name; }
 function logout(reason) {
   const wasIn = !!S.user;
   S.user = null; localStorage.removeItem("mh_user"); syncUser();
