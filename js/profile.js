@@ -47,11 +47,38 @@ window.onDoctorsReady = () => {
 };
 if (pend && S.loaded) window.onDoctorsReady();
 
+/* ---------- اولین نوبت خالی (بدون ورود به ویزارد) ---------- */
+function tehranNow() {
+  const p = {};
+  new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tehran", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+    .formatToParts(new Date()).forEach(x => { p[x.type] = x.value; });
+  return { iso: `${p.year}-${p.month}-${p.day}`, min: +p.hour * 60 + +p.minute };
+}
+const isoPlus = (iso, n) => { const a = iso.split("-").map(Number); return new Date(Date.UTC(a[0], a[1] - 1, a[2] + n)).toISOString().slice(0, 10); };
+function nextFree(d) {
+  const now = tehranNow();
+  for (const x of S.days) {
+    if (x.iso < now.iso || !x.docs || !x.docs[d.id] || (x.off && x.off[d.id])) continue;
+    const sl = S.slotsMap[d.id + "_" + x.iso];
+    if (!sl) return { x, time: "" };   // ساعت‌ها هنوز نرسیده‌اند؛ دست‌کم روز را نشان بده
+    const s = sl.find(s => s.free && (x.iso !== now.iso || +s.time.slice(0, 2) * 60 + +s.time.slice(3) > now.min));
+    if (s) return { x, time: s.time };
+  }
+  return null;
+}
+function nextFreeHtml(d) {
+  const n = nextFree(d);
+  if (!n) return `<div class="pf-next none"><small>اولین نوبت خالی</small><b>فعلاً نوبت خالی ثبت نشده است</b></div>`;
+  const now = tehranNow().iso, x = n.x;
+  const day = x.iso === now ? "امروز" : x.iso === isoPlus(now, 1) ? "فردا" : `${x.day} ${fa(x.j.slice(5))}`;
+  return `<div class="pf-next"><small>اولین نوبت خالی</small><b>${day}${n.time ? "، ساعت " + fa(n.time) : ""}</b></div>`;
+}
+
 function renderProf() {
   const d = PD;
   pBody.innerHTML = `<div class="pf-top"><button type="button" class="pf-ib" data-p="close" aria-label="بستن">✕</button><button type="button" class="pf-ib" data-p="share" aria-label="اشتراک‌گذاری">${SHARE}</button></div>
   <div class="pf-hero"><div class="av xl">${avatar(d)}</div><h2>${esc(d.name)}</h2><p>${esc(d.specialty || TYPE_ONE[d.type] || "")}</p>
-    <div class="pf-meta">${ratingHtml(d)}<i></i><span class="loc">${PIN} مهریز</span></div></div>
+    <div class="pf-meta">${ratingHtml(d)}<i></i><span class="loc">${PIN} مهریز</span></div>${nextFreeHtml(d)}</div>
   <div class="pf-tabs" role="tablist">${PTABS.map(([k, l]) => `<button type="button" role="tab" aria-selected="${k === PT}" class="${k === PT ? "on" : ""}" data-p="tab" data-k="${k}">${l}</button>`).join("")}</div>
   <div class="pf-panel" id="pfPanel"></div>`;
   panel();
