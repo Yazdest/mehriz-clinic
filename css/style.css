@@ -272,3 +272,22 @@ dialog.prof{width:min(560px,100%);max-width:100%;height:100dvh;max-height:100dvh
 .fmsg{color:var(--err);min-height:1.2em;font-size:.9rem}
 .rvi{padding:12px 0;border-bottom:1px solid var(--line)}.rvi:last-child{border:0}.rvi header{display:flex;align-items:center;gap:10px}.rvi time{margin-inline-start:auto;color:var(--mut);font-size:.82rem}.rvi p{margin-top:6px;color:var(--ink)}
 @media (prefers-reduced-motion:reduce){dialog.menu[open]{animation:none}}
+
+/* ===== v16: نشان کاربر در منو و منوی حساب ===== */
+.menu .topbar-user{display:flex;align-items:center;gap:10px;width:100%}
+.menu .topbar-user[hidden]{display:none}
+.menu .topbar-user svg{flex:none;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.menu .topbar-user b{flex:1;min-width:0;max-width:none;font-size:1rem;color:var(--ink)}
+dialog.umenu{position:fixed;inset:64px auto auto calc((100vw - min(1160px,92vw))/2);margin:0;width:min(280px,92vw);padding:8px;border:1px solid var(--line);border-radius:18px;background:#fff;color:var(--ink);box-shadow:0 24px 50px -18px #0b334088}
+dialog.umenu[open]{display:flex;flex-direction:column;gap:2px;animation:umin .18s ease}
+dialog.umenu::backdrop{background:#0b334044}
+@keyframes umin{from{opacity:0;transform:translateY(-8px) scale(.97)}}
+.um-head{display:flex;align-items:center;gap:10px;padding:10px 12px 12px;margin-bottom:4px;border-bottom:1px solid var(--line)}
+.um-av{flex:none;width:34px;height:34px;border-radius:50%;background:var(--pl);color:var(--pd);display:grid;place-items:center}
+.um-av svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.um-head b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.um-i{display:flex;align-items:center;min-height:48px;padding:0 14px;border:0;border-radius:12px;background:none;font:inherit;font-weight:700;color:var(--ink);cursor:pointer;text-align:start}
+.um-i:hover,.um-i:active{background:var(--pl);color:var(--pd)}
+.um-i.out{color:var(--err)}.um-i.out:hover,.um-i.out:active{background:var(--brl);color:var(--err)}
+.um-i.busy{opacity:.7}
+@media (prefers-reduced-motion:reduce){dialog.umenu[open]{animation:none}}
