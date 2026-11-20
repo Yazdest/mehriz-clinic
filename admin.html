@@ -320,7 +320,7 @@ const skey=n=>Object.keys(D).find(k=>norm(k)===norm(n));
 const sdata=n=>{const k=skey(n);return k?D[k]:null};
 const head=n=>(sdata(n)||[])[0]||[];
 const padRow=(r,w)=>Array.from({length:Math.max(w,r.length)},(_,i)=>r[i]==null?"":String(r[i]));
-const base=n=>{const d=sdata(n)||[],w=(d[0]||[]).length;return d.slice(1).map(r=>padRow(r,w))};
+const base=n=>{const d=sdata(n)||[],w=(d[0]||[]).length;return d.slice(1).map(r=>{if(n!==SN.DOC)return padRow(r,w);const x=padRow(r,Math.max(w,9));x[9]=x[0];return x})}; /* ستون ۹ فقط در مرورگر: نام قبلی پزشک برای تشخیص تغییر نام */
 const rowsD=n=>draft[n]||(draft[n]=base(n));
 const isDirty=n=>!!draft[n]&&JSON.stringify(draft[n])!==JSON.stringify(base(n));
 const anyDirty=()=>Object.keys(draft).some(isDirty);
@@ -385,11 +385,11 @@ function dateSel(cur,attrs,empty){
   if(cur&&!f)opts.unshift([cur,(jk?fa(jk):cur)+" (گذشته)"]);
   opts.unshift(["",empty||"— انتخاب تاریخ —"]);
   return selHtml(opts,f?f.v:(cur||""),attrs)}
-const docRows=()=>rowsD(SN.DOC).filter(r=>String(r[0]).trim()).map(r=>({id:String(r[0]).trim(),name:String(r[1]||"").trim()||String(r[0]).trim(),on:norm(r[4])==="بله"}));
+const docRows=()=>rowsD(SN.DOC).filter(r=>String(r[0]).trim()).map(r=>({id:String(r[0]).trim(),name:String(r[0]).trim(),on:norm(r[3])==="بله"}));
 function docIdSel(cur,attrs){
-  const ds=docRows(),k=norm(cur),f=ds.find(d=>norm(d.id)===k),opts=[["","— انتخاب پزشک —"],...ds.map(d=>[d.id,d.name+(d.on?"":" (غیرفعال)")])];
+  const ds=docRows(),k=norm(cur),f=ds.find(d=>norm(d.id)===k),opts=[["","— انتخاب پزشک —"],...ds.map(d=>[d.name,d.name+(d.on?"":" (غیرفعال)")])];
   if(cur&&!f)opts.push([cur,"؟ ناشناخته: "+cur]);
-  return selHtml(opts,f?f.id:(cur||""),attrs)}
+  return selHtml(opts,f?f.name:(cur||""),attrs)}
 function docNameSel(cur,attrs){
   const ds=docRows(),k=norm(cur);let sel=cur,extra=null;
   if(!k||k===norm(ALL))sel=ALL;
@@ -496,14 +496,13 @@ function viewDoc(){
   if(missing(SN.DOC))return backendMissing(SN.DOC,"شیت «پزشکان» پیدا نشد");
   const rows=rowsD(SN.DOC);
   const body=rows.map((r,i)=>`<tr><td class="mut num">${fa(i+1)}</td>
-   <td><input class="field ltr w-id" ${cellA(i,0,"text")} value="${esc(r[0])}" placeholder="dr1" dir="ltr"></td>
-   <td><input class="field" ${cellA(i,1,"text")} value="${esc(r[1])}" placeholder="دکتر …"></td>
-   <td>${selHtml([["","—"],...TYPES.map(t=>[t,t])],r[2],cellA(i,2,"sel"))}</td>
-   <td><input class="field" ${cellA(i,3,"text")} value="${esc(r[3])}" placeholder="تخصص"></td>
-   <td><label class="sw" title="نمایش در سایت"><input type="checkbox" ${cellA(i,4,"sw")} ${norm(r[4])==="بله"?"checked":""}><i></i></label></td>
+   <td><input class="field" ${cellA(i,0,"text")} value="${esc(r[0])}" placeholder="دکتر …"></td>
+   <td>${selHtml([["","—"],...TYPES.map(t=>[t,t])],r[1],cellA(i,1,"sel"))}</td>
+   <td><input class="field" ${cellA(i,2,"text")} value="${esc(r[2])}" placeholder="تخصص"></td>
+   <td><label class="sw" title="نمایش در سایت"><input type="checkbox" ${cellA(i,3,"sw")} ${norm(r[3])==="بله"?"checked":""}><i></i></label></td>
    <td class="act"><button class="iconm" type="button" data-act="up" data-i="${i}" ${i?"":"disabled"} aria-label="بالا">↑</button> <button class="iconm" type="button" data-act="down" data-i="${i}" ${i<rows.length-1?"":"disabled"} aria-label="پایین">↓</button> <button class="iconx" type="button" data-act="del" data-i="${i}" aria-label="حذف پزشک" title="حذف">✕</button></td></tr>`).join("");
-  return`<div class="help"><b>پزشکان درمانگاه.</b> «کد» شناسهٔ یکتای انگلیسی هر پزشک است (مثل <span dir="ltr">dr1</span>) و در برنامه هفتگی و استثناها استفاده می‌شود؛ بعد از ثبت تغییرش ندهید. کلید «فعال» اگر خاموش باشد، پزشک در سایت نمایش داده نمی‌شود. ترتیب ردیف‌ها همان ترتیب نمایش در سایت است.</div>
-  <div class="card tbl"><table><thead><tr><th>#</th><th>کد پزشک</th><th>نام</th><th>گروه</th><th>تخصص</th><th>فعال</th><th></th></tr></thead><tbody>${body}</tbody></table></div>${bar(SN.DOC)}`}
+  return`<div class="help"><b>پزشکان درمانگاه.</b> نام هر پزشک در همهٔ بخش‌ها (برنامه هفتگی، استثناها، غیرفعال‌سازی، پروفایل، نظرات و نوبت‌ها) شناسهٔ اوست و باید یکتا باشد. اگر نامی را ویرایش کنید، هنگام ذخیره در همهٔ آن بخش‌ها هم خودکار عوض می‌شود. کلید «فعال» اگر خاموش باشد، پزشک در سایت نمایش داده نمی‌شود. ترتیب ردیف‌ها همان ترتیب نمایش در سایت است.</div>
+  <div class="card tbl"><table><thead><tr><th>#</th><th>نام پزشک</th><th>گروه</th><th>تخصص</th><th>فعال</th><th></th></tr></thead><tbody>${body}</tbody></table></div>${bar(SN.DOC)}`}
 
 /* ================= برنامه هفتگی ================= */
 function viewWk(){
@@ -513,7 +512,7 @@ function viewWk(){
   const dayIx=d=>{const k=DAYS.findIndex(x=>norm(x)===norm(d));return k<0?9:k};
   const card=(id,name,on,ix,unknown)=>{
     ix=ix.slice().sort((a,b)=>dayIx(rows[a][1])-dayIx(rows[b][1])||(tmin(rows[a][2])??0)-(tmin(rows[b][2])??0));
-    return`<section class="card wk"><header><b>${esc(name)}</b><span class="mut sm ltr">${esc(id||"بدون کد")}</span>${on?"":`<span class="badge off">غیرفعال</span>`}${unknown?`<span class="badge cx">پزشک ناشناخته</span>`:""}<span class="sp"></span><button class="btn sm" type="button" data-act="addshift" data-id="${esc(id)}">＋ شیفت</button></header>
+    return`<section class="card wk"><header><b>${esc(name)}</b>${on?"":`<span class="badge off">غیرفعال</span>`}${unknown?`<span class="badge cx">پزشک ناشناخته</span>`:""}<span class="sp"></span><button class="btn sm" type="button" data-act="addshift" data-id="${esc(id)}">＋ شیفت</button></header>
     <div class="shifts">${ix.length?ix.map(i=>{const r=rows[i];return`<div class="shift">${selHtml([["","روز"],...DAYS.map(d=>[d,d])],DAYS.find(d=>norm(d)===norm(r[1]))||r[1],cellA(i,1,"sel"))}${timeSel(r[2],cellA(i,2,"time"),"از")}<span>تا</span>${timeSel(r[3],cellA(i,3,"time"),"تا")}<button class="iconx" type="button" data-act="del" data-i="${i}" aria-label="حذف شیفت">✕</button></div>`}).join(""):`<p class="mut">برنامه‌ای ثبت نشده است.</p>`}</div></section>`};
   let h=ds.map(d=>card(d.id,d.name,d.on,by[norm(d.id)]||[],false)).join("");
   Object.keys(by).filter(k=>!ds.some(d=>norm(d.id)===k)).forEach(k=>{const id=rows[by[k][0]][0];h+=card(id,id||"ردیف‌های بدون پزشک",true,by[k],true)});
@@ -552,9 +551,9 @@ const usrBody=rows=>rows.map(r=>`<tr><td><b>${esc(r[1])}</b></td><td class="num 
 /* ================= اعتبارسنجی ================= */
 function validate(n,rows){
   const E=[],add=(r,c,m)=>E.push({r,c,msg:`ردیف ${fa(r+1)}: ${m}`}),empty=r=>r.every(c=>!String(c).trim());
-  if(n===SN.DOC){const ids={};rows.forEach((r,i)=>{if(empty(r))return;const id=String(r[0]).trim();
-    if(!id)add(i,0,"کد پزشک را وارد کنید");else if(/\s/.test(id))add(i,0,"کد پزشک نباید فاصله داشته باشد");else if(ids[norm(id)]!==undefined)add(i,0,"کد پزشک تکراری است");else ids[norm(id)]=i;
-    if(!String(r[1]).trim())add(i,1,"نام پزشک را وارد کنید");if(!r[2])add(i,2,"گروه پزشک را انتخاب کنید")})}
+  if(n===SN.DOC){const ids={};rows.forEach((r,i)=>{if(empty(r))return;const nm=String(r[0]).trim();
+    if(!nm)add(i,0,"نام پزشک را وارد کنید");else if(ids[norm(nm)]!==undefined)add(i,0,"این نام پزشک تکراری است");else ids[norm(nm)]=i;
+    if(!r[1])add(i,1,"گروه پزشک را انتخاب کنید")})}
   if(n===SN.WK)rows.forEach((r,i)=>{if(empty(r))return;if(!r[0])add(i,0,"پزشک انتخاب نشده");if(!DAYS.some(d=>norm(d)===norm(r[1])))add(i,1,"روز هفته را انتخاب کنید");
     const a=tmin(r[2]),b=tmin(r[3]);if(a===null)add(i,2,"ساعت شروع را انتخاب کنید");if(b===null)add(i,3,"ساعت پایان را انتخاب کنید");if(a!==null&&b!==null&&a>=b)add(i,3,"ساعت پایان باید بعد از شروع باشد")});
   if(n===SN.EX)rows.forEach((r,i)=>{if(empty(r))return;if(!jkey(r[0]))add(i,0,"تاریخ را انتخاب کنید");if(!r[1])add(i,1,"پزشک را انتخاب کنید");const t=norm(r[2]);
@@ -607,7 +606,7 @@ view$.addEventListener("click",async e=>{
     b.dataset.armed="1";const t=b.textContent;b.textContent="مطمئنید؟ دوباره بزنید";b.classList.add("armed");
     setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent=t;b.classList.remove("armed")}},4000);return}
   const rows=draft[n];
-  if(a==="add"){rows.push(Array(Math.max(head(n).length,6)).fill(""));if(n===SN.BLK)rows[rows.length-1][2]=ALL;if(n===SN.DOC)rows[rows.length-1][4]="بله";renderView();const l=$$("tbody tr");if(l.length)l[l.length-1].scrollIntoView({block:"center"});return}
+  if(a==="add"){rows.push(Array(Math.max(head(n).length,6)).fill(""));if(n===SN.BLK)rows[rows.length-1][2]=ALL;if(n===SN.DOC)rows[rows.length-1][3]="بله";renderView();const l=$$("tbody tr");if(l.length)l[l.length-1].scrollIntoView({block:"center"});return}
   if(a==="addshift"){
     const id=b.dataset.id,mine=rows.filter(r=>norm(r[0])===norm(id)),used=mine.map(r=>DAYS.findIndex(d=>norm(d)===norm(r[1]))),nx=DAYS.find((d,k)=>!used.includes(k)&&k<6)||"",last=mine[mine.length-1];
     const row=Array(Math.max(head(n).length,4)).fill("");row[0]=id;row[1]=nx;if(last){row[2]=last[2];row[3]=last[3]}rows.push(row);renderView();return}
@@ -626,7 +625,7 @@ async function save(n){
   const E=validate(n,rows);
   if(E.length){bad=E;renderView();toast(E[0].msg+(E.length>1?` (و ${fa(E.length-1)} مورد دیگر)`:""),"err");return}
   const btn=$("#btnSave");if(btn){btn.disabled=true;btn.innerHTML='<span class="spin"></span> در حال ذخیره…'}
-  try{await api("asave",{sheet:n,rows:rows.map(r=>r.map(c=>String(c==null?"":c)))});delete draft[n];await load();renderView();toast("در گوگل‌شیت ذخیره شد ✓","ok")}
+  try{await api("asave",{sheet:n,rows:rows.map(r=>r.map(c=>String(c==null?"":c))),renames:n===SN.DOC?rows.filter(r=>r[9]&&String(r[0]).trim()&&norm(r[9])!==norm(r[0])).map(r=>[String(r[9]).trim(),String(r[0]).trim()]):[]});delete draft[n];await load();renderView();toast("در گوگل‌شیت ذخیره شد ✓","ok")}
   catch(e){toast(e.message,"err");if(btn){btn.disabled=false;btn.textContent="ذخیره در گوگل‌شیت"}}}
 addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="s"&&!$("#app").hidden){const n=curName();if(draft[n]){e.preventDefault();save(n)}}});
 addEventListener("beforeunload",e=>{if(anyDirty()){e.preventDefault();e.returnValue=""}});
