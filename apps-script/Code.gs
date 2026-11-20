@@ -38,13 +38,98 @@ function jal(iso){ const a = iso.split('-').map(Number), j = g2j(a[0],a[1],a[2])
 
 /* ---------- داده‌ها ---------- */
 function cfg(){ const r = rows('تنظیمات').map(x => +x[1]); return {slot:r[0]||15, cap:r[1]||1, ahead:r[2]||14, lead:r[3]||0, perDay:r[4]||1}; }
-function doctors(){ return rows('پزشکان').filter(r => r[0] && norm(r[4]) === 'بله')
-  .map(r => ({id:String(r[0]).trim(), name:r[1], type:r[2], specialty:r[3]})); }
+const PRF = 'پروفایل پزشکان', REV = 'نظرات', APR = 'تأییدشده';
+function doctors(){
+  const P = {}; rows(PRF).forEach(r => { if (r[0]) P[norm(String(r[0]))] = r; });
+  const R = {}; rows(REV).forEach(r => {
+    const n = parseInt(norm(String(r[3])), 10), k = norm(String(r[1]));
+    if (norm(r[5]) !== norm(APR) || !(n >= 1 && n <= 5)) return;
+    (R[k] = R[k] || [0, 0]); R[k][0] += n; R[k][1]++;
+  });
+  return rows('پزشکان').filter(r => r[0] && norm(r[3]) === 'بله').map(r => {
+    const id = String(r[0]).trim(), p = P[norm(id)] || [], s = R[norm(id)], g = i => String(p[i] == null ? '' : p[i]).trim();
+    return {id, name:id, type:r[1], specialty:r[2], photo:g(1), bio:g(2), exp:g(3), lic:g(4), tel:g(5), addr:g(6), fee:g(7),
+            rate: s ? Math.round(s[0] / s[1] * 10) / 10 : 0, rc: s ? s[1] : 0};
+  });
+}
+/** جایگزینی مقدارهای یک ستون (map: نام قدیمی نرمال‌شده ← مقدار جدید) */
+function convCol_(name, col, map){
+  const s = sh(name); if (!s || s.getLastRow() < 2) return;
+  const rg = s.getRange(2, col, s.getLastRow() - 1, 1), v = rg.getValues();
+  rg.setNumberFormat('@').setValues(v.map(r => { const k = norm(String(r[0])); return [map[k] != null ? map[k] : r[0]]; }));
+}
+/** تغییر نام پزشک در همهٔ شیت‌ها */
+function cascadeRename_(pairs){
+  const map = {}; pairs.forEach(x => { map[norm(String(x[0]))] = String(x[1]).trim(); });
+  convCol_('برنامه هفتگی', 1, map); convCol_('استثناها', 2, map); convCol_(BLK, 3, map);
+  convCol_(PRF, 1, map); convCol_(REV, 2, map); convCol_('نوبت‌ها', 4, map);
+}
+/** یک‌بار و خودکار: ستون «کد پزشک» حذف می‌شود و همهٔ شیت‌ها با نام پزشک کار می‌کنند */
+function migrateDoctorNames_(){
+  const pr = PropertiesService.getScriptProperties();
+  if (pr.getProperty('names_v1') === '1') return;
+  const lock = LockService.getScriptLock(); lock.waitLock(30000);
+  try {
+    if (pr.getProperty('names_v1') === '1') return;
+    const S = sh('پزشکان'); if (!S) return;
+    const last = S.getLastRow(), cols = S.getLastColumn();
+    const head = norm(String(S.getRange(1,1).getValue()));
+    const colA = last > 1 ? S.getRange(2,1,last-1,1).getValues().map(r => String(r[0]).trim()).filter(Boolean) : [];
+    const old = cols >= 5 && (/کد|code|\bid\b/i.test(head) || (colA.length && colA.every(x => /^[A-Za-z0-9_\-]+$/.test(x))));
+    if (old) {
+      const map = {}, seen = {};
+      (last > 1 ? S.getRange(2,1,last-1,2).getValues() : []).forEach(r => {
+        const i = String(r[0]).trim(), nm = String(r[1]).trim(); if (!i || !nm) return;
+        if (seen[norm(nm)]) throw new Error('نام پزشک تکراری است: ' + nm); seen[norm(nm)] = 1; map[norm(i)] = nm; });
+      convCol_('برنامه هفتگی', 1, map); convCol_('استثناها', 2, map); convCol_(PRF, 1, map); convCol_(REV, 2, map);
+      const B = sh('نوبت‌ها'); if (B && B.getLastColumn() >= 12) B.getRange(1, 12, Math.max(B.getLastRow(), 1), 1).clearContent();
+      if (sh(PRF)) sh(PRF).getRange('A1').setValue('نام پزشک');
+      if (sh(REV)) sh(REV).getRange('B1').setValue('نام پزشک');
+      S.deleteColumn(1);
+    }
+    pr.setProperty('names_v1', '1');
+    Object.keys(memo).forEach(k => delete memo[k]); clearClinicCache();
+  } finally { lock.releaseLock(); }
+}
+/** شیت‌های «پروفایل پزشکان» و «نظرات» را (اگر نبودند) می‌سازد */
+function ensureSocialSheets(){
+  const ss = SpreadsheetApp.getActive();
+  const mk = (n, h, w) => { if (sh(n)) return null; const s = ss.insertSheet(n); s.setRightToLeft(true); s.setFrozenRows(1);
+    s.getRange(1,1,1,h.length).setValues([h]).setFontWeight('bold').setBackground('#d9f0f2');
+    s.getRange(2,1,500,h.length).setNumberFormat('@'); w.forEach((x,i) => s.setColumnWidth(i+1, x)); return s; };
+  mk(PRF, ['نام پزشک','عکس (لینک مستقیم)','معرفی','سوابق و تحصیلات','شماره نظام پزشکی','تلفن','آدرس','هزینهٔ ویزیت'], [90,220,320,260,140,130,260,130]);
+  const R = mk(REV, ['تاریخ','نام پزشک','نام','امتیاز','متن نظر','وضعیت','ایمیل'], [110,90,150,70,380,100,200]);
+  if (R) R.getRange('F2:F500').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(['در انتظار', APR, 'پنهان'], true).build());
+  memo[PRF] = null; memo[REV] = null;
+}
+const safeTxt_ = s => String(s || '').trim().replace(/^([=+\-@])/, ' $1');
+function maskName_(n){ const w = String(n || '').trim().split(/\s+/); return w.length > 1 ? w[0] + ' ' + w[w.length-1][0] + '.' : (w[0] || 'کاربر'); }
+function reviewsOf(p){
+  const id = norm(String(p.doctor || ''));
+  return {list: rows(REV).filter(r => norm(String(r[1])) === id && norm(r[5]) === norm(APR))
+    .map(r => ({n:maskName_(r[2]), s:parseInt(norm(String(r[3])), 10) || 0, t:String(r[4]), d:String(r[0])})).reverse().slice(0, 60)};
+}
+function addReview(p){
+  const u = session(p), id = String(p.doctor || '').trim(), s = parseInt(p.rate, 10), t = safeTxt_(p.text).slice(0, 600);
+  const doc = doctors().find(d => norm(d.id) === norm(id)); if (!doc) throw new Error('پزشک نامعتبر است.');
+  if (!(s >= 1 && s <= 5)) throw new Error('امتیاز را از ۱ تا ۵ انتخاب کنید.');
+  if (t.length < 5) throw new Error('متن نظر خیلی کوتاه است.');
+  ensureSocialSheets();
+  const lock = LockService.getScriptLock(); lock.waitLock(15000);
+  try {
+    memo[REV] = null;
+    if (rows(REV).some(r => norm(String(r[1])) === norm(id) && String(r[6]).trim().toLowerCase() === String(u.em).toLowerCase()))
+      throw new Error('شما قبلاً برای این پزشک نظر ثبت کرده‌اید.');
+    sh(REV).appendRow([jal(today()), doc.id, safeTxt_(u.name), String(s), t, 'در انتظار', u.em]);
+    memo[REV] = null;
+  } finally { lock.releaseLock(); }
+  return {ok:true};
+}
 function shifts(id, iso){
   const j = norm(jal(iso)), d = norm(DAYS[wd(iso)]);
-  let out = rows('برنامه هفتگی').filter(r => String(r[0]).trim() === id && norm(r[1]) === d).map(r => [hm(r[2]), hm(r[3])]);
+  let out = rows('برنامه هفتگی').filter(r => norm(String(r[0])) === norm(id) && norm(r[1]) === d).map(r => [hm(r[2]), hm(r[3])]);
   rows('استثناها').forEach(r => {
-    if (String(r[1]).trim() !== id || norm(r[0]) !== j) return;
+    if (norm(String(r[1])) !== norm(id) || norm(r[0]) !== j) return;
     const t = norm(r[2]);
     if (t === 'لغو') out = [];
     else if (t === 'اضافه') out.push([hm(r[3]), hm(r[4])]);
@@ -55,7 +140,7 @@ function shifts(id, iso){
 function booked(){
   const m = {};
   rows('نوبت‌ها').forEach(r => { if (!r[0] || norm(r[8]) === 'لغو') return;
-    const k = r[11] + '|' + r[10] + '|' + hm(r[4]); m[k] = (m[k]||0) + 1; });
+    const k = norm(String(r[3])) + '|' + r[10] + '|' + hm(r[4]); m[k] = (m[k]||0) + 1; });
   return m;
 }
 /** بازه‌های یک پزشک در یک روز؛ آخرین بازه هرگز از پایان شیفت بیرون نمی‌زند */
@@ -64,7 +149,7 @@ function slots(id, iso){
   shifts(id, iso).forEach(s => {
     for (let m = mins(s[0]); m + c.slot <= mins(s[1]); m += c.slot){
       const time = fmt(m), blocked = bl.some(x => m >= x[0] && m < x[1]);
-      let free = !blocked && (b[id+'|'+iso+'|'+time]||0) < c.cap;
+      let free = !blocked && (b[norm(id)+'|'+iso+'|'+time]||0) < c.cap;
       if (isToday && m < n + c.lead) free = false;
       out.push({time, free, blocked});
     }
@@ -74,7 +159,7 @@ function slots(id, iso){
 function init(){
   const c = cfg(), ds = doctors(), days = [];
   const week = rows('برنامه هفتگی');
-  ds.forEach(d => d.week = week.filter(r => String(r[0]).trim() === d.id).map(r => [r[1], hm(r[2]), hm(r[3])]));
+  ds.forEach(d => d.week = week.filter(r => norm(String(r[0])) === norm(d.id)).map(r => [r[1], hm(r[2]), hm(r[3])]));
   for (let i = 0; i <= c.ahead; i++){
     const iso = addDays(today(), i), docs = {}, off = {};
     ds.forEach(d => { const s = slots(d.id, iso);
@@ -129,15 +214,14 @@ function cellJ(v){   // اگر گوگل‌شیت تاریخ را به‌اشتب
   if (v instanceof Date){ const f = x => +Utilities.formatDate(v, TZ, x); return f('yyyy')*10000 + f('MM')*100 + f('dd'); }
   return jnum(v);
 }
-function docName(id){ const r = rows('پزشکان').find(x => String(x[0]).trim() === id); return r ? r[1] : ''; }
 /** بازه‌های بسته‌شدهٔ یک پزشک در یک روز، به‌صورت [[از دقیقه، تا دقیقه)] */
 function blocks(id, iso){
-  const j = jnum(jal(iso)), out = [], nm = norm(docName(id));
+  const j = jnum(jal(iso)), out = [];
   rows(BLK).forEach(r => {
     const a = cellJ(r[0]); if (!a) return;
     const b = cellJ(r[1]) || a; if (j < a || j > b) return;
     const who = norm(r[2]);
-    if (who && who !== norm(ALL) && who !== norm(id) && who !== nm) return;
+    if (who && who !== norm(ALL) && who !== norm(id)) return;
     const f = hm(r[3]), t = hm(r[4]);
     out.push([f ? mins(f) : 0, t ? mins(t) : 1440]);
   });
@@ -150,7 +234,7 @@ function refreshLists(){
   const c = cfg(), dates = [], times = [], names = [ALL];
   for (let i = 0; i < Math.max(60, c.ahead + 30); i++){ const iso = addDays(today(), i); dates.push(jal(iso) + ' – ' + DAYS[wd(iso)]); }
   for (let m = 360; m <= 1320; m += 15) times.push(fmt(m));
-  rows('پزشکان').forEach(r => { if (r[0] && r[1]) names.push(String(r[1]).trim()); });
+  rows('پزشکان').forEach(r => { if (r[0]) names.push(String(r[0]).trim()); });
   memo['پزشکان'] = null;
   L.clearContents(); L.getRange(1,1,1,3).setValues([['تاریخ','پزشک','ساعت']]);
   L.getRange(2,1,dates.length,1).setNumberFormat('@').setValues(dates.map(x => [x]));
@@ -234,21 +318,21 @@ function session(p){
 /* ---------- نوبت ---------- */
 function book(p){
   const u = session(p), c = cfg(), id = String(p.doctor), iso = String(p.date), time = String(p.time);
-  const d = doctors().find(x => x.id === id); if (!d) throw new Error('پزشک نامعتبر است');
+  const d = doctors().find(x => norm(x.id) === norm(id)); if (!d) throw new Error('پزشک نامعتبر است');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(iso) || iso < today() || iso > addDays(today(), c.ahead)) throw new Error('تاریخ نامعتبر است');
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
   let res;
   try {
     const s = slots(id, iso).find(x => x.time === time);
     if (!s || !s.free) throw new Error('این زمان دیگر در دسترس نیست؛ زمان دیگری انتخاب کنید');
-    const mine = rows('نوبت‌ها').filter(r => String(r[7]).toLowerCase() === u.em && String(r[11]) === id && String(r[10]) === iso && norm(r[8]) !== 'لغو').length;
+    const mine = rows('نوبت‌ها').filter(r => String(r[7]).toLowerCase() === u.em && norm(String(r[3])) === norm(id) && String(r[10]) === iso && norm(r[8]) !== 'لغو').length;
     if (mine >= c.perDay) throw new Error('برای این پزشک در این روز قبلاً نوبت گرفته‌اید');
     const S = sh('نوبت‌ها'), pr = PropertiesService.getScriptProperties(), row = S.getLastRow() + 1;
     const n = +(pr.getProperty('n') || (S.getLastRow() - 1)) + 1; pr.setProperty('n', String(n));
     const code = 'MH-' + String(n).padStart(4,'0');
-    if (!S.getRange('K1').getValue()) S.getRange('K1:L1').setValues([['تاریخ میلادی','کد پزشک']]);
-    const rg = S.getRange(row,1,1,12); rg.setNumberFormat('@');
-    rg.setValues([[code, jal(iso), DAYS[wd(iso)], d.name, time, u.name, u.mob, u.em, 'ثبت‌شده', Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd HH:mm'), iso, id]]);
+    if (!S.getRange('K1').getValue()) S.getRange('K1').setValue('تاریخ میلادی');
+    const rg = S.getRange(row,1,1,11); rg.setNumberFormat('@');
+    rg.setValues([[code, jal(iso), DAYS[wd(iso)], d.name, time, u.name, u.mob, u.em, 'ثبت‌شده', Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd HH:mm'), iso]]);
     clearClinicCache();
     res = {code, doctor:d.name, j:jal(iso), day:DAYS[wd(iso)], time, name:u.name, mobile:u.mob, email:u.em};
   } finally { lock.releaseLock(); }
@@ -295,7 +379,8 @@ function adminLogin(p){
 }
 function adminGet(p){
   adminAuth(p); const out = {};
-  if (!sh(BLK)) { try { ensureBlocksSheet(); } catch (e) {} }   // اگر شیت «غیرفعال‌سازی» هنوز ساخته نشده، همین‌جا ساخته شود
+  if (!sh(BLK)) { try { ensureBlocksSheet(); } catch (e) {} }
+  if (!sh(PRF) || !sh(REV)) { try { ensureSocialSheets(); } catch (e) {} }   // اگر شیت «غیرفعال‌سازی» هنوز ساخته نشده، همین‌جا ساخته شود
   ['نوبت‌ها','کاربران'].concat(EDIT).forEach(n => { const s = sh(n); out[n] = !s ? [] : s.getDataRange().getDisplayValues(); });
   return out;
 }
@@ -304,6 +389,8 @@ function adminSave(p){
   const s = sh(n), data = p.rows || [], w = s.getLastColumn();
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
+    const rn = (p.renames || []).filter(x => x && x[0] && x[1]);
+    if (norm(n) === norm('پزشکان') && rn.length) cascadeRename_(rn);   // تغییر نام پزشک در همهٔ شیت‌ها
     if (s.getLastRow() > 1) s.getRange(2,1,s.getLastRow()-1,w).clearContent();
     const clean = data.filter(r => r.some(c => String(c).trim())).map(r => Array.from({length:w}, (_,i) => String(r[i] == null ? '' : r[i]).trim()));
     if (clean.length){ const rg = s.getRange(2,1,clean.length,w); rg.setNumberFormat('@'); rg.setValues(clean); }
@@ -325,10 +412,13 @@ function adminStatus(p){
 
 /* ---------- API ---------- */
 function route(p){
+  migrateDoctorNames_();
   try {
     switch (p.a){
       case 'init': return init();
       case 'full': return getAllClinicDataCached();
+      case 'reviews': return reviewsOf(p);
+      case 'review': return addReview(p);
       case 'slots': return {slots: slots(String(p.doctor), String(p.date))};
       case 'code': return sendCode(p);
       case 'verify': return verify(p);
