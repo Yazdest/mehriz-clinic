@@ -83,6 +83,17 @@ function renderProf() {
   <div class="pf-panel" id="pfPanel"></div>`;
   panel();
 }
+/* اسکرول فقط وقتی محتوا از صفحه بلندتر شد (مثلاً بعد از افزودن نظرات یا توضیحات) فعال می‌شود */
+function fitProf() {
+  const el = document.getElementById("pfPanel"); if (!el) return;
+  el.classList.remove("scroll");
+  if (el.scrollHeight > el.clientHeight + 1) el.classList.add("scroll");
+}
+let fitQ = 0;
+const fitSoon = () => { cancelAnimationFrame(fitQ); fitQ = requestAnimationFrame(fitProf); };
+new MutationObserver(fitSoon).observe(pBody, { childList: true, subtree: true });
+addEventListener("resize", fitSoon);
+if (window.ResizeObserver) new ResizeObserver(fitSoon).observe(prof);
 function panel() {
   const d = PD, el = $("#pfPanel");
   if (PT === "bk") el.innerHTML = `<div class="pf-card"><h3>برنامه حضور پزشک</h3><div class="pf-week">${weekHtml(d)}</div>${d.fee ? `<div class="pf-fee"><small>هزینهٔ ویزیت</small><b>${esc(d.fee)}</b></div>` : ""}<button type="button" class="primary-button wide" data-p="book">دریافت نوبت <span>←</span></button></div>`;
