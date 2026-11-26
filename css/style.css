@@ -498,3 +498,86 @@ dialog.prof{overscroll-behavior:contain}
 .pf-panel.scroll{scroll-padding-block:20px}
 /* فیلدهای فعال زیر هدر چسبان نروند */
 input,textarea,select{scroll-margin-top:96px;scroll-margin-bottom:96px}
+
+/* لینک کانال ایتا */
+.eitaa-link{display:inline-flex;align-items:center;gap:8px;font-weight:700;text-decoration:none;border-radius:999px;padding:6px 14px 6px 10px;min-height:44px;-webkit-tap-highlight-color:transparent}
+.eitaa-link img{width:28px;height:28px;flex:none;display:block}
+.eitaa-link.ef{margin-top:10px;background:#ffffff1f;color:#fff;border:1px solid #ffffff55}
+.eitaa-link.ef:hover,.eitaa-link.ef:active{background:#ffffff38}
+.footer-copy{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+.eitaa-link.em{align-self:center;margin-top:8px;background:var(--pl);color:var(--pd);border:1px solid var(--line)}
+.eitaa-link.em:active{background:#d2eef0}
+
+/* دکمهٔ شناور ایتا (موازی دکمهٔ تلفن) */
+.eitaafab{display:none}
+@media(max-width:760px){.eitaafab{display:grid;place-items:center;position:fixed;bottom:160px;left:16px;width:56px;height:56px;border-radius:50%;background:#fff;box-shadow:0 10px 22px -6px #0f6f78aa,0 0 0 1px var(--line);z-index:30;-webkit-tap-highlight-color:transparent}
+.eitaafab img{width:34px;height:34px;display:block}.eitaafab:active{transform:scale(.94);background:var(--pl)}}
+/* توضیح کانال */
+.eitaa-note{margin-top:10px;max-width:36ch;font-size:.92rem;line-height:1.9;color:#ffffffe6;font-weight:500}
+.eitaa-note.em{max-width:none;text-align:center;color:var(--mut);margin-top:12px;font-size:.88rem}
+
+.eitaa-link.ef+.eitaa-note{margin-top:8px}
+
+/* متن کانال: دو سطر، راست‌به‌چپ و کاملاً تراز (justify) */
+.eitaa-note{direction:rtl;display:block;width:max-content;max-width:100%;max-inline-size:100%;text-align:justify;text-align-last:justify;text-justify:inter-word;max-width:100%;font-size:clamp(.72rem,3.4vw,.92rem);line-height:1.9}
+.eitaa-note .ln{display:block;white-space:nowrap;text-align:justify;text-align-last:justify}
+.eitaa-note.em{width:100%;max-width:100%;text-align:justify;font-size:clamp(.66rem,3vw,.86rem)}
+
+/* اصلاح تداخل متن فوتر با دکمه‌های شناور: متن از زیر دکمه‌ها کنار می‌رود */
+.eitaa-note{width:fit-content}
+.eitaa-note .ln{text-align:justify;text-align-last:justify;white-space:nowrap}
+.footer-copy .eitaa-note{font-size:clamp(.7rem,3.3vw,.9rem)}
+@media(max-width:760px){
+  .site-footer .footer-content{padding-bottom:12px}
+  .site-footer .footer-copy{width:100%;padding-inline-end:84px}   /* سمت چپ در RTL: جای دکمه‌های شناور */
+}
+/* رنگ آیکون شناور ایتا هماهنگ با دکمهٔ تلفن (فیروزه‌ای) */
+.eitaafab{background:#fff;border:2px solid #0e8791;box-shadow:0 10px 22px -6px #0f6f78aa}
+.eitaafab img{filter:hue-rotate(158deg) saturate(.85) brightness(.92)}
+
+/* دکمهٔ شناور ایتا: دایرهٔ فیروزه‌ای مثل دکمهٔ تلفن + لوگوی سفید */
+.eitaafab{background:#0e8791;border:0;box-shadow:0 10px 22px -6px #0f6f78aa}
+.eitaafab:active{background:var(--pd)}
+.eitaafab img{filter:none;opacity:0;transition:opacity .2s}
+.eitaafab img.ok{opacity:1}
+.eitaafab img.fb{filter:brightness(0) invert(1)}
+
+/* ایمن در برابر خطا: بدون اسکریپت هم لوگوی ایتا سفید و دیده می‌شود */
+.eitaafab img{opacity:1!important;filter:brightness(0) invert(1)}
+.eitaafab img.ok{filter:none}
+
+/* دکمهٔ شناور ایتا: لوگوی سفید روی دایرهٔ فیروزه‌ای (نهایی) */
+.eitaafab img{opacity:1!important;filter:none!important;width:34px;height:34px;object-fit:contain}
+
+/* متن کانال: تراز از راست، فاصلهٔ عادی کلمات (بدون کشیدن/justify) */
+.eitaa-note,.eitaa-note.em,.eitaa-note .ln{text-align:right!important;text-align-last:right!important;text-justify:auto;word-spacing:normal}
+.eitaa-note{width:fit-content;max-width:100%}
+.eitaa-note.em{width:fit-content;margin-inline:auto 0}
+
+/* منوی همبرگری: متن دقیقاً وسط (دو سطر، وسط‌چین، فاصلهٔ عادی کلمات) */
+.eitaa-note.em,.eitaa-note.em .ln{text-align:center!important;text-align-last:center!important}
+.eitaa-note.em{display:block;width:fit-content;max-width:100%;margin-inline:auto!important}
+
+/* متن کانال: نزدیک‌تر به آیکون/دکمه و کمی بزرگ‌تر */
+.eitaa-note{line-height:1.75}
+.footer-copy .eitaa-note{font-size:clamp(.76rem,3.55vw,1rem);margin-top:2px}
+.eitaa-link.ef+.eitaa-note{margin-top:2px}
+.eitaa-note.em{font-size:clamp(.74rem,3.7vw,.96rem);margin-top:10px;margin-bottom:0}
+.eitaa-note.em+.eitaa-link.em{margin-top:2px}
+
+/* فوتر: متن بالای دکمهٔ ایتا، هم‌اندازهٔ منوی همبرگری */
+.footer-copy .eitaa-note{font-size:clamp(.74rem,3.7vw,.96rem);margin-top:10px;margin-bottom:0}
+.footer-copy .eitaa-note+.eitaa-link.ef{margin-top:2px}
+@media(max-width:760px){.site-footer .footer-copy{padding-inline-end:74px}}
+
+/* انیمیشن موج دور دکمه‌های شناور تلفن و ایتا (فقط transform و opacity) */
+.callfab::after,.eitaafab::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid #0e8791;opacity:0;pointer-events:none;animation:fabring 4.5s ease-out infinite;will-change:transform,opacity}
+.eitaafab::after{animation-delay:1.6s}
+@keyframes fabring{0%{transform:scale(1);opacity:.7}35%,100%{transform:scale(1.7);opacity:0}}
+@media(prefers-reduced-motion:reduce){.callfab::after,.eitaafab::after{animation:none!important}}
+
+/* دکمه‌های شناور کوچک‌تر */
+.callfab{width:44px;height:44px;left:12px;bottom:90px;font-size:1.2rem}
+@media(max-width:760px){.eitaafab{width:44px;height:44px;left:12px;bottom:142px}}
+.eitaafab img{width:27px;height:27px}
+@media(max-width:760px){.site-footer .footer-copy{padding-inline-end:62px}}
