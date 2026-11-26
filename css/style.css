@@ -357,7 +357,7 @@ h2{font-size:clamp(1.3rem,3.4vw,1.8rem);color:var(--ink)}
 .doc-card{padding:16px}.doc-card::before{display:none}
 .doc-card:hover{transform:none;box-shadow:var(--sh)}
 .av{margin:0 0 10px;width:68px;height:68px;border:3px solid #fff;box-shadow:none;background:var(--pl)}
-.doc-card h4,.doc-card .tag,.doc-card ul,.doc-rt{margin-inline:0}
+.doc-card h4,.doc-card .tag,.doc-card ul,.doc-card .doc-btn,.doc-rt{margin-inline:0}
 .doc-link{width:100%;margin:4px 0 8px}
 .doc-btn{width:100%;margin:0;background:var(--p);color:#fff;border-radius:12px;min-height:46px}.doc-btn:hover{background:var(--pd)}
 .tag{background:var(--pl);color:var(--pd)}
@@ -586,3 +586,43 @@ input,textarea,select{scroll-margin-top:96px;scroll-margin-bottom:96px}
 .eico{display:block;flex:none}
 .eitaa-link .eico{width:28px;height:28px}
 .eitaafab .eico{width:26px;height:26px}
+
+/* منوی همبرگری: نام درمانگاه در بالاترین ردیف، بدون اسکرول، و تلفن/ایتا در پایین‌ترین بخش
+   فاصله‌ها بر اساس ارتفاع صفحه تنظیم می‌شوند تا همیشه در یک صفحه جا شوند */
+dialog.menu{width:min(350px,92vw)}
+dialog.menu[open]{gap:10px;padding:14px 16px 16px;gap:clamp(6px,1.5dvh,12px);padding:clamp(10px,2dvh,16px) 16px clamp(12px,2.4dvh,18px);justify-content:flex-start;overflow-y:auto;scrollbar-width:none}
+dialog.menu::-webkit-scrollbar{display:none}
+.menu-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.menu-top .hbtn{width:40px;height:40px;flex:none}
+.menu-top .logo{flex:1;min-width:0;justify-content:flex-start}
+.menu .wm{width:100%;max-width:none;height:auto;margin:0}
+.menu-nav{gap:2px}
+.menu-nav a{padding:10px 14px;padding:clamp(8px,1.7dvh,13px) 14px;font-size:1.02rem}
+.menu-act{gap:8px;gap:clamp(6px,1.2dvh,10px);margin-top:0}
+.menu-act .nav-link-btn{min-height:46px;min-height:clamp(42px,6dvh,50px)}
+.menu-tel{margin-top:auto;padding-top:10px;padding-top:clamp(8px,1.6dvh,14px);border-top:1px solid var(--line)}
+.menu .eitaa-note.em{margin-top:0}
+.menu .eitaa-note.em+.eitaa-link.em{margin-top:0}
+
+/* عنوان «سلامتی شما، اولویت ماست.» در یک سطر؛ اندازه بر اساس عرض صفحه تنظیم می‌شود */
+.intro-heading h2{white-space:nowrap;font-size:clamp(1rem,5.6vw,1.8rem)}
+@media(min-width:761px){.intro-heading h2{font-size:clamp(1rem,2.6vw,1.8rem)}}
+
+/* متن معرفی: ترازِ ابتدا؛ جاستیفای با کشیده توسط ui.js انجام می‌شود */
+.intro-text p{text-align:start;text-align-last:start}
+
+/* تیک سبز تکمیل کد ملی و موبایل */
+.fld{position:relative}
+.tick{position:absolute;box-sizing:border-box;width:5px;height:9px;border:solid #6cc995;border-width:0 1.5px 1.5px 0;transform:rotate(45deg);pointer-events:none;animation:tickin .2s}
+@keyframes tickin{from{opacity:0}}
+.tick[hidden]{display:none}
+
+/* منوی همبرگری: تایپوگرافی تمام‌عرض، وسط و در بالاترین جای منو؛ دکمهٔ بستن زیر آن در سمت چپ */
+.menu-top{position:relative;justify-content:center}
+.menu-top .logo{flex:0 0 100%}
+.menu-top .hbtn{position:absolute;left:0;top:calc(100% + 14px);width:36px;height:36px;z-index:1}
+
+/* انیمیشن دکمهٔ ایتا (فوتر و منوی همبرگری): موج دور دکمه — فقط transform و opacity */
+.eitaa-link.ef,.eitaa-link.em{position:relative}
+.eitaa-link.ef::before,.eitaa-link.em::before{content:"";position:absolute;inset:-1px;border:2px solid #ff9a2e;border-radius:999px;pointer-events:none;opacity:0;animation:eitaawave 2.8s ease-out infinite}
+@keyframes eitaawave{0%{transform:scale(1);opacity:.85}65%,100%{transform:scale(1.1,1.4);opacity:0}}
