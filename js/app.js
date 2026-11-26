@@ -573,3 +573,18 @@ addEventListener("scroll", () => document.querySelector(".site-header").classLis
 
 /* در iOS Safari برای کار کردن :active باید یک شنوندهٔ لمس وجود داشته باشد */
 document.addEventListener("touchstart", () => {}, { passive: true });
+
+
+/* کیبورد موبایل: پنجره را به ارتفاع قابل‌دیدِ واقعی محدود کن و فیلد فعال را در دید نگه دار */
+(function () {
+  const vv = window.visualViewport;
+  const fit = () => {
+    const h = vv ? vv.height : innerHeight;
+    wz.style.setProperty("--vvh", h + "px");
+    wz.classList.toggle("kb", !!vv && h < screen.height * 0.75 && h < innerHeight * 0.85 + 1 && innerHeight - h > 120);
+  };
+  const reveal = el => setTimeout(() => el.scrollIntoView({ block: "center", behavior: "smooth" }), 250);
+  if (vv) { vv.addEventListener("resize", fit); vv.addEventListener("scroll", fit); }
+  fit();
+  body.addEventListener("focusin", e => { if (e.target.matches("input,textarea")) { fit(); reveal(e.target); } });
+})();
