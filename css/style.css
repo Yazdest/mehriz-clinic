@@ -428,3 +428,27 @@ input{border-width:1.5px;border-radius:12px;background:var(--card);min-height:52
 .banner .wm{height:50px}
 @media(min-width:700px){.banner .wm{height:64px}}
 .menu .wm{height:68px}
+
+
+/* v37: لوگوتایپ جدید (درمانگاه خیری حاج محمدحسن زارع بیدکی فرهنگیان مهریز) — نسبت تصویر 5.572؛ اندازه‌ها بر پایهٔ عرض */
+.wm{aspect-ratio:1818.3 / 326.3;height:auto}
+.site-header .wm{width:min(430px,calc(100vw - 130px));height:auto}
+@media(min-width:900px){.site-header .wm{width:460px;height:auto}}
+.site-footer .wm-f{width:min(380px,86vw);height:auto}
+.banner .wm{width:100%;max-width:300px;height:auto}
+@media(min-width:700px){.banner .wm{width:340px;max-width:100%;height:auto}}
+.menu .wm{width:min(240px,100%);height:auto}
+
+/* v38: موبایل — هدر دو ردیفه (دکمه‌ها بالا، لوگوتایپ تمام‌عرض پایین) تا متن بلند به دکمه‌ها نخورد */
+@media(max-width:700px){
+  .site-header .nav-container{grid-template-columns:1fr 1fr;grid-template-areas:"r l" "logo logo";row-gap:4px;padding:12px 0 4px}
+  .site-header .hb-r{grid-area:r}
+  .site-header .hb-l{grid-area:l}
+  .site-header .logo{grid-area:logo;justify-self:center;width:100%;justify-content:center}
+  .site-header .wm{width:100%;max-width:420px;height:auto;margin-top:0}
+}
+
+/* نوبت‌گیری بدون ثبت‌نام: برچسب بالای هر فیلد برای خوانایی سالمندان */
+.fld{display:grid;gap:6px}.fld label{font-weight:700;font-size:1rem;color:var(--ink)}
+.wz .alt-row{margin-top:14px;text-align:center;color:var(--mut);font-weight:500;line-height:1.9}
+.wz .alt-row .link-btn{font-weight:700;min-height:44px}
