@@ -583,6 +583,6 @@ input,textarea,select{scroll-margin-top:96px;scroll-margin-bottom:96px}
 @media(max-width:760px){.site-footer .footer-copy{padding-inline-end:62px}}
 
 /* لوگوی ایتا به‌صورت SVG داخل صفحه (بدون وابستگی به فایل تصویر) */
-.eico{display:block;flex:none;color:#e07500}
+.eico{display:block;flex:none}
 .eitaa-link .eico{width:28px;height:28px}
-.eitaafab .eico{width:34px;height:34px;color:#fff}
+.eitaafab .eico{width:34px;height:34px}
