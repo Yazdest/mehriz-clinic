@@ -299,15 +299,26 @@ function verify(p){
   if (t >= 5) throw new Error('تلاش بیش از حد؛ کد جدید بگیرید');
   ca.put('try_'+em, String(t+1), 600);
   if (!ca.get('otp_'+em) || String(norm(p.code)) !== ca.get('otp_'+em)) throw new Error('کد اشتباه یا منقضی است');
-  const name = String(p.name||'').trim().slice(0,60), mob = norm(p.mobile);
+  const name = String(p.name||'').trim().slice(0,60), mob = norm(p.mobile), nid = nidOf_(p.nid);
   if (name.length < 3 || !/^09\d{9}$/.test(mob)) throw new Error('نام یا شمارهٔ موبایل معتبر نیست');
+  if (!validNid_(nid)) throw new Error('کد ملی باید دقیقاً ۱۰ رقم باشد');
   ca.remove('otp_'+em);
-  const token = Utilities.getUuid(); ca.put('tok_'+token, JSON.stringify({em, name, mob}), 21600);
+  const token = Utilities.getUuid(); ca.put('tok_'+token, JSON.stringify({em, name, mob, nid}), 21600);
   let S = sh('کاربران'); if (!S){ S = SpreadsheetApp.getActive().insertSheet('کاربران'); S.appendRow(['ایمیل','نام','موبایل','آخرین ورود']); }
   const stamp = Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd HH:mm'), v = S.getDataRange().getValues();
   const i = v.findIndex((r,k) => k > 0 && String(r[0]).toLowerCase() === em);
   if (i > 0) S.getRange(i+1,2,1,3).setValues([[name, "'"+mob, stamp]]); else S.appendRow([em, name, "'"+mob, stamp]);
+  saveUserNid_(em, nid);
   return {token, name, email:em};
+}
+/* ---------- کد ملی ---------- */
+const nidOf_ = s => norm(s).replace(/-/g, '');
+const validNid_ = v => /^\d{10}$/.test(v);
+function saveUserNid_(em, nid){
+  const S = sh('کاربران'); if (!S) return;
+  const v = S.getDataRange().getValues(), i = v.findIndex((r,k) => k > 0 && String(r[0]).toLowerCase() === em); if (i < 1) return;
+  if (!String(S.getRange(1,5).getValue()).trim()) S.getRange(1,5).setValue('کد ملی');
+  const c = S.getRange(i+1,5); c.setNumberFormat('@'); c.setValue(nid);
 }
 function session(p){
   const s = CacheService.getScriptCache().get('tok_' + p.token);
@@ -316,8 +327,31 @@ function session(p){
 }
 
 /* ---------- نوبت ---------- */
+/** نوبت کاربر واردشده (با حساب) */
 function book(p){
-  const u = session(p), c = cfg(), id = String(p.doctor), iso = String(p.date), time = String(p.time);
+  const u = session(p);
+  if (!u.nid){   // حساب‌های قدیمی که کد ملی ندارند
+    const n = nidOf_(p.nid); if (!validNid_(n)) throw new Error('کد ملی باید دقیقاً ۱۰ رقم باشد');
+    u.nid = n; CacheService.getScriptCache().put('tok_' + p.token, JSON.stringify(u), 21600); saveUserNid_(u.em, n);
+  }
+  return bookCore_(u, p, false);
+}
+/** نوبت بدون ثبت‌نام: نام، موبایل و کد ملی ۱۰ رقمی */
+function guestBook(p){
+  const name = String(p.name||'').trim().slice(0,60), mob = norm(p.mobile), nid = nidOf_(p.nid);
+  if (name.length < 3) throw new Error('نام و نام خانوادگی را وارد کنید');
+  if (!/^09\d{9}$/.test(mob)) throw new Error('شمارهٔ موبایل را به شکل ۰۹۱۲۳۴۵۶۷۸۹ وارد کنید');
+  if (!validNid_(nid)) throw new Error('کد ملی باید دقیقاً ۱۰ رقم باشد');
+  // جلوگیری از سوءاستفاده (چون ایمیل تأیید نمی‌شود): سقف ساعتی برای هر موبایل، هر کد ملی و کل سایت
+  const ca = CacheService.getScriptCache();
+  [['gm_'+mob, 6, 'تعداد درخواست‌های این شماره زیاد است؛ لطفاً با درمانگاه تماس بگیرید'],
+   ['gn_'+nid, 6, 'تعداد درخواست‌های این کد ملی زیاد است؛ لطفاً با درمانگاه تماس بگیرید'],
+   ['g_all', 150, 'ثبت نوبت موقتاً شلوغ است؛ چند دقیقه بعد دوباره تلاش کنید']].forEach(x => {
+    const n = +(ca.get(x[0]) || 0); if (n >= x[1]) throw new Error(x[2]); ca.put(x[0], String(n + 1), 3600); });
+  return bookCore_({name, mob, nid, em:''}, p, true);
+}
+function bookCore_(u, p, guest){
+  const c = cfg(), id = String(p.doctor), iso = String(p.date), time = String(p.time);
   const d = doctors().find(x => norm(x.id) === norm(id)); if (!d) throw new Error('پزشک نامعتبر است');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(iso) || iso < today() || iso > addDays(today(), c.ahead)) throw new Error('تاریخ نامعتبر است');
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
@@ -325,7 +359,8 @@ function book(p){
   try {
     const s = slots(id, iso).find(x => x.time === time);
     if (!s || !s.free) throw new Error('این زمان دیگر در دسترس نیست؛ زمان دیگری انتخاب کنید');
-    const mine = rows('نوبت‌ها').filter(r => String(r[7]).toLowerCase() === u.em && norm(String(r[3])) === norm(id) && String(r[10]) === iso && norm(r[8]) !== 'لغو').length;
+    const mine = rows('نوبت‌ها').filter(r => norm(String(r[3])) === norm(id) && String(r[10]) === iso && norm(r[8]) !== 'لغو' &&
+      ((u.em && String(r[7]).toLowerCase() === u.em) || norm(String(r[12] || '')) === u.nid)).length;
     if (mine >= c.perDay) throw new Error('برای این پزشک در این روز قبلاً نوبت گرفته‌اید');
     const S = sh('نوبت‌ها'), pr = PropertiesService.getScriptProperties(), row = S.getLastRow() + 1;
     const n = +(pr.getProperty('n') || (S.getLastRow() - 1)) + 1; pr.setProperty('n', String(n));
@@ -333,10 +368,12 @@ function book(p){
     if (!S.getRange('K1').getValue()) S.getRange('K1').setValue('تاریخ میلادی');
     const rg = S.getRange(row,1,1,11); rg.setNumberFormat('@');
     rg.setValues([[code, jal(iso), DAYS[wd(iso)], d.name, time, u.name, u.mob, u.em, 'ثبت‌شده', Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd HH:mm'), iso]]);
+    if (!String(S.getRange('M1').getValue()).trim()) S.getRange('M1:N1').setValues([['کد ملی','نوع ثبت']]);
+    const ex = S.getRange(row,13,1,2); ex.setNumberFormat('@'); ex.setValues([[u.nid, guest ? 'بدون ثبت‌نام' : 'عضو']]);
     clearClinicCache();
-    res = {code, doctor:d.name, j:jal(iso), day:DAYS[wd(iso)], time, name:u.name, mobile:u.mob, email:u.em};
+    res = {code, doctor:d.name, j:jal(iso), day:DAYS[wd(iso)], time, name:u.name, mobile:u.mob, email:u.em, guest:!!guest};
   } finally { lock.releaseLock(); }
-  try {
+  if (u.em) try {
     MailApp.sendEmail(u.em, 'تأیید نوبت – درمانگاه فرهنگیان مهریز',
       u.name + ' عزیز\nنوبت شما ثبت شد.\nکد پیگیری: ' + res.code + '\nپزشک: ' + res.doctor +
       '\nتاریخ: ' + res.j + ' (' + res.day + ')\nساعت حضور: ' + res.time +
@@ -454,6 +491,7 @@ function route(p){
       case 'code': return sendCode(p);
       case 'verify': return verify(p);
       case 'book': return book(p);
+      case 'gbook': return guestBook(p);
       case 'my': return my(p);
       case 'cancel': return cancel(p);
       case 'alogin': return adminLogin(p);
