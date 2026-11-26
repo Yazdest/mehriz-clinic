@@ -456,7 +456,7 @@ function bkFilter(all){
     if(F.st==="cancel"&&x.st!=="x")return false;
     if(F.call==="yes"&&!x.called)return false;
     if(F.call==="no"&&x.called)return false;
-    if(q&&!norm(x.r.slice(0,10).join(" ")).includes(q))return false;
+    if(q&&!norm(x.r.slice(0,10).concat([x.r[12]||""]).join(" ")).includes(q))return false;
     return true})}
 function dateLabel(){const t0=T0();return{today:"امروز",tomorrow:"فردا",upcoming:"از امروز به بعد",all:"همهٔ تاریخ‌ها"}[F.date]||fa(F.date)}
 function viewBk(){
@@ -471,7 +471,7 @@ function viewBk(){
     <select class="sel" id="fDoc" aria-label="پزشک"><option value="">همهٔ پزشکان</option>${docs.map(d=>`<option${F.doc===d?" selected":""}>${esc(d)}</option>`).join("")}</select>
     <select class="sel" id="fCall" aria-label="وضعیت تماس">${[["","همهٔ تماس‌ها"],["no","تماس گرفته نشده"],["yes","تماس گرفته شده"]].map(([v,l])=>`<option value="${v}"${F.call===v?" selected":""}>${l}</option>`).join("")}</select>
     <select class="sel" id="fSt" aria-label="وضعیت">${[["active","فقط نوبت‌های فعال"],["cancel","فقط لغوشده‌ها"],["all","همهٔ وضعیت‌ها"]].map(([v,l])=>`<option value="${v}"${F.st===v?" selected":""}>${l}</option>`).join("")}</select>
-    <input class="field" id="fQ" type="search" placeholder="جستجوی نام، موبایل، کد…" value="${esc(F.q)}" aria-label="جستجو">
+    <input class="field" id="fQ" type="search" placeholder="جستجوی نام، موبایل، کد ملی، کد…" value="${esc(F.q)}" aria-label="جستجو">
     <span class="sp"></span>
     <button class="btn" type="button" data-act="print">چاپ</button>
     <button class="btn primary" type="button" data-act="xlsx">دانلود اکسل</button>
@@ -493,8 +493,8 @@ function renderBkDyn(){
     if(g!==last){last=g;const same=L.filter(y=>y.jd===x.jd&&y.doc===x.doc),a=same.filter(y=>y.st==="a").length,c=same.length-a;
       h+=`<tr class="grp"><td colspan="9">${esc(x.doc||"بدون پزشک")}<span class="gm">${esc((x.r[2]||"")+" "+fa(x.jd))}</span><span class="gc">${fa(a)} نوبت فعال${c?` · ${fa(c)} لغو`:""}${same.filter(y=>y.st==="a"&&!y.called).length&&a?` · ${fa(same.filter(y=>y.st==="a"&&!y.called).length)} بدون تماس`:""}</span></td></tr>`}
     const r=x.r,cx=x.st==="x";
-    h+=`<tr class="${cx?"cx":""}${fresh.has(r[0])?" new":""}${x.called&&!cx?" called":""}"><td class="tm num">${esc(fa(x.time||r[4]))}</td><td><b>${esc(r[5])}</b></td>
-      <td class="num ltr"><a href="tel:${esc(en(r[6]))}">${esc(fa(r[6]))}</a></td><td class="cl noprint-box"><label class="callchk" title="تماس گرفته شد"><input type="checkbox" data-act="call" data-c="${esc(r[0])}"${x.called?" checked":""}${cx?" disabled":""} aria-label="تماس گرفته شد: ${esc(r[5])}"><span>تماس گرفته شد</span></label></td><td class="ltr mut sm">${esc(r[7])}</td>
+    h+=`<tr class="${cx?"cx":""}${fresh.has(r[0])?" new":""}${x.called&&!cx?" called":""}"><td class="tm num">${esc(fa(x.time||r[4]))}</td><td><b>${esc(r[5])}</b>${r[12]?`<div class="mut sm num">کد ملی: ${esc(fa(r[12]))}</div>`:""}</td>
+      <td class="num ltr"><a href="tel:${esc(en(r[6]))}">${esc(fa(r[6]))}</a></td><td class="cl noprint-box"><label class="callchk" title="تماس گرفته شد"><input type="checkbox" data-act="call" data-c="${esc(r[0])}"${x.called?" checked":""}${cx?" disabled":""} aria-label="تماس گرفته شد: ${esc(r[5])}"><span>تماس گرفته شد</span></label></td><td class="ltr mut sm">${esc(r[7]||"—")}</td>
       <td class="num ltr">${esc(fa(r[0]))}</td><td>${cx?`<span class="badge cx">لغوشده</span>`:`<span class="badge ok">ثبت‌شده</span>`}${fresh.has(r[0])?` <span class="badge new">جدید</span>`:""}</td>
       <td class="mut sm num">${esc(stampFa(r[9]))}</td>
       <td class="act noprint"><button class="btn sm ${cx?"":"danger"}" type="button" data-act="${cx?"restore":"cancel"}" data-c="${esc(r[0])}">${cx?"بازگردانی":"لغو نوبت"}</button></td></tr>`});
@@ -518,8 +518,8 @@ async function setCalled(cb){
   finally{cb.disabled=false;renderBkDyn()}}
 function exportXlsx(){
   if(typeof XLSX==="undefined")return toast("کتابخانهٔ اکسل بارگذاری نشد؛ اینترنت را بررسی کنید.","err");
-  const L=window.__L||[],hd=["کد پیگیری","تاریخ","روز","پزشک","ساعت","نام بیمار","موبایل","ایمیل","وضعیت","زمان ثبت","تماس گرفته شد"];
-  const ws=XLSX.utils.aoa_to_sheet([hd,...L.map(x=>[...x.r.slice(0,10).map(v=>en(v)),x.called?"بله":""])]);ws["!cols"]=hd.map(()=>({wch:18}));
+  const L=window.__L||[],hd=["کد پیگیری","تاریخ","روز","پزشک","ساعت","نام بیمار","موبایل","ایمیل","وضعیت","زمان ثبت","تماس گرفته شد","کد ملی","نوع ثبت"];
+  const ws=XLSX.utils.aoa_to_sheet([hd,...L.map(x=>[...x.r.slice(0,10).map(v=>en(v)),x.called?"بله":"",en(x.r[12]||""),x.r[13]||""])]);ws["!cols"]=hd.map(()=>({wch:18}));
   const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,"نوبت‌ها");
   XLSX.writeFile(wb,"reservations-"+(["today","tomorrow","upcoming","all"].includes(F.date)?{today:en(T0()),tomorrow:en(T1()),upcoming:"upcoming",all:"all"}[F.date]:F.date).replace(/\//g,"-")+".xlsx")}
 
@@ -632,8 +632,8 @@ function viewUsr(){
   if(missing(SN.USR))return`<div class="card empty"><b>هنوز کاربری ثبت‌نام نکرده است</b>یا این بخش به نسخهٔ جدید Apps Script نیاز دارد.</div>`;
   const q=norm(F.uq||"");const rows=base(SN.USR).filter(r=>r[0]&&(!q||norm(r.join(" ")).includes(q)));
   return`<div class="card toolbar"><input class="field" id="uQ" type="search" placeholder="جستجوی نام، موبایل یا ایمیل…" value="${esc(F.uq||"")}"><span class="sp"></span><span class="mut">${fa(rows.length)} کاربر</span></div>
-  <div class="card tbl"><table><thead><tr><th>نام</th><th>موبایل</th><th>ایمیل</th><th>آخرین ورود</th></tr></thead><tbody id="uBody">${usrBody(rows)}</tbody></table></div>`}
-const usrBody=rows=>rows.map(r=>`<tr><td><b>${esc(r[1])}</b></td><td class="num ltr"><a href="tel:${esc(en(r[2]))}">${esc(fa(r[2]))}</a></td><td class="ltr">${esc(r[0])}</td><td class="mut num">${esc(stampFa(r[3]))}</td></tr>`).join("");
+  <div class="card tbl"><table><thead><tr><th>نام</th><th>موبایل</th><th>کد ملی</th><th>ایمیل</th><th>آخرین ورود</th></tr></thead><tbody id="uBody">${usrBody(rows)}</tbody></table></div>`}
+const usrBody=rows=>rows.map(r=>`<tr><td><b>${esc(r[1])}</b></td><td class="num ltr"><a href="tel:${esc(en(r[2]))}">${esc(fa(r[2]))}</a></td><td class="num">${esc(fa(r[4]||""))}</td><td class="ltr">${esc(r[0])}</td><td class="mut num">${esc(stampFa(r[3]))}</td></tr>`).join("");
 
 /* ================= اعتبارسنجی ================= */
 function validate(n,rows){
