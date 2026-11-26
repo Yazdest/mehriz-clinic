@@ -590,3 +590,20 @@ document.addEventListener("touchstart", () => {}, { passive: true });
   document.addEventListener("focusin", e => { if (e.target.matches("input:not([type=checkbox]):not([type=radio]),textarea,select")) { fit(); reveal(e.target); } });
   document.addEventListener("focusout", () => setTimeout(fit, 150));
 })();
+
+
+/* لینک کانال ایتا: روی موبایل مستقیم اپ ایتا باز می‌شود، در غیر این صورت نسخهٔ وب */
+document.addEventListener("click", e => {
+  const a = e.target.closest("a[data-eitaa]"); if (!a) return;
+  const ua = navigator.userAgent, id = a.dataset.eitaa, web = a.href;
+  const android = /Android/i.test(ua), ios = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (!android && !ios) return;                       // دسکتاپ: لینک عادی (ایتا وب)
+  e.preventDefault();
+  if (android) {
+    location.href = `intent://eitaa.com/${id}#Intent;scheme=https;package=ir.eitaa.messenger;S.browser_fallback_url=${encodeURIComponent(web)};end`;
+    return;
+  }
+  const t = Date.now();
+  location.href = `eitaa://resolve?domain=${id}`;
+  setTimeout(() => { if (!document.hidden && Date.now() - t < 2500) location.href = web; }, 1400);
+});
