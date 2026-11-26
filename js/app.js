@@ -502,7 +502,29 @@ body.addEventListener("input", e => {
   const t = e.target, n = +t.dataset?.len; if (!n) return;
   const v = DIG(t.value).replace(/\D/g, "").slice(0, n);
   if (t.value !== v) t.value = v;
+  markTick(t);
 });
+
+/* ---------- تیک سبز کنار کد ملی / موبایل، وقتی عدد کامل و معتبر شد ---------- */
+const tickCtx = document.createElement("canvas").getContext("2d");
+function markTick(t) {
+  const v = cleanNum(t.value), ok = (t.dataset.len === "11" ? validMob : validNid)(v);
+  let k = t.parentElement.querySelector(".tick");
+  if (!ok) { if (k) k.hidden = true; return; }
+  if (!k) {
+    k = document.createElement("span"); k.className = "tick";
+    k.setAttribute("role", "img"); k.setAttribute("aria-label", "کامل شد");
+    t.after(k);
+  }
+  k.hidden = false;
+  const cs = getComputedStyle(t);   // محل تیک: درست بعد از آخرین رقم
+  tickCtx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  k.style.right = parseFloat(cs.borderRightWidth) + parseFloat(cs.paddingRight) + tickCtx.measureText(t.value).width + 10 + "px";
+  k.style.bottom = (t.offsetHeight - k.offsetHeight) / 2 + "px";
+}
+/* برای فیلدهایی که از قبل مقدار دارند (مثلاً بعد از برگشت به فرم) */
+new MutationObserver(() => requestAnimationFrame(() => body.querySelectorAll("input[data-len]").forEach(markTick))).observe(body, { childList: true, subtree: true });
+document.fonts?.addEventListener("loadingdone", () => body.querySelectorAll("input[data-len]").forEach(markTick));
 body.addEventListener("click", e => { const b = e.target.closest("[data-a]"); if (b && !b.disabled && !b.classList.contains("busy")) ACT[b.dataset.a](b.dataset, b); });
 body.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.tagName === "INPUT") body.querySelector(".primary-button")?.click(); });
 wz.addEventListener("close", () => { S.guest = {}; S.form.nid = ""; });
