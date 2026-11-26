@@ -146,7 +146,7 @@ function render() {
   $("#wzTitle").textContent = TITLES[v];
   $("#wzBack").hidden = !S.stack.length || v === "done";
   $("#wzProg").innerHTML = STEP[v] && ((v !== "auth" && v !== "code") || S.after === "confirm") ? [1, 2, 3, 4].map(i => `<i class="${i <= STEP[v] ? "on" : ""}"></i>`).join("") : "";
-  body.className = "wz-body"; void body.offsetWidth; body.className = "wz-body vin"; body.scrollTop = 0;
+  body.className = "wz-body"; void body.offsetWidth; body.className = "wz-body vin" + (v === "guest" ? " gst" : ""); body.scrollTop = 0;
   VIEWS[v]();
 }
 
@@ -201,8 +201,8 @@ const VIEWS = {
     const f = S.form, opt = S.after === "confirm";
     body.innerHTML = `<p class="wz-sub">${opt ? "ثبت‌نام اختیاری است. کد ورود به ایمیل شما ارسال می‌شود." : "کد ورود به ایمیل شما ارسال می‌شود."}</p><div class="form-grid">
       ${fld("fName", "نام و نام خانوادگی", "نام و نام خانوادگی", f.name, 'autocomplete="name"')}
-      ${fld("fMobile", "شماره موبایل", "مثلاً ۰۹۱۲۳۴۵۶۷۸۹", f.mob, 'inputmode="numeric" autocomplete="tel"')}
-      ${fld("fNid", "کد ملی (۱۰ رقم)", "کد ملی ۱۰ رقمی", f.nid, 'inputmode="numeric" maxlength="14"')}
+      ${fld("fMobile", "شماره موبایل", "مثلاً ۰۹۱۲۳۴۵۶۷۸۹", f.mob, 'inputmode="numeric" maxlength="11" pattern="[0-9]*" autocomplete="tel" data-len="11"')}
+      ${fld("fNid", "کد ملی (۱۰ رقم)", "کد ملی ۱۰ رقمی", f.nid, 'inputmode="numeric" maxlength="10" pattern="[0-9]*" autocomplete="off" data-len="10"')}
       ${fld("fEmail", "ایمیل", "ایمیل", f.email, 'type="email" dir="ltr" autocomplete="email"')}</div>
       <button type="button" class="primary-button wide" data-a="sendCode">ارسال کد ورود</button>
       ${opt ? '<div class="alt-row"><button type="button" class="dl-btn wide" data-a="toGuest">ادامه بدون ثبت‌نام</button></div>' : ""}
@@ -211,11 +211,10 @@ const VIEWS = {
   guest() {
     const x = dayObj(), g = S.guest;
     body.innerHTML = `<div class="sum"><div><span>پزشک</span><b>${esc(docById(S.doc).name)}</b></div><div><span>روز</span><b>${x.day} ${fa(x.j)}</b></div><div><span>ساعت حضور</span><b>${fa(S.time)}</b></div></div>
-      <p class="wz-sub">برای ثبت نوبت نیازی به ثبت‌نام نیست؛ فقط اطلاعات زیر را وارد کنید.</p>
       <div class="form-grid">
         ${fld("gName", "نام و نام خانوادگی", "نام و نام خانوادگی", g.name || "", 'autocomplete="name"')}
-        ${fld("gMobile", "شماره تماس (موبایل)", "مثلاً ۰۹۱۲۳۴۵۶۷۸۹", g.mob || "", 'inputmode="numeric" autocomplete="tel"')}
-        ${fld("gNid", "کد ملی (۱۰ رقم)", "کد ملی ۱۰ رقمی", g.nid || "", 'inputmode="numeric" maxlength="14"')}
+        ${fld("gMobile", "شماره تماس (موبایل)", "مثلاً ۰۹۱۲۳۴۵۶۷۸۹", g.mob || "", 'inputmode="numeric" maxlength="11" pattern="[0-9]*" autocomplete="tel" data-len="11"')}
+        ${fld("gNid", "کد ملی (۱۰ رقم)", "کد ملی ۱۰ رقمی", g.nid || "", 'inputmode="numeric" maxlength="10" pattern="[0-9]*" autocomplete="off" data-len="10"')}
       </div>
       <button type="button" class="primary-button wide" data-a="gbook">ثبت نوبت</button><div id="msg" class="err" role="alert"></div>
       <p class="alt-row">می‌خواهید حساب کاربری بسازید؟ <button type="button" class="link-btn" data-a="toAuth">ورود / ثبت‌نام</button> (اختیاری)</p>`;
@@ -228,7 +227,7 @@ const VIEWS = {
   confirm() {
     const x = dayObj();
     body.innerHTML = `<div class="sum"><div><span>پزشک</span><b>${esc(docById(S.doc).name)}</b></div><div><span>روز</span><b>${x.day} ${fa(x.j)}</b></div><div><span>ساعت حضور</span><b>${fa(S.time)}</b></div><div><span>نام</span><b>${esc(S.user.name)}</b></div></div>
-      ${S.user.hasNid ? "" : `<div class="form-grid">${fld("cNid", "کد ملی (۱۰ رقم)", "کد ملی ۱۰ رقمی", "", 'inputmode="numeric" maxlength="14"')}</div>`}
+      ${S.user.hasNid ? "" : `<div class="form-grid">${fld("cNid", "کد ملی (۱۰ رقم)", "کد ملی ۱۰ رقمی", "", 'inputmode="numeric" maxlength="10" pattern="[0-9]*" autocomplete="off" data-len="10"')}</div>`}
       <button type="button" class="primary-button wide" data-a="book">تأیید و ثبت نوبت</button><div id="msg" class="err" role="alert"></div>`;
   },
   done() {
@@ -447,7 +446,7 @@ const ACT = {
   async sendCode(d, btn) {
     const email = $("#fEmail").value.trim(), name = $("#fName").value.trim(), mob = cleanNum($("#fMobile").value), nid = cleanNum($("#fNid").value); S.form = { name, mob, nid, email };
     if (name.length < 3) return showErr("#authMsg", "نام و نام خانوادگی را وارد کنید.");
-    if (!validMob(mob)) return showErr("#authMsg", "شمارهٔ موبایل را به شکل ۰۹۱۲۳۴۵۶۷۸۹ وارد کنید.");
+    if (!validMob(mob)) return showErr("#authMsg", "شمارهٔ موبایل باید دقیقاً ۱۱ رقم و به شکل ۰۹۱۲۳۴۵۶۷۸۹ باشد.");
     if (!validNid(nid)) return showErr("#authMsg", "کد ملی باید دقیقاً ۱۰ رقم باشد.");
     showErr("#authMsg", "");
     setBusy(btn, true);
@@ -479,7 +478,7 @@ const ACT = {
   async gbook(d, btn) {
     readGuest(); const g = S.guest, name = (g.name || "").trim(), mob = cleanNum(g.mob), nid = cleanNum(g.nid);
     if (name.length < 3) return showErr("#msg", "نام و نام خانوادگی را وارد کنید.");
-    if (!validMob(mob)) return showErr("#msg", "شمارهٔ موبایل را به شکل ۰۹۱۲۳۴۵۶۷۸۹ وارد کنید.");
+    if (!validMob(mob)) return showErr("#msg", "شمارهٔ موبایل باید دقیقاً ۱۱ رقم و به شکل ۰۹۱۲۳۴۵۶۷۸۹ باشد.");
     if (!validNid(nid)) return showErr("#msg", "کد ملی باید دقیقاً ۱۰ رقم باشد.");
     showErr("#msg", "");
     setBusy(btn, true);
@@ -499,6 +498,11 @@ const ACT = {
   }
 };
 
+body.addEventListener("input", e => {
+  const t = e.target, n = +t.dataset?.len; if (!n) return;
+  const v = DIG(t.value).replace(/\D/g, "").slice(0, n);
+  if (t.value !== v) t.value = v;
+});
 body.addEventListener("click", e => { const b = e.target.closest("[data-a]"); if (b && !b.disabled && !b.classList.contains("busy")) ACT[b.dataset.a](b.dataset, b); });
 body.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.tagName === "INPUT") body.querySelector(".primary-button")?.click(); });
 wz.addEventListener("close", () => { S.guest = {}; S.form.nid = ""; });
