@@ -22,8 +22,17 @@ const S = {
   view: null,
   loaded: false,
   err: "",
+  guest: {},
   user: JSON.parse(localStorage.getItem("mh_user") || "null")
 };
+
+/* ---------- ابزارهای ورودی: ارقام فارسی/عربی/انگلیسی یکسان‌اند ---------- */
+const DIG = s => String(s ?? "").replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+const cleanNum = s => DIG(s).replace(/[\s\u200c\u200e\u200f\-]/g, "");
+const validNid = v => /^\d{10}$/.test(v);
+const validMob = v => /^09\d{9}$/.test(v);
+const fld = (id, label, ph, val, attrs = "") => `<div class="fld"><label for="${id}">${label}</label><input id="${id}" placeholder="${ph}" value="${esc(val)}" ${attrs}></div>`;
+const readGuest = () => { if ($("#gName")) S.guest = { name: $("#gName").value, mob: $("#gMobile").value, nid: $("#gNid").value }; };
 
 function applyFullData(d, saveToLocal = true) {
   if (!d || !Array.isArray(d.doctors)) return false;
@@ -116,8 +125,8 @@ function renderDoctors() {
 }
 
 const wz = $("#wz"), body = $("#wzBody");
-const TITLES = { doc: "انتخاب پزشک", day: "انتخاب روز", time: "انتخاب ساعت حضور", auth: "ورود یا ثبت‌نام", code: "کد تأیید", confirm: "تأیید نهایی", done: "رسید نوبت", mine: "نوبت‌های من" };
-const STEP = { doc: 1, day: 2, time: 3, auth: 4, code: 4, confirm: 4 };
+const TITLES = { doc: "انتخاب پزشک", day: "انتخاب روز", time: "انتخاب ساعت حضور", auth: "ورود یا ثبت‌نام", guest: "ثبت نوبت", code: "کد تأیید", confirm: "تأیید نهایی", done: "رسید نوبت", mine: "نوبت‌های من" };
+const STEP = { doc: 1, day: 2, time: 3, auth: 4, code: 4, confirm: 4, guest: 4 };
 
 function openWz(v) {
   S.stack = []; S.view = null; S.date = null; S.time = null;
@@ -189,12 +198,27 @@ const VIEWS = {
     }
   },
   auth() {
-    const f = S.form;
-    body.innerHTML = `<p class="wz-sub">کد ورود به ایمیل شما ارسال می‌شود.</p><div class="form-grid">
-      <input id="fName" placeholder="نام و نام خانوادگی" autocomplete="name" value="${esc(f.name)}">
-      <input id="fMobile" placeholder="موبایل (مثلاً ۰۹۱۲۳۴۵۶۷۸۹)" inputmode="numeric" autocomplete="tel" value="${esc(f.mob)}">
-      <input id="fEmail" type="email" placeholder="ایمیل" dir="ltr" autocomplete="email" value="${esc(f.email)}"></div>
-      <button type="button" class="primary-button wide" data-a="sendCode">ارسال کد ورود</button><div id="authMsg" class="err" role="alert"></div>`;
+    const f = S.form, opt = S.after === "confirm";
+    body.innerHTML = `<p class="wz-sub">${opt ? "ثبت‌نام اختیاری است. کد ورود به ایمیل شما ارسال می‌شود." : "کد ورود به ایمیل شما ارسال می‌شود."}</p><div class="form-grid">
+      ${fld("fName", "نام و نام خانوادگی", "نام و نام خانوادگی", f.name, 'autocomplete="name"')}
+      ${fld("fMobile", "شماره موبایل", "مثلاً ۰۹۱۲۳۴۵۶۷۸۹", f.mob, 'inputmode="numeric" autocomplete="tel"')}
+      ${fld("fNid", "کد ملی (۱۰ رقم)", "کد ملی ۱۰ رقمی", f.nid, 'inputmode="numeric" maxlength="14"')}
+      ${fld("fEmail", "ایمیل", "ایمیل", f.email, 'type="email" dir="ltr" autocomplete="email"')}</div>
+      <button type="button" class="primary-button wide" data-a="sendCode">ارسال کد ورود</button>
+      ${opt ? '<div class="alt-row"><button type="button" class="dl-btn wide" data-a="toGuest">ادامه بدون ثبت‌نام</button></div>' : ""}
+      <div id="authMsg" class="err" role="alert"></div>`;
+  },
+  guest() {
+    const x = dayObj(), g = S.guest;
+    body.innerHTML = `<div class="sum"><div><span>پزشک</span><b>${esc(docById(S.doc).name)}</b></div><div><span>روز</span><b>${x.day} ${fa(x.j)}</b></div><div><span>ساعت حضور</span><b>${fa(S.time)}</b></div></div>
+      <p class="wz-sub">برای ثبت نوبت نیازی به ثبت‌نام نیست؛ فقط اطلاعات زیر را وارد کنید.</p>
+      <div class="form-grid">
+        ${fld("gName", "نام و نام خانوادگی", "نام و نام خانوادگی", g.name || "", 'autocomplete="name"')}
+        ${fld("gMobile", "شماره تماس (موبایل)", "مثلاً ۰۹۱۲۳۴۵۶۷۸۹", g.mob || "", 'inputmode="numeric" autocomplete="tel"')}
+        ${fld("gNid", "کد ملی (۱۰ رقم)", "کد ملی ۱۰ رقمی", g.nid || "", 'inputmode="numeric" maxlength="14"')}
+      </div>
+      <button type="button" class="primary-button wide" data-a="gbook">ثبت نوبت</button><div id="msg" class="err" role="alert"></div>
+      <p class="alt-row">می‌خواهید حساب کاربری بسازید؟ <button type="button" class="link-btn" data-a="toAuth">ورود / ثبت‌نام</button> (اختیاری)</p>`;
   },
   code() {
     body.innerHTML = `<p class="wz-sub">کد ۶ رقمی به <b dir="ltr">${esc(S.email)}</b> ارسال شد (پوشهٔ اسپم را هم ببینید).</p>
@@ -204,6 +228,7 @@ const VIEWS = {
   confirm() {
     const x = dayObj();
     body.innerHTML = `<div class="sum"><div><span>پزشک</span><b>${esc(docById(S.doc).name)}</b></div><div><span>روز</span><b>${x.day} ${fa(x.j)}</b></div><div><span>ساعت حضور</span><b>${fa(S.time)}</b></div><div><span>نام</span><b>${esc(S.user.name)}</b></div></div>
+      ${S.user.hasNid ? "" : `<div class="form-grid">${fld("cNid", "کد ملی (۱۰ رقم)", "کد ملی ۱۰ رقمی", "", 'inputmode="numeric" maxlength="14"')}</div>`}
       <button type="button" class="primary-button wide" data-a="book">تأیید و ثبت نوبت</button><div id="msg" class="err" role="alert"></div>`;
   },
   done() {
@@ -211,7 +236,7 @@ const VIEWS = {
     body.classList.add("rc");
     body.innerHTML = `<p class="rc-ok">نوبت رزرو شما با موفقیت ثبت شد.</p>
       <div class="rc-list">${r.rows.map(([k, v, dir]) => `<div><span>${k}</span><b${dir ? ` dir="${dir}"` : ""}>${esc(v)}</b></div>`).join("")}</div>
-      <p class="rc-note">${RC_NOTES.join(" ")}</p>
+      <p class="rc-note">${rcNotes().join(" ")}</p>
       <div class="dl-row">
         <button type="button" class="dl-btn" data-a="dlPng">${DL_ICO}ذخیره تصویر</button>
         <button type="button" class="dl-btn" data-a="dlPdf">${DL_ICO}ذخیره PDF</button>
@@ -230,11 +255,14 @@ const VIEWS = {
 
 /* ---------- رسید نوبت: داده، رسم روی بوم، دانلود تصویر و PDF ---------- */
 const TYPE_ONE = { "عمومی": "پزشک عمومی", "دندانپزشک": "دندان‌پزشک", "متخصص": "پزشک متخصص" };
+const RC_GUEST = "برای لغو یا تغییر نوبت، با درمانگاه تماس بگیرید.";
 const RC_NOTES = [
   "این رسید، تأییدیهٔ ثبت درخواست نوبت شماست و منشی درمانگاه برای هماهنگی نهایی با شما تماس می‌گیرد.",
   "لطفاً کد پیگیری را تا زمان مراجعه همراه داشته باشید."
 ];
 const DL_ICO = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.500 10.500 12 15l4.500-4.500M5 19h14"/></svg>';
+
+const rcNotes = () => S.res && S.res.guest ? [...RC_NOTES, RC_GUEST] : RC_NOTES;
 
 function receiptData() {
   const r = S.res, d = docById(S.doc), u = S.user || {}, mob = r.mobile || u.mobile || "";
@@ -274,7 +302,7 @@ async function drawReceipt() {
   m.font = `700 26px ${F}`;
   const rows = rec.rows.map(([k, v, dir]) => { const lines = dir === "ltr" ? [v] : wrapText(m, v, VW); return { k, lines, dir, h: lines.length * 40 + 28 }; });
   m.font = `500 23px ${F}`;
-  const notes = RC_NOTES.flatMap(n => wrapText(m, n, NW));
+  const notes = rcNotes().flatMap(n => wrapText(m, n, NW));
   const noteH = notes.length * 38 + 36;
   const rowsH = rows.reduce((a, r) => a + r.h, 0);
   const H = 178 + 24 + rowsH + 24 + noteH + 36 + 120;
@@ -410,14 +438,17 @@ cfBox.addEventListener("click", e => { if (e.target === cfBox) cfDone(false); })
 const ACT = {
   pickDoc(d) { S.doc = d.id; S.date = null; S.time = null; go("day"); },
   pickDay(d) { S.date = d.iso; S.time = null; go("time"); },
-  pickTime(d) { S.time = d.t; S.after = "confirm"; go(S.user ? "confirm" : "auth"); },
+  pickTime(d) { S.time = d.t; S.after = "confirm"; go(S.user ? "confirm" : "guest"); },
+  toAuth() { readGuest(); const g = S.guest; S.form = { ...S.form, name: g.name || S.form.name, mob: g.mob || S.form.mob, nid: g.nid || S.form.nid }; go("auth"); },
+  toGuest() { S.guest = { name: $("#fName").value, mob: $("#fMobile").value, nid: $("#fNid").value }; back(); },
   close: closeWz,
   dlPng(d, btn) { return downloadReceipt(btn, "png"); },
   dlPdf(d, btn) { return downloadReceipt(btn, "pdf"); },
   async sendCode(d, btn) {
-    const email = $("#fEmail").value.trim(), name = $("#fName").value.trim(), mob = $("#fMobile").value.trim(); S.form = { name, mob, email };
+    const email = $("#fEmail").value.trim(), name = $("#fName").value.trim(), mob = cleanNum($("#fMobile").value), nid = cleanNum($("#fNid").value); S.form = { name, mob, nid, email };
     if (name.length < 3) return showErr("#authMsg", "نام و نام خانوادگی را وارد کنید.");
-    if (!/^(09|۰۹)[\d۰-۹]{9}$/.test(mob)) return showErr("#authMsg", "شمارهٔ موبایل را به شکل ۰۹۱۲۳۴۵۶۷۸۹ وارد کنید.");
+    if (!validMob(mob)) return showErr("#authMsg", "شمارهٔ موبایل را به شکل ۰۹۱۲۳۴۵۶۷۸۹ وارد کنید.");
+    if (!validNid(nid)) return showErr("#authMsg", "کد ملی باید دقیقاً ۱۰ رقم باشد.");
     showErr("#authMsg", "");
     setBusy(btn, true);
     try { await api("code", { email }, true); S.email = email; go("code"); } catch (e) { showErr("#authMsg", e.message); } finally { setBusy(btn, false); }
@@ -426,9 +457,9 @@ const ACT = {
     showErr("#authMsg", "");
     setBusy(btn, true);
     try {
-      const r = await api("verify", { email: S.email, code: $("#fCode").value, name: S.form.name, mobile: S.form.mob }, true);
-      S.user = { token: r.token, name: r.name, email: r.email, mobile: S.form.mob || "" }; localStorage.setItem("mh_user", JSON.stringify(S.user)); syncUser();
-      S.stack = S.stack.filter(v => v !== "auth" && v !== "code");
+      const r = await api("verify", { email: S.email, code: $("#fCode").value, name: S.form.name, mobile: S.form.mob, nid: S.form.nid }, true);
+      S.user = { token: r.token, name: r.name, email: r.email, mobile: S.form.mob || "", hasNid: true }; localStorage.setItem("mh_user", JSON.stringify(S.user)); syncUser();
+      S.stack = S.stack.filter(v => v !== "auth" && v !== "code" && v !== "guest"); S.form.nid = "";
       const welcome = () => showMsg("ok", "ورود موفق", `${S.user.name} عزیز، با موفقیت وارد حساب خود شدید.`);
       if (S.after === "close") { S.after = null; closeWz(); welcome(); return; }
       S.view = S.after || "confirm"; render(); welcome();
@@ -436,10 +467,26 @@ const ACT = {
   },
   async book(d, btn) {
     showErr("#msg", "");
+    let nid;
+    if (!S.user.hasNid) { nid = cleanNum($("#cNid")?.value); if (!validNid(nid)) return showErr("#msg", "کد ملی باید دقیقاً ۱۰ رقم باشد."); }
     setBusy(btn, true);
     try {
-      S.res = await api("book", { token: S.user.token, doctor: S.doc, date: S.date, time: S.time }, true);
+      S.res = await api("book", { token: S.user.token, doctor: S.doc, date: S.date, time: S.time, nid }, true);
+      if (nid) { S.user.hasNid = true; localStorage.setItem("mh_user", JSON.stringify(S.user)); }
       { const dd = docById(S.doc); S.res.issued = Date.now(); S.res.spec = dd.specialty || TYPE_ONE[dd.type] || ""; } S.stack = []; go("done", false); refresh();
+    } catch (e) { showErr("#msg", e.message); refresh(); } finally { setBusy(btn, false); }
+  },
+  async gbook(d, btn) {
+    readGuest(); const g = S.guest, name = (g.name || "").trim(), mob = cleanNum(g.mob), nid = cleanNum(g.nid);
+    if (name.length < 3) return showErr("#msg", "نام و نام خانوادگی را وارد کنید.");
+    if (!validMob(mob)) return showErr("#msg", "شمارهٔ موبایل را به شکل ۰۹۱۲۳۴۵۶۷۸۹ وارد کنید.");
+    if (!validNid(nid)) return showErr("#msg", "کد ملی باید دقیقاً ۱۰ رقم باشد.");
+    showErr("#msg", "");
+    setBusy(btn, true);
+    try {
+      S.res = await api("gbook", { name, mobile: mob, nid, doctor: S.doc, date: S.date, time: S.time }, true, 0);
+      { const dd = docById(S.doc); S.res.issued = Date.now(); S.res.spec = dd.specialty || TYPE_ONE[dd.type] || ""; S.res.guest = true; }
+      S.guest = {}; S.stack = []; go("done", false); refresh();
     } catch (e) { showErr("#msg", e.message); refresh(); } finally { setBusy(btn, false); }
   },
   async cancel(d, btn) {
@@ -454,6 +501,7 @@ const ACT = {
 
 body.addEventListener("click", e => { const b = e.target.closest("[data-a]"); if (b && !b.disabled && !b.classList.contains("busy")) ACT[b.dataset.a](b.dataset, b); });
 body.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.tagName === "INPUT") body.querySelector(".primary-button")?.click(); });
+wz.addEventListener("close", () => { S.guest = {}; S.form.nid = ""; });
 $("#wzBack").onclick = back; $("#wzClose").onclick = closeWz; wz.addEventListener("click", e => { if (e.target === wz) closeWz(); });
 document.addEventListener("click", e => {
   const o = e.target.closest("[data-open]");
