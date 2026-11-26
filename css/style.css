@@ -466,9 +466,35 @@ input{border-width:1.5px;border-radius:12px;background:var(--card);min-height:52
 .wz-body.gst .alt-row .link-btn{min-height:32px}
 
 /* اصلاح کیبورد: اسکرول داخلی فقط وقتی لازم است (کیبورد باز) */
-.wz-body.gst{overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scroll-padding-block:16px}
-.wz.kb{max-height:var(--vvh,100dvh);margin-block:0 auto;border-radius:0 0 20px 20px}
-.wz.kb .wz-head{padding:8px 14px}.wz.kb .wz-head button{width:38px;height:38px}
-.wz.kb .wz-prog{display:none}
-.wz.kb .wz-body.gst .sum{display:none}
-.wz.kb .wz-body.gst{padding-bottom:40vh}
+
+/* ===== اصلاح جامع اسکرول (همهٔ بخش‌ها) ===== */
+/* ارتفاع واقعی صفحه در موبایل (نوار آدرس/کیبورد) */
+.wz{max-height:min(90vh,calc(var(--vvh,100dvh) - 12px));max-height:min(90dvh,calc(var(--vvh,100dvh) - 12px))}
+@media(max-width:600px){.wz{max-height:min(92vh,var(--vvh,100dvh));max-height:min(92dvh,var(--vvh,100dvh))}}
+.wz-body{overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scroll-padding-block:20px;min-height:0}
+.wz-body.rc{overflow-y:auto}
+.wz-body.gst{overflow-y:auto;overflow-x:hidden}
+.msgbox{max-height:calc(var(--vvh,100dvh) - 24px);overflow-y:auto;overscroll-behavior:contain}
+/* قفل اسکرول پس‌زمینه برای همهٔ پنجره‌ها */
+body:has(dialog[open]){overflow:hidden;overscroll-behavior:none}
+/* جلوگیری از زوم خودکار iOS روی فیلدها */
+input,textarea,select{font-size:max(16px,1rem)}
+textarea{max-width:100%}
+/* وقتی کیبورد باز است */
+html.kb .wz{max-height:var(--vvh);margin-block:0 auto;border-radius:0 0 20px 20px}
+html.kb .wz-head{padding:8px 14px}html.kb .wz-head button{width:38px;height:38px}
+html.kb .wz-prog{display:none}
+html.kb .wz-body.gst .sum{display:none}
+html.kb .wz-body{padding-bottom:max(24px,env(safe-area-inset-bottom))}
+html.kb .wz-body.gst{padding-bottom:36vh}
+html.kb dialog.srch{max-height:var(--vvh)}
+html.kb dialog.prof{height:var(--vvh);max-height:var(--vvh)}
+html.kb .pf-panel.scroll{padding-bottom:30vh}
+html.kb .msgbox{margin-block:0 auto}
+/* فهرست نتایج جست‌وجو و منو با اسکرول داخلی */
+dialog.srch{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+dialog.menu{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+dialog.prof{overscroll-behavior:contain}
+.pf-panel.scroll{scroll-padding-block:20px}
+/* فیلدهای فعال زیر هدر چسبان نروند */
+input,textarea,select{scroll-margin-top:96px;scroll-margin-bottom:96px}
