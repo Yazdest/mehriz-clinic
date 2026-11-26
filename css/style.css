@@ -452,3 +452,15 @@ input{border-width:1.5px;border-radius:12px;background:var(--card);min-height:52
 .fld{display:grid;gap:6px}.fld label{font-weight:700;font-size:1rem;color:var(--ink)}
 .wz .alt-row{margin-top:14px;text-align:center;color:var(--mut);font-weight:500;line-height:1.9}
 .wz .alt-row .link-btn{font-weight:700;min-height:44px}
+
+/* پنجرهٔ آخر (اطلاعات نوبت‌گیرنده): بدون اسکرول و فشرده */
+.wz-body.gst{overflow:hidden;padding:10px 16px 12px}
+.wz-body.gst .sum{padding:2px 14px;margin-bottom:8px}
+.wz-body.gst .sum div{padding:5px 0;font-size:.9rem}
+.wz-body.gst .form-grid{margin:6px 0;gap:8px}
+.wz-body.gst .fld{gap:3px}.wz-body.gst .fld label{font-size:.9rem}
+.wz-body.gst .fld input{min-height:42px;padding-block:6px}
+.wz-body.gst .primary-button{min-height:44px}
+.wz-body.gst .err{min-height:0;margin:4px 0 0;font-size:.85rem}
+.wz-body.gst .alt-row{margin-top:6px;line-height:1.6;font-size:.88rem}
+.wz-body.gst .alt-row .link-btn{min-height:32px}
