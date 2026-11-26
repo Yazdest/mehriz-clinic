@@ -575,16 +575,18 @@ addEventListener("scroll", () => document.querySelector(".site-header").classLis
 document.addEventListener("touchstart", () => {}, { passive: true });
 
 
-/* کیبورد موبایل: پنجره را به ارتفاع قابل‌دیدِ واقعی محدود کن و فیلد فعال را در دید نگه دار */
+/* کیبورد موبایل (برای همهٔ پنجره‌ها): ارتفاع قابل‌دیدِ واقعی را اعمال کن و فیلد فعال را در دید نگه دار */
 (function () {
-  const vv = window.visualViewport;
+  const vv = window.visualViewport, root = document.documentElement;
   const fit = () => {
     const h = vv ? vv.height : innerHeight;
-    wz.style.setProperty("--vvh", h + "px");
-    wz.classList.toggle("kb", !!vv && h < screen.height * 0.75 && h < innerHeight * 0.85 + 1 && innerHeight - h > 120);
+    root.style.setProperty("--vvh", h + "px");
+    root.classList.toggle("kb", !!vv && innerHeight - h > 120);
   };
-  const reveal = el => setTimeout(() => el.scrollIntoView({ block: "center", behavior: "smooth" }), 250);
+  const reveal = el => setTimeout(() => { try { el.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (_) {} }, 280);
   if (vv) { vv.addEventListener("resize", fit); vv.addEventListener("scroll", fit); }
+  addEventListener("orientationchange", () => setTimeout(fit, 300));
   fit();
-  body.addEventListener("focusin", e => { if (e.target.matches("input,textarea")) { fit(); reveal(e.target); } });
+  document.addEventListener("focusin", e => { if (e.target.matches("input:not([type=checkbox]):not([type=radio]),textarea,select")) { fit(); reveal(e.target); } });
+  document.addEventListener("focusout", () => setTimeout(fit, 150));
 })();
