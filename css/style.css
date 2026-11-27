@@ -626,3 +626,90 @@ dialog.menu::-webkit-scrollbar{display:none}
 .eitaa-link.ef,.eitaa-link.em{position:relative}
 .eitaa-link.ef::before,.eitaa-link.em::before{content:"";position:absolute;inset:-1px;border:2px solid #ff9a2e;border-radius:999px;pointer-events:none;opacity:0;animation:eitaawave 2.8s ease-out infinite}
 @keyframes eitaawave{0%{transform:scale(1);opacity:.85}65%,100%{transform:scale(1.1,1.4);opacity:0}}
+
+/* =========================================================
+   v39: حالت تیره / روشن
+   ========================================================= */
+html{color-scheme:light}html[data-theme=dark]{color-scheme:dark}
+#navTheme .i-sun{display:none}html[data-theme=dark] #navTheme .i-moon{display:none}html[data-theme=dark] #navTheme .i-sun{display:block}
+#navThemeM::before{content:"";display:inline-block;width:1.1em;height:1.1em;margin-inline-end:8px;vertical-align:-.2em;background:currentColor;-webkit-mask:var(--ti) center/contain no-repeat;mask:var(--ti) center/contain no-repeat;--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5z'/%3E%3C/svg%3E")}
+html[data-theme=dark] #navThemeM::before{--ti:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4'/%3E%3C/svg%3E")}
+
+html[data-theme=dark]{--bg:#0e1a1e;--card:#162529;--ink:#e6f1f3;--mut:#9fb8be;--line:#2b434b;--p:#168a95;--pd:#7fd3e3;--dd:#06262c;--pl:#18363d;--brl:#3a2620;--br:#e58a72;--err:#ff9b93;--ok:#6fd392;--sh:0 10px 28px -18px #000}
+[data-theme=dark] body{background:var(--bg);color:var(--ink)}
+[data-theme=dark] .top-blue{background:linear-gradient(180deg,#05292e 0%,#0b5a63 100%)}
+[data-theme=dark] .site-footer{background:linear-gradient(180deg,#07353b,#04232a)}
+[data-theme=dark] .intro,[data-theme=dark] .doctors,[data-theme=dark] .booking-section,[data-theme=dark] .guide{background:var(--bg)}
+[data-theme=dark] .hero-search{background:var(--card);color:var(--mut);box-shadow:0 0 0 6px #ffffff26}
+[data-theme=dark] .hero-search b{color:var(--pd)}[data-theme=dark] .hero-search svg{stroke:var(--pd)}
+[data-theme=dark] .tile:hover{background:#1d3237}[data-theme=dark] .tile:active{background:#223b41}
+[data-theme=dark] .tile svg [fill="#fff"]{fill:#dbe8eb}
+[data-theme=dark] .tabbar{background:var(--card);color:var(--ink);box-shadow:0 -6px 22px -10px #000}
+[data-theme=dark] .tabbar>*{color:var(--mut)}[data-theme=dark] .tabbar .on{color:var(--pd)}
+[data-theme=dark] .banner-btn{background:var(--card);color:var(--pd)}
+[data-theme=dark] .banner img,[data-theme=dark] .av img{filter:brightness(.9)}
+/* دکمه‌ها: متن سفید روی فیروزه‌ای تیره؛ هاور روشن‌تر نه سفید */
+[data-theme=dark] .primary-button:hover,[data-theme=dark] .nav-button:hover,[data-theme=dark] .doc-btn:hover{background:#1ba0ad;color:#fff}
+[data-theme=dark] .primary-button:active,[data-theme=dark] .nav-button:active,[data-theme=dark] .doc-btn:active{background:#0f6f78;color:#fff}
+[data-theme=dark] .primary-button.busy,[data-theme=dark] .nav-button.busy{background:#0f6f78}
+[data-theme=dark] .link-btn,[data-theme=dark] .tabbar .on,[data-theme=dark] .pin{color:var(--pd);stroke:var(--pd)}
+[data-theme=dark] .pin{stroke:var(--pd)}
+[data-theme=dark] .section-kicker{color:var(--br)}[data-theme=dark] .heading-line{background:var(--br)}
+/* سطوح سفید ثابت */
+[data-theme=dark] .fsz,[data-theme=dark] .chip,[data-theme=dark] .dc,[data-theme=dark] .nav-link-btn,
+[data-theme=dark] .pf-ib,[data-theme=dark] .pf-card,[data-theme=dark] #rvText,[data-theme=dark] .srch-top input,
+[data-theme=dark] dialog.umenu,[data-theme=dark] .wz,[data-theme=dark] .msgbox{background:var(--card);color:var(--ink)}
+[data-theme=dark] input:focus{background:var(--bg)}
+[data-theme=dark] input,[data-theme=dark] textarea{color:var(--ink)}
+[data-theme=dark] input::placeholder,[data-theme=dark] textarea::placeholder{color:var(--mut);opacity:.8}
+[data-theme=dark] .chip:disabled{background:var(--bg)}
+[data-theme=dark] .chip:active:not(:disabled),[data-theme=dark] .chip:hover:not(:disabled){color:#fff}
+[data-theme=dark] .nav-link-btn:hover{background:var(--pl)}
+[data-theme=dark] .nav-link-btn:active{background:var(--p);color:#fff}
+[data-theme=dark] .eitaafab{background:var(--card)}
+[data-theme=dark] .av,[data-theme=dark] .av.sm{border-color:var(--card)}
+[data-theme=dark] .guide-item span{box-shadow:0 0 0 6px var(--bg);color:#fff}
+[data-theme=dark] .service-number{color:#25404a}
+[data-theme=dark] .stars button{color:#3a5560}[data-theme=dark] .stars button.on{color:#f2a900}
+[data-theme=dark] dialog.menu::backdrop,[data-theme=dark] dialog.srch::backdrop,[data-theme=dark] dialog.prof::backdrop,[data-theme=dark] .wz::backdrop,[data-theme=dark] .msgbox::backdrop{background:#02101480}
+/* پیام‌های وضعیت */
+[data-theme=dark] .ok{background:#16301f;color:var(--ok)}
+[data-theme=dark] .chip.off:disabled{background:#3b1f1f;border-color:#6b3535;color:var(--err)}
+[data-theme=dark] .legend i{background:#3b1f1f;border-color:#6b3535}
+[data-theme=dark] .okbig,[data-theme=dark] .msgbox[data-kind=ok] .msgbox-ico{background:#16301f;color:var(--ok)}
+[data-theme=dark] .wz-body.rc .rc-ok{color:var(--ok)}
+[data-theme=dark] .tag,[data-theme=dark] .rc-note{color:#f3b8a8}
+[data-theme=dark] .tag{background:var(--pl);color:var(--pd)}
+[data-theme=dark] .sum div,[data-theme=dark] .rc-list>div{border-color:var(--line)}
+[data-theme=dark] .eitaa-link.em:active{background:var(--line)}
+[data-theme=dark] .cf-no:active{color:#fff}
+@media(prefers-reduced-motion:no-preference){body,.tabbar,.wz,.msgbox,.chip,.dc,.tile,.pf-card{transition:background-color .25s,color .25s,border-color .25s}}
+
+/* v40: لوگوتایپ هدر کمی کوچک‌تر */
+.site-header .wm{width:min(365px,calc(100vw - 150px))}
+@media(min-width:900px){.site-header .wm{width:390px}}
+@media(max-width:700px){.site-header .wm{width:100%;max-width:340px}}
+
+/* v41: لوگوتایپ هدر کمی پایین‌تر */
+.site-header .wm{margin-top:10px}
+@media(max-width:700px){.site-header .wm{margin-top:10px}}
+
+/* v42: لوگوتایپ هدر: گرادیان سفید به کرم + سایهٔ عمیق */
+.site-header .wm{filter:drop-shadow(0 3px 5px rgba(2,32,36,.55)) drop-shadow(0 1px 1px rgba(2,32,36,.6))}
+
+/* v43: لوگوتایپ فوتر: همان اندازه و رنگ هدر */
+.site-footer .wm-f{width:min(323px,73vw);height:auto;filter:drop-shadow(0 3px 5px rgba(2,32,36,.55)) drop-shadow(0 1px 1px rgba(2,32,36,.6))}
+
+/* v44: لوگوتایپ منوی همبرگری کمی کوچک‌تر */
+.menu .wm{width:min(270px,100%);height:auto}
+.menu-top .logo{justify-content:center}
+/* دکمهٔ بستن منو در حالت روشن دیده نمی‌شد (سفید روی سفید) */
+.menu .hbtn{color:var(--pd);border-color:var(--line);background:var(--pl)}
+.menu .hbtn:active{background:var(--p);color:#fff}
+
+/* v45: دکمهٔ بستن منو: کوچک‌تر، بالای نام در گوشهٔ چپ؛ ناحیهٔ لمس همان‌قدر بزرگ می‌ماند */
+.menu-top{padding-top:34px}
+.menu-top .hbtn{top:0;left:0;width:32px;height:32px;border-radius:10px;font-size:.95rem}
+.menu-top .hbtn::after{content:"";position:absolute;inset:-7px}
+dialog.menu[open]{padding-top:clamp(6px,1.2dvh,10px)}
+.menu-nav a{padding-block:clamp(6px,1.3dvh,11px)}
