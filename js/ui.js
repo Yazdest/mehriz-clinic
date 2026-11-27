@@ -58,3 +58,24 @@
   addEventListener("resize", later);
   addEventListener("orientationchange", later);
 })();
+
+/* حالت تیره/روشن: پیش‌فرض همیشه روشن؛ فقط با انتخاب کاربر تیره می‌شود و ذخیره می‌شود */
+(() => {
+  const root = document.documentElement, KEY = "mh_theme";
+  const btns = [document.querySelector("#navTheme"), document.querySelector("#navThemeM")].filter(Boolean);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  const apply = t => {
+    root.dataset.theme = t;
+    if (meta) meta.content = t === "dark" ? "#06343a" : "#0b5961";
+    btns.forEach(b => {
+      b.setAttribute("aria-pressed", t === "dark");
+      if (b.id === "navTheme") b.setAttribute("aria-label", t === "dark" ? "تغییر به حالت روشن" : "تغییر به حالت تیره");
+      const l = b.querySelector(".tm-l"); if (l) l.textContent = t === "dark" ? "حالت روشن" : "حالت تیره";
+    });
+  };
+  apply(root.dataset.theme === "dark" ? "dark" : "light");
+  btns.forEach(b => b.addEventListener("click", () => {
+    const t = root.dataset.theme === "dark" ? "light" : "dark";
+    apply(t); try { localStorage.setItem(KEY, t); } catch (e) {}
+  }));
+})();
